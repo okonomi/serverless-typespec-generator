@@ -1,4 +1,4 @@
-import serverless from "serverless"
+import type serverless from "serverless"
 import type Plugin from "serverless/classes/Plugin"
 
 export default class ServerlessTypeSpecGenerator implements Plugin {
@@ -11,19 +11,19 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
 
     this.serverless = serverless
     this.commands = {
-      'typespec': {
+      typespec: {
         commands: {
-          'generate': {
+          generate: {
             options: {
-              'output-dir': {
-                usage: 'Output directory for generated TypeSpec files',
+              "output-dir": {
+                usage: "Output directory for generated TypeSpec files",
                 required: true,
-                type: 'string',
-              }
-            }
-          }
-        }
-      }
+                type: "string",
+              },
+            },
+          },
+        },
+      },
     }
 
     this.hooks = {}
