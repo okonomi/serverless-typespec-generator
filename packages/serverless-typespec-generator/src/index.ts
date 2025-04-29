@@ -1,5 +1,6 @@
 import type serverless from "serverless"
 import type Plugin from "serverless/classes/Plugin"
+import type Aws from "serverless/plugins/aws/provider/awsProvider"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import fs from "node:fs/promises"
@@ -100,7 +101,17 @@ options:
           continue
         }
 
-        const http = event.http
+        const http = event.http as Aws.Http & {
+          typespec?: {
+            response?: {
+              schemas?: {
+                "application/json": {
+                  [key: string]: JSONSchema
+                }
+              }
+            }
+          }
+        }
         const method = http.method.toLowerCase()
         const path = http.path.replace(/^\/|\/$/g, "")
 
@@ -113,14 +124,24 @@ options:
           requestModelName = modelName
         }
 
+        let responseModelName = "void"
+        if (http.typespec?.response?.schemas?.["application/json"]) {
+          const model =
+            http.typespec.response.schemas["application/json"]["200"]
+          const modelName = model.title as string
+          models.set(modelName, model)
+
+          responseModelName = modelName
+        }
+
         lines.push(`@route("/${path}")`)
         lines.push(`@${method}`)
         if (requestModelName) {
           lines.push(
-            `op ${functionName}(@body body: ${requestModelName}): void;`,
+            `op ${functionName}(@body body: ${requestModelName}): ${responseModelName};`,
           )
         } else {
-          lines.push(`op ${functionName}(): void;`)
+          lines.push(`op ${functionName}(): ${responseModelName};`)
         }
         lines.push("")
       }
