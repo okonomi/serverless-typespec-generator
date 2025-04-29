@@ -1,6 +1,7 @@
 import type serverless from "serverless"
 import type Plugin from "serverless/classes/Plugin"
 
+import fs from "node:fs/promises"
 import path from "node:path"
 
 export default class ServerlessTypeSpecGenerator implements Plugin {
@@ -64,53 +65,33 @@ options:
   }
 
   async generateTypespec(outputDir: string) {
-    await this.serverless.utils.writeFile(
-      path.join(outputDir, "main.tsp"),
-      `import "@typespec/http";
+    const lines: string[] = []
+    lines.push('import "@typespec/http";')
+    lines.push("")
+    lines.push("using Http;")
+    lines.push("")
 
-using Http;
-@service(#{ title: "Widget Service" })
-namespace DemoService;
+    lines.push('@service(#{ title: "Generated API" })')
+    lines.push("namespace GeneratedApi;")
+    lines.push("")
 
-model Widget {
-  id: string;
-  weight: int32;
-  color: "red" | "blue";
-}
+    const functions = this.serverless.service.functions
+    for (const [functionName, functionConfig] of Object.entries(functions)) {
+      const events = functionConfig.events || []
+      for (const event of events) {
+        if (event.http) {
+          const http = event.http
+          const method = http.method.toLowerCase()
+          const path = http.path.replace(/^\/|\/$/g, "")
 
-model WidgetList {
-  items: Widget[];
-}
+          lines.push(`@route("/${path}")`)
+          lines.push(`@${method}`)
+          lines.push(`op ${functionName}(): void;`)
+          lines.push("")
+        }
+      }
+    }
 
-@error
-model Error {
-  code: int32;
-  message: string;
-}
-
-model AnalyzeResult {
-  id: string;
-  analysis: string;
-}
-
-@route("/widgets")
-@tag("Widgets")
-interface Widgets {
-  /** List widgets */
-  @get list(): WidgetList | Error;
-  /** Read widgets */
-  @get read(@path id: string): Widget | Error;
-  /** Create a widget */
-  @post create(@body body: Widget): Widget | Error;
-  /** Update a widget */
-  @patch update(@path id: string, @body body: Widget): Widget | Error;
-  /** Delete a widget */
-  @delete delete(@path id: string): void | Error;
-
-  /** Analyze a widget */
-  @route("{id}/analyze") @post analyze(@path id: string): AnalyzeResult | Error;
-}
-`,
-    )
+    await fs.writeFile(path.join(outputDir, "main.tsp"), lines.join("\n"))
   }
 }
