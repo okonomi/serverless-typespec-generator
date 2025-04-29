@@ -1,0 +1,22 @@
+service: with-sls-v3
+frameworkVersion: "3"
+
+plugins:
+  - serverless-typespec-generator
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  region: ap-northeast-1
+  stage: dev
+
+functions:
+  createUser:
+    handler: handler.createUser
+    events:
+      - http:
+          path: users
+          method: post
+          request:
+            schemas:
+              application/json: ${file(models/create-user.json)}

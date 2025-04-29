@@ -1,0 +1,19 @@
+{
+  "name": "with-sls-v3",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "packageManager": "pnpm@10.10.0",
+  "dependencies": {
+    "serverless-typespec-generator": "workspace:*"
+  },
+  "devDependencies": {
+    "serverless": "^3.40.0"
+  }
+}
