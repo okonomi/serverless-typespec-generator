@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "gen:api": "run-s gen:api:*",
-    "gen:api:typespec": "echo typespec",
-    "gen:api:openapi": "npx --package @typespec/compiler@latest tsp compile typespec --output public",
+    "gen:api:typespec": "sls typespec generate --output-dir dist/typespec",
+    "gen:api:openapi": "npx --package @typespec/compiler@latest tsp compile dist/typespec --output-dir public",
     "gen:api:apidoc": "npx @redocly/cli@latest build-docs public/schema/openapi.yaml --output public/apidoc.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -61,6 +61,9 @@ importers:
 
   packages/serverless-typespec-generator:
     devDependencies:
+      '@types/serverless':
+        specifier: ^3.12.27
+        version: 3.12.27
       serverless:
         specifier: ^4.14.1
         version: 4.14.1
@@ -970,6 +973,9 @@ packages:
 
   '@types/responselike@1.0.3':
     resolution: {integrity: sha512-H/+L+UkTV33uf49PH5pCAUBVPNj2nDBXTN+qS1dOwyyg24l3CcicicCA7ca+HMvJBZcFgl5r8e+RR6elsb4Lyw==}
+
+  '@types/serverless@3.12.27':
+    resolution: {integrity: sha512-3lKSUf+QO3x55isgqkeTNPbhnji7k21yKYeBiegfWrLtsq7U+6i8UBEr08gl8Ihdee3Q1A5Ik9A7ISIVV6z5jA==}
 
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
@@ -4819,6 +4825,8 @@ snapshots:
   '@types/responselike@1.0.3':
     dependencies:
       '@types/node': 22.15.3
+
+  '@types/serverless@3.12.27': {}
 
   '@types/uuid@9.0.8': {}
 
