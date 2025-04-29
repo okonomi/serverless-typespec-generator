@@ -45,6 +45,11 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
       String(this.options["output-dir"]),
     )
 
+    await this.generateTspConfig(outputDir)
+    await this.generateTypespec(outputDir)
+  }
+
+  async generateTspConfig(outputDir: string) {
     await this.serverless.utils.writeFile(
       path.join(outputDir, "tspconfig.yaml"),
       `emit:
@@ -56,7 +61,9 @@ options:
       - 3.1.0
 `,
     )
+  }
 
+  async generateTypespec(outputDir: string) {
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
       `import "@typespec/http";
