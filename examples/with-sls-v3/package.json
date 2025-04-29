@@ -6,8 +6,8 @@
   "scripts": {
     "gen:api": "run-s gen:api:*",
     "gen:api:typespec": "echo typespec",
-    "gen:api:openapi": "echo openapi",
-    "gen:api:apidoc": "npx @redocly/cli@latest build-docs public/openapi.yaml --output public/apidoc.html",
+    "gen:api:openapi": "npx --package @typespec/compiler@latest tsp compile typespec --output public",
+    "gen:api:apidoc": "npx @redocly/cli@latest build-docs public/schema/openapi.yaml --output public/apidoc.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -18,6 +18,8 @@
     "serverless-typespec-generator": "workspace:*"
   },
   "devDependencies": {
+    "@typespec/http": "1.0.0-rc.1",
+    "@typespec/openapi3": "1.0.0-rc.1",
     "npm-run-all2": "^7.0.2",
     "serverless": "^3.40.0"
   }
