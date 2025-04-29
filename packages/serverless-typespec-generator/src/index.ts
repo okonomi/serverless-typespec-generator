@@ -32,16 +32,22 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
 
     this.hooks = {
       "typespec:generate:run": async () => {
-        console.log("Generating TypeSpec files...")
+        await this.generate()
+      },
+    }
+  }
 
-        const outputDir = path.resolve(
-          this.serverless.serviceDir,
-          String(options["output-dir"]),
-        )
+  async generate() {
+    console.log("Generating TypeSpec files...")
 
-        await this.serverless.utils.writeFile(
-          path.join(outputDir, "tspconfig.yaml"),
-          `emit:
+    const outputDir = path.resolve(
+      this.serverless.serviceDir,
+      String(this.options["output-dir"]),
+    )
+
+    await this.serverless.utils.writeFile(
+      path.join(outputDir, "tspconfig.yaml"),
+      `emit:
   - "@typespec/openapi3"
 options:
   "@typespec/openapi3":
@@ -49,11 +55,11 @@ options:
     openapi-versions:
       - 3.1.0
 `,
-        )
+    )
 
-        await this.serverless.utils.writeFile(
-          path.join(outputDir, "main.tsp"),
-          `import "@typespec/http";
+    await this.serverless.utils.writeFile(
+      path.join(outputDir, "main.tsp"),
+      `import "@typespec/http";
 
 using Http;
 @service(#{ title: "Widget Service" })
@@ -98,8 +104,6 @@ interface Widgets {
   @route("{id}/analyze") @post analyze(@path id: string): AnalyzeResult | Error;
 }
 `,
-        )
-      },
-    }
+    )
   }
 }
