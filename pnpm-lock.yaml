@@ -64,6 +64,9 @@ importers:
 
   packages/serverless-typespec-generator:
     devDependencies:
+      '@types/node':
+        specifier: ^22.15.3
+        version: 22.15.3
       '@types/serverless':
         specifier: ^3.12.27
         version: 3.12.27
