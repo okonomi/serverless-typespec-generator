@@ -1,5 +1,6 @@
 import type serverless from "serverless"
 import type Plugin from "serverless/classes/Plugin"
+import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import fs from "node:fs/promises"
 import path from "node:path"
@@ -65,6 +66,8 @@ options:
   }
 
   async generateTypespec(outputDir: string) {
+    const models: Map<string, JSONSchema> = new Map() // モデル名 -> model定義
+
     const lines: string[] = []
     lines.push('import "@typespec/http";')
     lines.push("")
@@ -79,17 +82,43 @@ options:
     for (const [functionName, functionConfig] of Object.entries(functions)) {
       const events = functionConfig.events || []
       for (const event of events) {
-        if (event.http) {
-          const http = event.http
-          const method = http.method.toLowerCase()
-          const path = http.path.replace(/^\/|\/$/g, "")
-
-          lines.push(`@route("/${path}")`)
-          lines.push(`@${method}`)
-          lines.push(`op ${functionName}(): void;`)
-          lines.push("")
+        if (!event.http) {
+          continue
         }
+
+        const http = event.http
+        const method = http.method.toLowerCase()
+        const path = http.path.replace(/^\/|\/$/g, "")
+
+        let requestModelName: string | undefined
+        if (http.request?.schemas?.["application/json"]) {
+          const model = http.request.schemas["application/json"]
+          const modelName = model.title as string
+          models.set(modelName, model)
+
+          requestModelName = modelName
+        }
+
+        lines.push(`@route("/${path}")`)
+        lines.push(`@${method}`)
+        if (requestModelName) {
+          lines.push(
+            `op ${functionName}(@body body: ${requestModelName}): void;`,
+          )
+        } else {
+          lines.push(`op ${functionName}(): void;`)
+        }
+        lines.push("")
       }
+    }
+
+    for (const [modelName, model] of models) {
+      lines.push(`model ${modelName} {`)
+      for (const [name, detail] of Object.entries(model.properties ?? {})) {
+        lines.push(`  ${name}: ${detail.type};`)
+      }
+      lines.push("}")
+      lines.push("")
     }
 
     await fs.writeFile(path.join(outputDir, "main.tsp"), lines.join("\n"))
