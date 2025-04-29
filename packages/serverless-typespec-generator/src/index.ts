@@ -7,13 +7,12 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
   serverless: serverless
 
   constructor(serverless: serverless) {
-    console.log("Serverless TypeSpec Generator")
-
     this.serverless = serverless
     this.commands = {
       typespec: {
         commands: {
           generate: {
+            lifecycleEvents: ["run"],
             options: {
               "output-dir": {
                 usage: "Output directory for generated TypeSpec files",
@@ -26,6 +25,10 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
       },
     }
 
-    this.hooks = {}
+    this.hooks = {
+      "typespec:generate:run": () => {
+        console.log("Generating TypeSpec files...")
+      },
+    }
   }
 }
