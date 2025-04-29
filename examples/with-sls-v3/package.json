@@ -4,6 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "gen:api": "run-s gen:api:*",
+    "gen:api:typespec": "echo typespec",
+    "gen:api:openapi": "echo openapi",
+    "gen:api:apidoc": "echo apidoc",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +18,7 @@
     "serverless-typespec-generator": "workspace:*"
   },
   "devDependencies": {
+    "npm-run-all2": "^7.0.2",
     "serverless": "^3.40.0"
   }
 }
