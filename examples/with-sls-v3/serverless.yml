@@ -19,4 +19,11 @@ functions:
           method: post
           request:
             schemas:
-              application/json: ${file(models/create-user.json)}
+              application/json: ${file(models/requests/create-user.json)}
+          typespec:
+            response:
+              schemas:
+                application/json:
+                  "200": ${file(models/responses/create-user.json)}
+                  "400": ${file(models/responses/error.json)}
+                  "500": ${file(models/responses/error.json)}

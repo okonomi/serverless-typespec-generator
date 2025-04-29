@@ -32,6 +32,20 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
       },
     }
 
+    const responseSchema: JSONSchema = {
+      type: "object",
+      properties: {
+        typespec: {
+          type: "object",
+        },
+      },
+    }
+    this.serverless.configSchemaHandler.defineFunctionEventProperties(
+      "aws",
+      "http",
+      responseSchema,
+    )
+
     this.hooks = {
       "typespec:generate:run": async () => {
         await this.generate()
