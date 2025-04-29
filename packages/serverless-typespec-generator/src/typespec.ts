@@ -2,7 +2,7 @@ import type Serverless from "serverless"
 import type Aws from "serverless/plugins/aws/provider/awsProvider"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
-type Operation = {
+export type Operation = {
   name: string
   route: string
   method: string
@@ -10,7 +10,7 @@ type Operation = {
   responseModel: string | null
 }
 
-type Model = {
+export type Model = {
   name: string
   schema: JSONSchema
 }
