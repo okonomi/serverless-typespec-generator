@@ -7,7 +7,7 @@
     "gen:api": "run-s gen:api:*",
     "gen:api:typespec": "echo typespec",
     "gen:api:openapi": "echo openapi",
-    "gen:api:apidoc": "echo apidoc",
+    "gen:api:apidoc": "npx @redocly/cli@latest build-docs public/openapi.yaml --output public/apidoc.html",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
