@@ -15,24 +15,6 @@ importers:
         specifier: 1.0.0-rc.1
         version: 1.0.0-rc.1(@types/node@22.15.3)
 
-  examples/typespec:
-    devDependencies:
-      '@typespec/compiler':
-        specifier: latest
-        version: 1.0.0-rc.1(@types/node@22.15.3)
-      '@typespec/http':
-        specifier: latest
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
-      '@typespec/openapi':
-        specifier: latest
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))
-      '@typespec/openapi3':
-        specifier: latest
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))))
-      '@typespec/rest':
-        specifier: latest
-        version: 0.69.0(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))
-
   examples/with-sls-v3:
     dependencies:
       serverless-typespec-generator:
@@ -1087,13 +1069,6 @@ packages:
 
   '@typespec/openapi@1.0.0-rc.1':
     resolution: {integrity: sha512-lHfn6luTc4OKpspHFfxnUD65+jhFvtp2YavCCagVZotl14U8+mxAXULZDwRgi2Wu5/CdII0v5WnA+yu1DSbFzA==}
-    engines: {node: '>=20.0.0'}
-    peerDependencies:
-      '@typespec/compiler': ^1.0.0-rc.1
-      '@typespec/http': ^1.0.0-rc.1
-
-  '@typespec/rest@0.69.0':
-    resolution: {integrity: sha512-rbYG0XG6UYapJ6yG9Ytk5djkuaJ3QHG0WEQ01KpdNl4XEfpelH7wLStShP85nxrP4hmNZ6Slqm1Zng2kcyjkww==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       '@typespec/compiler': ^1.0.0-rc.1
@@ -5154,11 +5129,6 @@ snapshots:
       yaml: 2.7.1
 
   '@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))':
-    dependencies:
-      '@typespec/compiler': 1.0.0-rc.1(@types/node@22.15.3)
-      '@typespec/http': 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
-
-  '@typespec/rest@0.69.0(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))':
     dependencies:
       '@typespec/compiler': 1.0.0-rc.1(@types/node@22.15.3)
       '@typespec/http': 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))

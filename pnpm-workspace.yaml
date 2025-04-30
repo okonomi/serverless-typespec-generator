@@ -1,8 +1,9 @@
 packages:
   - examples/*
   - packages/*
-
 onlyBuiltDependencies:
+  - '@biomejs/biome'
   - aws-sdk
   - es5-ext
+  - esbuild
   - serverless
