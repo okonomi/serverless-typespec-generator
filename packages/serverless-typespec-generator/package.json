@@ -5,6 +5,7 @@
   "type": "module",
   "main": "dist/index.js",
   "scripts": {
+    "dev": "tsup src/index.ts --format esm --dts --out-dir dist --clean --watch",
     "build": "tsup src/index.ts --format esm --dts --out-dir dist --clean",
     "test": "vitest run"
   },
