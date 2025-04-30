@@ -22,11 +22,10 @@ export function parseServerlessConfig(serverless: Serverless): {
   const operations: Operation[] = []
   const models: Map<string, Model> = new Map()
 
-  const functions = serverless.service.functions
-  for (const [functionName, functionConfig] of Object.entries(functions)) {
-    const events = functionConfig.events || []
+  for (const functionName of serverless.service.getAllFunctions()) {
+    const events = serverless.service.getAllEventsInFunction(functionName)
     for (const event of events) {
-      if (!event.http) {
+      if (!("http" in event)) {
         continue
       }
 
