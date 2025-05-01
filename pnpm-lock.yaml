@@ -56,8 +56,8 @@ importers:
         specifier: ^3.12.27
         version: 3.12.27
       serverless:
-        specifier: ^4.14.1
-        version: 4.14.1
+        specifier: ^3.40.0
+        version: 3.40.0
       tsup:
         specifier: ^8.4.0
         version: 8.4.0(postcss@8.5.3)(typescript@5.8.3)(yaml@2.7.1)
@@ -1821,6 +1821,7 @@ packages:
 
   formidable@2.1.0:
     resolution: {integrity: sha512-LeOnORDEghDydYqMps8nEQz8YAd2zXI/5tQrzQUAbTSVadf2ilYmG8Epbt63Y7QdC9ZljJ27KiIEXesVYlAtHw==}
+    deprecated: 'ATTENTION: v1 & v2 are old and deprecated; switch to v2 latest (2.1.5) or v3'
 
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
@@ -5377,7 +5378,7 @@ snapshots:
   buffer@4.9.2:
     dependencies:
       base64-js: 1.5.1
-      ieee754: 1.1.13
+      ieee754: 1.2.1
       isarray: 1.0.0
 
   buffer@5.7.1:
