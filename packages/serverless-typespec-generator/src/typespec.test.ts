@@ -135,7 +135,7 @@ describe("parseServerlessConfig", () => {
         const { operations } = parseServerlessConfig(serverless)
         expect(operations).toEqual([
           {
-            name: "hello_world",
+            name: "helloWorld",
             route: "/hello-world",
             method: "get",
             requestModel: null,

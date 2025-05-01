@@ -63,7 +63,7 @@ export function parseServerlessConfig(serverless: Serverless): {
       }
 
       operations.push({
-        name: functionName.replace(/-/g, "_"),
+        name: toCamelCase(functionName),
         route: `/${path}`,
         method,
         requestModel,
@@ -76,6 +76,12 @@ export function parseServerlessConfig(serverless: Serverless): {
     operations,
     models,
   }
+}
+
+function toCamelCase(str: string): string {
+  return str
+    .replace(/[-_](\w)/g, (_, c) => c.toUpperCase())
+    .replace(/^\w/, (c) => c.toLowerCase())
 }
 
 export function renderDefinitions(
