@@ -63,7 +63,7 @@ export function parseServerlessConfig(serverless: Serverless): {
       }
 
       operations.push({
-        name: functionName,
+        name: functionName.replace(/-/g, "_"),
         route: `/${path}`,
         method,
         requestModel,
