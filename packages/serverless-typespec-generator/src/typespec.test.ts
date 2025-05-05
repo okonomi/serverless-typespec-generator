@@ -1,9 +1,6 @@
 import { describe, it, expect, vi } from "vitest"
-import {
-  type Model,
-  parseServerlessConfig,
-  renderDefinitions,
-} from "./typespec"
+import { parseServerlessConfig, renderDefinitions } from "./typespec"
+import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
 

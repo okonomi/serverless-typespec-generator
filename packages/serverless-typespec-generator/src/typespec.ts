@@ -2,17 +2,14 @@ import type Serverless from "serverless"
 import type Aws from "serverless/plugins/aws/provider/awsProvider"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
+import { type Model, render as renderModel } from "./typespec/model"
+
 export type Operation = {
   name: string
   route: string
   method: string
   requestModel: string | null
   responseModel: string | null
-}
-
-export type Model = {
-  name: string
-  schema: JSONSchema
 }
 
 export function parseServerlessConfig(serverless: Serverless): {
@@ -114,13 +111,7 @@ export function renderDefinitions(
   }
 
   for (const [modelName, model] of models) {
-    lines.push(`model ${modelName} {`)
-    for (const [name, detail] of Object.entries(
-      model.schema.properties ?? {},
-    )) {
-      lines.push(`  ${name}: ${detail.type};`)
-    }
-    lines.push("}")
+    lines.push(renderModel(model))
     lines.push("")
   }
 
