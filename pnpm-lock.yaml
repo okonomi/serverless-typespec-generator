@@ -71,6 +71,21 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2(@types/node@22.15.3)(yaml@2.7.1)
 
+  tests/sls-v3:
+    devDependencies:
+      '@typespec/http':
+        specifier: 1.0.0-rc.1
+        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
+      '@typespec/openapi3':
+        specifier: 1.0.0-rc.1
+        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))))
+      serverless:
+        specifier: ^3.40.0
+        version: 3.40.0
+      serverless-typespec-generator:
+        specifier: workspace:*
+        version: link:../../packages/serverless-typespec-generator
+
 packages:
 
   2-thenable@1.0.0:
