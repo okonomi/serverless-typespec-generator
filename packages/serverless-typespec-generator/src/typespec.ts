@@ -2,15 +2,8 @@ import type Serverless from "serverless"
 import type Aws from "serverless/plugins/aws/provider/awsProvider"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
+import { type Operation, render as renderOperation } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
-
-export type Operation = {
-  name: string
-  route: string
-  method: string
-  requestModel: string | null
-  responseModel: string | null
-}
 
 export function parseServerlessConfig(serverless: Serverless): {
   operations: Operation[]
@@ -96,17 +89,7 @@ export function renderDefinitions(
   lines.push("")
 
   for (const operation of operations) {
-    lines.push(`@route("${operation.route}")`)
-    lines.push(`@${operation.method}`)
-    if (operation.requestModel) {
-      lines.push(
-        `op ${operation.name}(@body body: ${operation.requestModel}): ${operation.responseModel ?? "void"};`,
-      )
-    } else {
-      lines.push(
-        `op ${operation.name}(): ${operation.responseModel ?? "void"};`,
-      )
-    }
+    lines.push(renderOperation(operation))
     lines.push("")
   }
 
