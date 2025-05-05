@@ -1,4 +1,4 @@
-service: with-sls-v3
+service: basic
 frameworkVersion: "3"
 
 plugins:
