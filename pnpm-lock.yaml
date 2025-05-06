@@ -46,6 +46,9 @@ importers:
 
   packages/serverless-typespec-generator:
     devDependencies:
+      '@serverless/typescript':
+        specifier: ^4.14.1
+        version: 4.14.1
       '@types/json-schema':
         specifier: ^7.0.15
         version: 7.0.15
@@ -783,6 +786,9 @@ packages:
   '@serverless/platform-client@4.5.1':
     resolution: {integrity: sha512-XltmO/029X76zi0LUFmhsnanhE2wnqH1xf+WBt5K8gumQA9LnrfwLgPxj+VA+mm6wQhy+PCp7H5SS0ZPu7F2Cw==}
     engines: {node: '>=10.0'}
+
+  '@serverless/typescript@4.14.1':
+    resolution: {integrity: sha512-jw45KOv7Nlcwm8B2+OUy2UnBtRIJd6bhmJvN6Y/sCDz2EZhXvnyID0TjO24cnNhT5WR9hz9hsomM+wCCKjE3Cg==}
 
   '@serverless/utils@6.15.0':
     resolution: {integrity: sha512-7eDbqKv/OBd11jjdZjUwFGN8sHWkeUqLeHXHQxQ1azja2IM7WIH+z/aLgzR6LhB3/MINNwtjesDpjGqTMj2JKQ==}
@@ -4704,6 +4710,8 @@ snapshots:
       - debug
       - supports-color
       - utf-8-validate
+
+  '@serverless/typescript@4.14.1': {}
 
   '@serverless/utils@6.15.0':
     dependencies:
