@@ -7,6 +7,7 @@ import dedent from "dedent"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
+import type { Operation } from "./typespec/operation"
 
 const context = describe
 
@@ -56,7 +57,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             method: "get",
             requestModel: null,
-            responseModel: null,
+            responseModels: null,
           },
         ])
       })
@@ -96,7 +97,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             method: "post",
             requestModel: "HelloRequest",
-            responseModel: null,
+            responseModels: null,
           },
         ])
         expect(Array.from(models.values())).toEqual([
@@ -136,7 +137,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello-world",
             method: "get",
             requestModel: null,
-            responseModel: null,
+            responseModels: null,
           },
         ])
       })
@@ -146,7 +147,7 @@ describe("parseServerlessConfig", () => {
 
 describe("renderDefinitions", () => {
   it("should generate TypeSpec definitions for given operations and models", () => {
-    const operations = [
+    const operations: Operation[] = [
       // {
       //   route: "/users",
       //   method: "get",
@@ -159,7 +160,12 @@ describe("renderDefinitions", () => {
         method: "post",
         name: "createUser",
         requestModel: "CreateUserRequest",
-        responseModel: "CreateUserResponse",
+        responseModels: [
+          {
+            statusCode: 201,
+            body: "CreateUserResponse",
+          },
+        ],
       },
     ]
 

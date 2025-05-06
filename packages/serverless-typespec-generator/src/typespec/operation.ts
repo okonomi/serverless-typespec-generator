@@ -1,11 +1,16 @@
 import dedent from "dedent"
 
+type Response = {
+  statusCode: number
+  body: string
+}
+
 export type Operation = {
   name: string
   route: string
   method: string
   requestModel: string | null
-  responseModel: string | null
+  responseModels: Response[] | null
 }
 
 export function render(operation: Operation): string {
@@ -15,11 +20,11 @@ export function render(operation: Operation): string {
   }
 
   let operationReturn = "void"
-  if (operation.responseModel) {
+  if (operation.responseModels) {
     operationReturn = dedent`
     {
-      @statusCode statusCode: 201;
-      @body body: ${operation.responseModel};
+      @statusCode statusCode: ${operation.responseModels[0].statusCode};
+      @body body: ${operation.responseModels[0].body};
     }
     `
   }

@@ -63,7 +63,7 @@ export function parseServerlessConfig(serverless: SLS): {
         }
       }
 
-      let responseModel = null
+      let responseModels = null
       if (http.documentation?.methodResponses) {
         const methodResponses = http.documentation.methodResponses
         // TODO: handle multiple method responses
@@ -74,11 +74,21 @@ export function parseServerlessConfig(serverless: SLS): {
             const schema = contentTypeSchema
             const name = schema.title ?? "" // TODO: generate a unique name
             models.register(name, { name, schema })
-            responseModel = name
+            responseModels = [
+              {
+                statusCode: methodResponses[0].statusCode,
+                body: name,
+              },
+            ]
           } else if (typeof contentTypeSchema === "string") {
             const model = models.get(contentTypeSchema)
             if (model) {
-              responseModel = model.name
+              responseModels = [
+                {
+                  statusCode: methodResponses[0].statusCode,
+                  body: model.name,
+                },
+              ]
             }
           }
         }
@@ -89,7 +99,7 @@ export function parseServerlessConfig(serverless: SLS): {
         route: `/${path}`,
         method,
         requestModel,
-        responseModel,
+        responseModels,
       })
     }
   }
