@@ -10,6 +10,9 @@ namespace GeneratedApi;
 op createUser(@body body: User): {
   @statusCode statusCode: 201;
   @body body: CreatedUser;
+} | {
+  @statusCode statusCode: 400;
+  @body body: BadRequest;
 };
 
 model User {
@@ -21,4 +24,9 @@ model CreatedUser {
   id: string;
   name: string;
   email: string;
+}
+
+model BadRequest {
+  code: string;
+  message: string;
 }

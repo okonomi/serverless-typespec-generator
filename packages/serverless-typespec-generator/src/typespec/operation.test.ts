@@ -91,5 +91,37 @@ describe("render", () => {
         `)
       })
     })
+
+    context("with multiple response models", () => {
+      it("renders operation with multiple response models", () => {
+        const op: Operation = {
+          name: "getUser",
+          route: "/users/{id}",
+          method: "get",
+          requestModel: null,
+          responseModels: [
+            {
+              statusCode: 200,
+              body: "UserResponse",
+            },
+            {
+              statusCode: 404,
+              body: "NotFoundResponse",
+            },
+          ],
+        }
+        expect(render(op)).toBe(dedent`
+          @route("/users/{id}")
+          @get
+          op getUser(): {
+            @statusCode statusCode: 200;
+            @body body: UserResponse;
+          } | {
+            @statusCode statusCode: 404;
+            @body body: NotFoundResponse;
+          };
+        `)
+      })
+    })
   })
 })

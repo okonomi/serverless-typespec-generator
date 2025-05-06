@@ -21,12 +21,16 @@ export function render(operation: Operation): string {
 
   let operationReturn = "void"
   if (operation.responseModels) {
-    operationReturn = dedent`
-    {
-      @statusCode statusCode: ${operation.responseModels[0].statusCode};
-      @body body: ${operation.responseModels[0].body};
-    }
-    `
+    operationReturn = operation.responseModels
+      .map((model) => {
+        return dedent`
+        {
+          @statusCode statusCode: ${model.statusCode};
+          @body body: ${model.body};
+        }
+      `
+      })
+      .join(" | ")
   }
 
   return [
