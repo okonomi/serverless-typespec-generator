@@ -1,16 +1,27 @@
 import type Serverless from "serverless"
-import type Aws from "serverless/plugins/aws/provider/awsProvider"
+import type Aws from "serverless/aws"
+import type { AWS } from "@serverless/typescript"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import { type Operation, render as renderOperation } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
 
-export function parseServerlessConfig(serverless: Serverless): {
+type SLS = Serverless & { service: AWS }
+
+export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
   models: Map<string, Model>
 } {
   const operations: Operation[] = []
   const models: Map<string, Model> = new Map()
+
+  const apiGatewaySchemas =
+    serverless.service.provider.apiGateway?.request?.schemas
+  if (apiGatewaySchemas) {
+    for (const [name, schema] of Object.entries(apiGatewaySchemas)) {
+      models.set(name, { name, schema })
+    }
+  }
 
   for (const functionName of serverless.service.getAllFunctions()) {
     const events = serverless.service.getAllEventsInFunction(functionName)
