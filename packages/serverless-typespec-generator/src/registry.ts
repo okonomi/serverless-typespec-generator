@@ -20,4 +20,8 @@ export class Registry<T> {
   has(key: string): boolean {
     return this.store.has(key)
   }
+
+  values(): MapIterator<T> {
+    return this.store.values()
+  }
 }
