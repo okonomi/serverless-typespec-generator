@@ -54,7 +54,10 @@ describe("render", () => {
         expect(result).toBe(dedent`
           @route("/users/{id}")
           @get
-          op getUser(): UserResponse;
+          op getUser(): {
+            @statusCode statusCode: 200;
+            @body body: UserResponse;
+          };
         `)
       })
     })

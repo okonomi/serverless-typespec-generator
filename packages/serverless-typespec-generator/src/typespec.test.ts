@@ -3,6 +3,7 @@ import { parseServerlessConfig, renderDefinitions } from "./typespec"
 import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
+import dedent from "dedent"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
@@ -191,27 +192,31 @@ describe("renderDefinitions", () => {
 
     const result = renderDefinitions(operations, models)
 
-    const expected = `import "@typespec/http";
+    const expected = dedent`
+      import "@typespec/http";
 
-using Http;
+      using Http;
 
-@service(#{ title: "Generated API" })
-namespace GeneratedApi;
+      @service(#{ title: "Generated API" })
+      namespace GeneratedApi;
 
-@route("/users")
-@post
-op createUser(@body body: CreateUserRequest): CreateUserResponse;
+      @route("/users")
+      @post
+      op createUser(@body body: CreateUserRequest): {
+        @statusCode statusCode: 201;
+        @body body: CreateUserResponse;
+      };
 
-model CreateUserRequest {
-  name: string;
-  email: string;
-}
+      model CreateUserRequest {
+        name: string;
+        email: string;
+      }
 
-model CreateUserResponse {
-  id: string;
-}
-`
+      model CreateUserResponse {
+        id: string;
+      }
+    `
 
-    expect(result).toBe(expected)
+    expect(result).toBe(`${expected}\n`)
   })
 })
