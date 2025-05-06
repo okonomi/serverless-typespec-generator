@@ -1,0 +1,43 @@
+service: basic
+frameworkVersion: "3"
+
+plugins:
+  - serverless-typespec-generator
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-northeast-1
+  stage: dev
+
+functions:
+  createUser:
+    handler: handler.createUser
+    events:
+      - http:
+          path: users
+          method: post
+          request:
+            schemas:
+              application/json:
+                title: User
+                type: object
+                properties:
+                  name:
+                    type: string
+                  email:
+                    type: string
+          documentation:
+            methodResponses:
+              - statusCode: 201
+                responseModels:
+                  application/json:
+                    title: CreatedUser
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      name:
+                        type: string
+                      email:
+                        type: string
