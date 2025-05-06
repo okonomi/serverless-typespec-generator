@@ -13,13 +13,21 @@ describe("render", () => {
           route: "/users",
           method: "post",
           requestModel: "CreateUserRequest",
-          responseModel: "UserResponse",
+          responseModels: [
+            {
+              statusCode: 201,
+              body: "UserResponse",
+            },
+          ],
         }
         const result = render(op)
         expect(result).toBe(dedent`
           @route("/users")
           @post
-          op createUser(@body body: CreateUserRequest): UserResponse;
+          op createUser(@body body: CreateUserRequest): {
+            @statusCode statusCode: 201;
+            @body body: UserResponse;
+          };
         `)
       })
     })
@@ -31,7 +39,7 @@ describe("render", () => {
           route: "/users/{id}",
           method: "put",
           requestModel: "UpdateUserRequest",
-          responseModel: null,
+          responseModels: null,
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")
@@ -48,13 +56,21 @@ describe("render", () => {
           route: "/users/{id}",
           method: "get",
           requestModel: null,
-          responseModel: "UserResponse",
+          responseModels: [
+            {
+              statusCode: 200,
+              body: "UserResponse",
+            },
+          ],
         }
         const result = render(op)
         expect(result).toBe(dedent`
           @route("/users/{id}")
           @get
-          op getUser(): UserResponse;
+          op getUser(): {
+            @statusCode statusCode: 200;
+            @body body: UserResponse;
+          };
         `)
       })
     })
@@ -66,12 +82,44 @@ describe("render", () => {
           route: "/users/{id}",
           method: "delete",
           requestModel: null,
-          responseModel: null,
+          responseModels: null,
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")
           @delete
           op deleteUser(): void;
+        `)
+      })
+    })
+
+    context("with multiple response models", () => {
+      it("renders operation with multiple response models", () => {
+        const op: Operation = {
+          name: "getUser",
+          route: "/users/{id}",
+          method: "get",
+          requestModel: null,
+          responseModels: [
+            {
+              statusCode: 200,
+              body: "UserResponse",
+            },
+            {
+              statusCode: 404,
+              body: "NotFoundResponse",
+            },
+          ],
+        }
+        expect(render(op)).toBe(dedent`
+          @route("/users/{id}")
+          @get
+          op getUser(): {
+            @statusCode statusCode: 200;
+            @body body: UserResponse;
+          } | {
+            @statusCode statusCode: 404;
+            @body body: NotFoundResponse;
+          };
         `)
       })
     })

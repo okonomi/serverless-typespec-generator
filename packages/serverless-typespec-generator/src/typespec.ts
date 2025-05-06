@@ -34,14 +34,13 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       const http = event.http as Aws.Http & {
-        typespec?: {
-          response?: {
-            schemas?: {
-              "application/json": {
-                [key: string]: JSONSchema
-              }
+        documentation?: {
+          methodResponses?: {
+            statusCode: number
+            responseModels?: {
+              "application/json": JSONSchema | string
             }
-          }
+          }[]
         }
       }
 
@@ -64,13 +63,32 @@ export function parseServerlessConfig(serverless: SLS): {
         }
       }
 
-      let responseModel = null
-      if (http.typespec?.response?.schemas?.["application/json"]) {
-        const schema = http.typespec.response.schemas["application/json"]["200"]
-        const name = schema.title ?? "" // TODO: generate a unique name
-        models.register(name, { name, schema })
-
-        responseModel = name
+      const responseModels = []
+      if (http.documentation?.methodResponses) {
+        const methodResponses = http.documentation.methodResponses
+        for (const methodResponse of methodResponses) {
+          if (methodResponse.responseModels?.["application/json"]) {
+            const contentTypeSchema =
+              methodResponse.responseModels["application/json"]
+            if (typeof contentTypeSchema === "object") {
+              const schema = contentTypeSchema
+              const name = schema.title ?? "" // TODO: generate a unique name
+              models.register(name, { name, schema })
+              responseModels.push({
+                statusCode: methodResponse.statusCode,
+                body: name,
+              })
+            } else if (typeof contentTypeSchema === "string") {
+              const model = models.get(contentTypeSchema)
+              if (model) {
+                responseModels.push({
+                  statusCode: methodResponse.statusCode,
+                  body: model.name,
+                })
+              }
+            }
+          }
+        }
       }
 
       operations.push({
@@ -78,7 +96,7 @@ export function parseServerlessConfig(serverless: SLS): {
         route: `/${path}`,
         method,
         requestModel,
-        responseModel,
+        responseModels: responseModels.length > 0 ? responseModels : null,
       })
     }
   }

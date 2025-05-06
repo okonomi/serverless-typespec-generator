@@ -37,8 +37,23 @@ export default class ServerlessTypeSpecGenerator implements Plugin {
     const responseSchema: JSONSchema = {
       type: "object",
       properties: {
-        typespec: {
+        documentation: {
           type: "object",
+          properties: {
+            methodResponses: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  statusCode: { type: "number" },
+                  responseModels: {
+                    type: "object",
+                  },
+                },
+                required: ["statusCode"],
+              },
+            },
+          },
         },
       },
     }

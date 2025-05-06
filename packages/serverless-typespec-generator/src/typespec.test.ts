@@ -3,9 +3,11 @@ import { parseServerlessConfig, renderDefinitions } from "./typespec"
 import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
+import dedent from "dedent"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
+import type { Operation } from "./typespec/operation"
 
 const context = describe
 
@@ -55,7 +57,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             method: "get",
             requestModel: null,
-            responseModel: null,
+            responseModels: null,
           },
         ])
       })
@@ -95,7 +97,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             method: "post",
             requestModel: "HelloRequest",
-            responseModel: null,
+            responseModels: null,
           },
         ])
         expect(Array.from(models.values())).toEqual([
@@ -135,7 +137,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello-world",
             method: "get",
             requestModel: null,
-            responseModel: null,
+            responseModels: null,
           },
         ])
       })
@@ -145,7 +147,7 @@ describe("parseServerlessConfig", () => {
 
 describe("renderDefinitions", () => {
   it("should generate TypeSpec definitions for given operations and models", () => {
-    const operations = [
+    const operations: Operation[] = [
       // {
       //   route: "/users",
       //   method: "get",
@@ -158,7 +160,12 @@ describe("renderDefinitions", () => {
         method: "post",
         name: "createUser",
         requestModel: "CreateUserRequest",
-        responseModel: "CreateUserResponse",
+        responseModels: [
+          {
+            statusCode: 201,
+            body: "CreateUserResponse",
+          },
+        ],
       },
     ]
 
@@ -191,27 +198,31 @@ describe("renderDefinitions", () => {
 
     const result = renderDefinitions(operations, models)
 
-    const expected = `import "@typespec/http";
+    const expected = dedent`
+      import "@typespec/http";
 
-using Http;
+      using Http;
 
-@service(#{ title: "Generated API" })
-namespace GeneratedApi;
+      @service(#{ title: "Generated API" })
+      namespace GeneratedApi;
 
-@route("/users")
-@post
-op createUser(@body body: CreateUserRequest): CreateUserResponse;
+      @route("/users")
+      @post
+      op createUser(@body body: CreateUserRequest): {
+        @statusCode statusCode: 201;
+        @body body: CreateUserResponse;
+      };
 
-model CreateUserRequest {
-  name: string;
-  email: string;
-}
+      model CreateUserRequest {
+        name: string;
+        email: string;
+      }
 
-model CreateUserResponse {
-  id: string;
-}
-`
+      model CreateUserResponse {
+        id: string;
+      }
+    `
 
-    expect(result).toBe(expected)
+    expect(result).toBe(`${expected}\n`)
   })
 })
