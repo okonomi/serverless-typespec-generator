@@ -1,3 +1,5 @@
+import dedent from "dedent"
+
 export type Operation = {
   name: string
   route: string
@@ -7,17 +9,24 @@ export type Operation = {
 }
 
 export function render(operation: Operation): string {
-  const lines: string[] = []
-
-  lines.push(`@route("${operation.route}")`)
-  lines.push(`@${operation.method}`)
+  let operationArguments = ""
   if (operation.requestModel) {
-    lines.push(
-      `op ${operation.name}(@body body: ${operation.requestModel}): ${operation.responseModel ?? "void"};`,
-    )
-  } else {
-    lines.push(`op ${operation.name}(): ${operation.responseModel ?? "void"};`)
+    operationArguments = `@body body: ${operation.requestModel}`
   }
 
-  return lines.join("\n")
+  let operationReturn = "void"
+  if (operation.responseModel) {
+    operationReturn = dedent`
+    {
+      @statusCode statusCode: 201;
+      @body body: ${operation.responseModel};
+    }
+    `
+  }
+
+  return [
+    `@route("${operation.route}")`,
+    `@${operation.method}`,
+    `op ${operation.name}(${operationArguments}): ${operationReturn};`,
+  ].join("\n")
 }

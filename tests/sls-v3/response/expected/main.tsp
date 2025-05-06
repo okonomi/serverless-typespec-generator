@@ -7,7 +7,10 @@ namespace GeneratedApi;
 
 @route("/users")
 @post
-op createUser(@body body: User): CreatedUser;
+op createUser(@body body: User): {
+  @statusCode statusCode: 201;
+  @body body: CreatedUser;
+};
 
 model User {
   name: string;
