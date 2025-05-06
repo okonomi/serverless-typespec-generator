@@ -4,13 +4,14 @@ import type { JSONSchema4 as JSONSchema } from "json-schema"
 import type { SLS } from "./types/serverless"
 import { type Operation, render as renderOperation } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
+import { Registry } from "./registry"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
-  models: Map<string, Model>
+  models: Registry<Model>
 } {
   const operations: Operation[] = []
-  const models: Map<string, Model> = new Map()
+  const models = new Registry<Model>()
 
   const apiGatewaySchemas =
     serverless.service.provider.apiGateway?.request?.schemas
@@ -21,7 +22,7 @@ export function parseServerlessConfig(serverless: SLS): {
         schema: schema.schema,
       }
 
-      models.set(name, model)
+      models.register(name, model)
     }
   }
 
@@ -53,7 +54,7 @@ export function parseServerlessConfig(serverless: SLS): {
         if (typeof contentTypeSchema === "object") {
           const schema = contentTypeSchema as JSONSchema
           const name = schema.title ?? "" // TODO: generate a unique name
-          models.set(name, { name, schema })
+          models.register(name, { name, schema })
           requestModel = name
         } else if (typeof contentTypeSchema === "string") {
           const model = models.get(contentTypeSchema)
@@ -67,7 +68,7 @@ export function parseServerlessConfig(serverless: SLS): {
       if (http.typespec?.response?.schemas?.["application/json"]) {
         const schema = http.typespec.response.schemas["application/json"]["200"]
         const name = schema.title ?? "" // TODO: generate a unique name
-        models.set(name, { name, schema })
+        models.register(name, { name, schema })
 
         responseModel = name
       }
@@ -96,7 +97,7 @@ function toCamelCase(str: string): string {
 
 export function renderDefinitions(
   operations: Operation[],
-  models: Map<string, Model>,
+  models: Registry<Model>,
 ): string {
   const lines: string[] = []
   lines.push('import "@typespec/http";')
@@ -113,7 +114,7 @@ export function renderDefinitions(
     lines.push("")
   }
 
-  for (const [modelName, model] of models) {
+  for (const model of models.values()) {
     lines.push(renderModel(model))
     lines.push("")
   }
