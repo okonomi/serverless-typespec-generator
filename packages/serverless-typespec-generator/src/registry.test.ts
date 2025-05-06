@@ -9,25 +9,52 @@ describe("Registry", () => {
     registry = new Registry<TestType>()
   })
 
-  it("registers and gets a value", () => {
-    registry.register("foo", { value: 1 })
-    expect(registry.get("foo")).toEqual({ value: 1 })
+  describe("register", () => {
+    it("registers a value", () => {
+      registry.register("foo", { value: 1 })
+      expect(registry.get("foo")).toEqual({ value: 1 })
+    })
+    it("throws if registering duplicate key", () => {
+      registry.register("foo", { value: 3 })
+      expect(() => registry.register("foo", { value: 4 })).toThrow(
+        'Registry already contains key "foo"',
+      )
+    })
   })
 
-  it("returns undefined for non-existent key", () => {
-    expect(registry.get("bar")).toBeUndefined()
+  describe("get", () => {
+    it("returns the registered value", () => {
+      registry.register("foo", { value: 1 })
+      expect(registry.get("foo")).toEqual({ value: 1 })
+    })
+    it("returns undefined for non-existent key", () => {
+      expect(registry.get("bar")).toBeUndefined()
+    })
   })
 
-  it("checks existence with has", () => {
-    registry.register("foo", { value: 2 })
-    expect(registry.has("foo")).toBe(true)
-    expect(registry.has("bar")).toBe(false)
+  describe("has", () => {
+    it("returns true if key exists", () => {
+      registry.register("foo", { value: 2 })
+      expect(registry.has("foo")).toBe(true)
+    })
+    it("returns false if key does not exist", () => {
+      expect(registry.has("bar")).toBe(false)
+    })
   })
 
-  it("throws if registering duplicate key", () => {
-    registry.register("foo", { value: 3 })
-    expect(() => registry.register("foo", { value: 4 })).toThrow(
-      'Registry already contains key "foo"',
-    )
+  describe("values", () => {
+    it("returns all registered values as an iterator", () => {
+      registry.register("foo", { value: 1 })
+      registry.register("bar", { value: 2 })
+      registry.register("baz", { value: 3 })
+      const values = Array.from(registry.values())
+      expect(values).toContainEqual({ value: 1 })
+      expect(values).toContainEqual({ value: 2 })
+      expect(values).toContainEqual({ value: 3 })
+      expect(values).toHaveLength(3)
+    })
+    it("returns an empty iterator if nothing is registered", () => {
+      expect(Array.from(registry.values())).toEqual([])
+    })
   })
 })
