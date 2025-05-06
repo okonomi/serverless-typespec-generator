@@ -4,11 +4,14 @@ import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
 
+import type { SLS } from "./types/serverless"
+import { Registry } from "./registry"
+
 const context = describe
 
 function createServerlessMock(
   functions: Serverless.FunctionDefinitionHandler[],
-): Serverless {
+): SLS {
   return {
     service: {
       getAllFunctions: vi.fn(() => {
@@ -22,7 +25,7 @@ function createServerlessMock(
         return fn.events
       }),
     },
-  } as unknown as Serverless
+  } as unknown as SLS
 }
 
 describe("parseServerlessConfig", () => {
@@ -163,42 +166,32 @@ describe("renderDefinitions", () => {
       },
     ]
 
-    const models = new Map<string, Model>([
-      // [
-      //   "UserList",
-      //   {
-      //     name: "UserList",
-      //     schema: {
-      //       properties: {
-      //         users: { type: "array", items: { type: "object" } },
-      //       },
-      //     },
-      //   },
-      // ],
-      [
-        "CreateUserRequest",
-        {
-          name: "CreateUserRequest",
-          schema: {
-            properties: {
-              name: { type: "string" },
-              email: { type: "string" },
-            },
-          },
+    const models = new Registry<Model>()
+    // models.register("UserList", {
+    //   name: "UserList",
+    //   schema: {
+    //     properties: {
+    //       users: { type: "array", items: { type: "object" } },
+    //     },
+    //   },
+    // })
+    models.register("CreateUserRequest", {
+      name: "CreateUserRequest",
+      schema: {
+        properties: {
+          name: { type: "string" },
+          email: { type: "string" },
         },
-      ],
-      [
-        "CreateUserResponse",
-        {
-          name: "CreateUserResponse",
-          schema: {
-            properties: {
-              id: { type: "string" },
-            },
-          },
+      },
+    })
+    models.register("CreateUserResponse", {
+      name: "CreateUserResponse",
+      schema: {
+        properties: {
+          id: { type: "string" },
         },
-      ],
-    ])
+      },
+    })
 
     const result = renderDefinitions(operations, models)
 
