@@ -19,7 +19,12 @@ export function parseServerlessConfig(serverless: SLS): {
     serverless.service.provider.apiGateway?.request?.schemas
   if (apiGatewaySchemas) {
     for (const [name, schema] of Object.entries(apiGatewaySchemas)) {
-      models.set(name, { name, schema })
+      const model = {
+        name: schema.name ?? "", // TODO: generate a unique name
+        schema: schema.schema,
+      }
+
+      models.set(name, model)
     }
   }
 
@@ -47,11 +52,18 @@ export function parseServerlessConfig(serverless: SLS): {
 
       let requestModel = null
       if (http.request?.schemas?.["application/json"]) {
-        const schema = http.request.schemas["application/json"] as JSONSchema
-        const name = schema.title ?? "" // TODO: generate a unique name
-        models.set(name, { name, schema })
-
-        requestModel = name
+        const contentTypeSchema = http.request.schemas["application/json"]
+        if (typeof contentTypeSchema === "object") {
+          const schema = contentTypeSchema as JSONSchema
+          const name = schema.title ?? "" // TODO: generate a unique name
+          models.set(name, { name, schema })
+          requestModel = name
+        } else if (typeof contentTypeSchema === "string") {
+          const model = models.get(contentTypeSchema)
+          if (model) {
+            requestModel = model.name
+          }
+        }
       }
 
       let responseModel = null
