@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-04/schema#",
-  "title": "CreateUserResponse",
+  "title": "CreatedUser",
   "type": "object",
   "properties": {
-    "userId": {
+    "id": {
       "type": "string",
       "description": "The ID of the created user"
     },
-    "username": {
+    "name": {
       "type": "string",
       "description": "The username of the created user"
     },

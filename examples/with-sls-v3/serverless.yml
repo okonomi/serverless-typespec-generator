@@ -20,10 +20,14 @@ functions:
           request:
             schemas:
               application/json: ${file(models/requests/create-user.json)}
-          typespec:
-            response:
-              schemas:
-                application/json:
-                  "200": ${file(models/responses/create-user.json)}
-                  "400": ${file(models/responses/error.json)}
-                  "500": ${file(models/responses/error.json)}
+          documentation:
+            methodResponses:
+              - statusCode: 201
+                responseModels:
+                  application/json: ${file(models/responses/created-user.json)}
+              - statusCode: 400
+                responseModels:
+                  application/json: ${file(models/responses/error.json)}
+              - statusCode: 500
+                responseModels:
+                  application/json: ${file(models/responses/error.json)}

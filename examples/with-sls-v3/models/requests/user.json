@@ -3,7 +3,7 @@
   "title": "User",
   "type": "object",
   "properties": {
-    "username": {
+    "name": {
       "type": "string",
       "minLength": 3
     },
@@ -16,5 +16,5 @@
       "minLength": 6
     }
   },
-  "required": ["username", "email", "password"]
+  "required": ["name", "email", "password"]
 }
