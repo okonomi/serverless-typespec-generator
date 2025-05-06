@@ -1,12 +1,9 @@
-import type Serverless from "serverless"
 import type Aws from "serverless/aws"
-import type { AWS } from "@serverless/typescript"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
+import type { SLS } from "./types/serverless"
 import { type Operation, render as renderOperation } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
-
-type SLS = Serverless & { service: AWS }
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]

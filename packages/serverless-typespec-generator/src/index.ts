@@ -4,15 +4,16 @@ import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import path from "node:path"
 
+import type { SLS } from "./types/serverless"
 import { parseServerlessConfig, renderDefinitions } from "./typespec"
 
 export default class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
   commands: Plugin.Commands
-  serverless: Serverless
+  serverless: SLS
   options: Serverless.Options
 
-  constructor(serverless: Serverless, options: Serverless.Options) {
+  constructor(serverless: SLS, options: Serverless.Options) {
     this.serverless = serverless
     this.options = options
 
