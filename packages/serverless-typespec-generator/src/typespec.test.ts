@@ -14,6 +14,7 @@ function createServerlessMock(
 ): SLS {
   return {
     service: {
+      provider: {},
       getAllFunctions: vi.fn(() => {
         return functions.map((fn) => fn.name)
       }),
@@ -97,23 +98,18 @@ describe("parseServerlessConfig", () => {
             responseModel: null,
           },
         ])
-        expect(models).toEqual(
-          new Map([
-            [
-              "HelloRequest",
-              {
-                name: "HelloRequest",
-                schema: {
-                  title: "HelloRequest",
-                  type: "object",
-                  properties: {
-                    name: { type: "string" },
-                  },
-                },
+        expect(Array.from(models.values())).toEqual([
+          {
+            name: "HelloRequest",
+            schema: {
+              title: "HelloRequest",
+              type: "object",
+              properties: {
+                name: { type: "string" },
               },
-            ],
-          ]),
-        )
+            },
+          },
+        ])
       })
     })
     context("with kebab-case name functions", () => {
