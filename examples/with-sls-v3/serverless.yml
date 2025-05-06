@@ -19,7 +19,7 @@ functions:
           method: post
           request:
             schemas:
-              application/json: ${file(models/requests/create-user.json)}
+              application/json: ${file(models/requests/user.json)}
           documentation:
             methodResponses:
               - statusCode: 201
@@ -28,6 +28,6 @@ functions:
               - statusCode: 400
                 responseModels:
                   application/json: ${file(models/responses/error.json)}
-              - statusCode: 500
-                responseModels:
-                  application/json: ${file(models/responses/error.json)}
+              # - statusCode: 500
+              #   responseModels:
+              #     application/json: ${file(models/responses/error.json)}
