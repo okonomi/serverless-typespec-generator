@@ -34,14 +34,13 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       const http = event.http as Aws.Http & {
-        typespec?: {
-          response?: {
-            schemas?: {
-              "application/json": {
-                [key: string]: JSONSchema
-              }
+        documentation?: {
+          methodResponses?: {
+            statusCode: number
+            responseModels?: {
+              "application/json": JSONSchema | string
             }
-          }
+          }[]
         }
       }
 
@@ -65,12 +64,24 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       let responseModel = null
-      if (http.typespec?.response?.schemas?.["application/json"]) {
-        const schema = http.typespec.response.schemas["application/json"]["200"]
-        const name = schema.title ?? "" // TODO: generate a unique name
-        models.register(name, { name, schema })
-
-        responseModel = name
+      if (http.documentation?.methodResponses) {
+        const methodResponses = http.documentation.methodResponses
+        // TODO: handle multiple method responses
+        if (methodResponses[0].responseModels?.["application/json"]) {
+          const contentTypeSchema =
+            methodResponses[0].responseModels["application/json"]
+          if (typeof contentTypeSchema === "object") {
+            const schema = contentTypeSchema
+            const name = schema.title ?? "" // TODO: generate a unique name
+            models.register(name, { name, schema })
+            responseModel = name
+          } else if (typeof contentTypeSchema === "string") {
+            const model = models.get(contentTypeSchema)
+            if (model) {
+              responseModel = model.name
+            }
+          }
+        }
       }
 
       operations.push({
