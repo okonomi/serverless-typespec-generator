@@ -1,8 +1,10 @@
 import dedent from "dedent"
 
-type Response = {
+type TypeReference = string
+
+type OperationResponse = {
   statusCode: number
-  body: string
+  type: TypeReference
 }
 
 export type Operation = {
@@ -10,7 +12,7 @@ export type Operation = {
   route: string
   method: string
   requestModel: string | null
-  responseModels: Response[] | null
+  returnType: TypeReference | OperationResponse[]
 }
 
 export function render(operation: Operation): string {
@@ -20,17 +22,21 @@ export function render(operation: Operation): string {
   }
 
   let operationReturn = "void"
-  if (operation.responseModels) {
-    operationReturn = operation.responseModels
-      .map((model) => {
-        return dedent`
-        {
-          @statusCode statusCode: ${model.statusCode};
-          @body body: ${model.body};
-        }
-      `
-      })
-      .join(" | ")
+  if (operation.returnType) {
+    if (typeof operation.returnType === "string") {
+      operationReturn = operation.returnType
+    } else if (Array.isArray(operation.returnType)) {
+      operationReturn = operation.returnType
+        .map((model) => {
+          return dedent`
+          {
+            @statusCode statusCode: ${model.statusCode};
+            @body body: ${model.type};
+          }
+        `
+        })
+        .join(" | ")
+    }
   }
 
   return [

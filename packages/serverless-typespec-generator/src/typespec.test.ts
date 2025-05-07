@@ -57,7 +57,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             method: "get",
             requestModel: null,
-            responseModels: null,
+            returnType: "void",
           },
         ])
       })
@@ -97,7 +97,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             method: "post",
             requestModel: "HelloRequest",
-            responseModels: null,
+            returnType: "void",
           },
         ])
         expect(Array.from(models.values())).toEqual([
@@ -137,7 +137,7 @@ describe("parseServerlessConfig", () => {
             route: "/hello-world",
             method: "get",
             requestModel: null,
-            responseModels: null,
+            returnType: "void",
           },
         ])
       })
@@ -160,10 +160,10 @@ describe("renderDefinitions", () => {
         method: "post",
         name: "createUser",
         requestModel: "CreateUserRequest",
-        responseModels: [
+        returnType: [
           {
             statusCode: 201,
-            body: "CreateUserResponse",
+            type: "CreateUserResponse",
           },
         ],
       },

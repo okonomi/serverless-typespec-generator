@@ -63,7 +63,7 @@ export function parseServerlessConfig(serverless: SLS): {
         }
       }
 
-      const responseModels = []
+      const returnType = []
       if (http.documentation?.methodResponses) {
         const methodResponses = http.documentation.methodResponses
         for (const methodResponse of methodResponses) {
@@ -74,16 +74,16 @@ export function parseServerlessConfig(serverless: SLS): {
               const schema = contentTypeSchema
               const name = schema.title ?? "" // TODO: generate a unique name
               models.register(name, { name, schema })
-              responseModels.push({
+              returnType.push({
                 statusCode: methodResponse.statusCode,
-                body: name,
+                type: name,
               })
             } else if (typeof contentTypeSchema === "string") {
               const model = models.get(contentTypeSchema)
               if (model) {
-                responseModels.push({
+                returnType.push({
                   statusCode: methodResponse.statusCode,
-                  body: model.name,
+                  type: model.name,
                 })
               }
             }
@@ -96,7 +96,7 @@ export function parseServerlessConfig(serverless: SLS): {
         route: `/${path}`,
         method,
         requestModel,
-        responseModels: responseModels.length > 0 ? responseModels : null,
+        returnType: returnType.length > 0 ? returnType : "void",
       })
     }
   }

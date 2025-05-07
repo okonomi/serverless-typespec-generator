@@ -13,10 +13,10 @@ describe("render", () => {
           route: "/users",
           method: "post",
           requestModel: "CreateUserRequest",
-          responseModels: [
+          returnType: [
             {
               statusCode: 201,
-              body: "UserResponse",
+              type: "UserResponse",
             },
           ],
         }
@@ -39,7 +39,7 @@ describe("render", () => {
           route: "/users/{id}",
           method: "put",
           requestModel: "UpdateUserRequest",
-          responseModels: null,
+          returnType: "void",
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")
@@ -56,10 +56,10 @@ describe("render", () => {
           route: "/users/{id}",
           method: "get",
           requestModel: null,
-          responseModels: [
+          returnType: [
             {
               statusCode: 200,
-              body: "UserResponse",
+              type: "UserResponse",
             },
           ],
         }
@@ -82,7 +82,7 @@ describe("render", () => {
           route: "/users/{id}",
           method: "delete",
           requestModel: null,
-          responseModels: null,
+          returnType: "void",
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")
@@ -99,14 +99,14 @@ describe("render", () => {
           route: "/users/{id}",
           method: "get",
           requestModel: null,
-          responseModels: [
+          returnType: [
             {
               statusCode: 200,
-              body: "UserResponse",
+              type: "UserResponse",
             },
             {
               statusCode: 404,
-              body: "NotFoundResponse",
+              type: "NotFoundResponse",
             },
           ],
         }
