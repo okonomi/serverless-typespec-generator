@@ -46,6 +46,9 @@ export function parseServerlessConfig(serverless: SLS): {
 
       const method = http.method.toLowerCase()
       const path = http.path.replace(/^\/|\/$/g, "")
+      if (!isHttpMethod(method)) {
+        continue
+      }
 
       let body = undefined
       if (http.request?.schemas?.["application/json"]) {
@@ -93,10 +96,12 @@ export function parseServerlessConfig(serverless: SLS): {
 
       operations.push({
         name: toCamelCase(functionName),
-        route: `/${path}`,
-        method,
         body,
         returnType: returnType.length > 0 ? returnType : "void",
+        http: {
+          method,
+          path: `/${path}`,
+        },
       })
     }
   }
@@ -111,6 +116,18 @@ function toCamelCase(str: string): string {
   return str
     .replace(/[-_](\w)/g, (_, c) => c.toUpperCase())
     .replace(/^\w/, (c) => c.toLowerCase())
+}
+
+function isHttpMethod(
+  method: string,
+): method is "get" | "post" | "put" | "delete" | "patch" {
+  return (
+    method === "get" ||
+    method === "post" ||
+    method === "put" ||
+    method === "delete" ||
+    method === "patch"
+  )
 }
 
 export function renderDefinitions(

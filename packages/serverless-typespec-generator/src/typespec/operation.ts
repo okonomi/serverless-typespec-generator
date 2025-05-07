@@ -9,10 +9,14 @@ type OperationResponse = {
 
 export type Operation = {
   name: string
-  route: string
-  method: string
+
   body?: TypeReference
   returnType: TypeReference | OperationResponse[]
+
+  http: {
+    method: "get" | "post" | "put" | "delete" | "patch"
+    path: string
+  }
 }
 
 export function render(operation: Operation): string {
@@ -40,8 +44,8 @@ export function render(operation: Operation): string {
   }
 
   return [
-    `@route("${operation.route}")`,
-    `@${operation.method}`,
+    `@route("${operation.http.path}")`,
+    `@${operation.http.method}`,
     `op ${operation.name}(${operationArguments}): ${operationReturn};`,
   ].join("\n")
 }

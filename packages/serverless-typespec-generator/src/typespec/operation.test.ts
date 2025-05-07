@@ -10,8 +10,6 @@ describe("render", () => {
       it("renders an operation with request and response models", () => {
         const op: Operation = {
           name: "createUser",
-          route: "/users",
-          method: "post",
           body: "CreateUserRequest",
           returnType: [
             {
@@ -19,6 +17,10 @@ describe("render", () => {
               type: "UserResponse",
             },
           ],
+          http: {
+            method: "post",
+            path: "/users",
+          },
         }
         const result = render(op)
         expect(result).toBe(dedent`
@@ -36,10 +38,12 @@ describe("render", () => {
       it("renders an operation with request model and without response model", () => {
         const op: Operation = {
           name: "updateUser",
-          route: "/users/{id}",
-          method: "put",
           body: "UpdateUserRequest",
           returnType: "void",
+          http: {
+            method: "put",
+            path: "/users/{id}",
+          },
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")
@@ -53,14 +57,16 @@ describe("render", () => {
       it("renders an operation without request model", () => {
         const op: Operation = {
           name: "getUser",
-          route: "/users/{id}",
-          method: "get",
           returnType: [
             {
               statusCode: 200,
               type: "UserResponse",
             },
           ],
+          http: {
+            method: "get",
+            path: "/users/{id}",
+          },
         }
         const result = render(op)
         expect(result).toBe(dedent`
@@ -78,9 +84,11 @@ describe("render", () => {
       it("renders operation without models", () => {
         const op: Operation = {
           name: "deleteUser",
-          route: "/users/{id}",
-          method: "delete",
           returnType: "void",
+          http: {
+            method: "delete",
+            path: "/users/{id}",
+          },
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")
@@ -94,8 +102,6 @@ describe("render", () => {
       it("renders operation with multiple response models", () => {
         const op: Operation = {
           name: "getUser",
-          route: "/users/{id}",
-          method: "get",
           returnType: [
             {
               statusCode: 200,
@@ -106,6 +112,10 @@ describe("render", () => {
               type: "NotFoundResponse",
             },
           ],
+          http: {
+            method: "get",
+            path: "/users/{id}",
+          },
         }
         expect(render(op)).toBe(dedent`
           @route("/users/{id}")

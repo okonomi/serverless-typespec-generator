@@ -54,9 +54,11 @@ describe("parseServerlessConfig", () => {
         expect(operations).toEqual([
           {
             name: "hello",
-            route: "/hello",
-            method: "get",
             returnType: "void",
+            http: {
+              method: "get",
+              path: "/hello",
+            },
           },
         ])
       })
@@ -93,10 +95,12 @@ describe("parseServerlessConfig", () => {
         expect(operations).toEqual([
           {
             name: "hello",
-            route: "/hello",
-            method: "post",
             body: "HelloRequest",
             returnType: "void",
+            http: {
+              method: "post",
+              path: "/hello",
+            },
           },
         ])
         expect(Array.from(models.values())).toEqual([
@@ -133,9 +137,11 @@ describe("parseServerlessConfig", () => {
         expect(operations).toEqual([
           {
             name: "helloWorld",
-            route: "/hello-world",
-            method: "get",
             returnType: "void",
+            http: {
+              method: "get",
+              path: "/hello-world",
+            },
           },
         ])
       })
@@ -153,8 +159,6 @@ describe("renderDefinitions", () => {
       //   responseModel: "UserList",
       // },
       {
-        route: "/users",
-        method: "post",
         name: "createUser",
         body: "CreateUserRequest",
         returnType: [
@@ -163,6 +167,10 @@ describe("renderDefinitions", () => {
             type: "CreateUserResponse",
           },
         ],
+        http: {
+          method: "post",
+          path: "/users",
+        },
       },
     ]
 
