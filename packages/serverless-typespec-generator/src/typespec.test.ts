@@ -54,10 +54,11 @@ describe("parseServerlessConfig", () => {
         expect(operations).toEqual([
           {
             name: "hello",
-            route: "/hello",
-            method: "get",
-            requestModel: null,
-            responseModels: null,
+            returnType: "void",
+            http: {
+              method: "get",
+              path: "/hello",
+            },
           },
         ])
       })
@@ -94,10 +95,12 @@ describe("parseServerlessConfig", () => {
         expect(operations).toEqual([
           {
             name: "hello",
-            route: "/hello",
-            method: "post",
-            requestModel: "HelloRequest",
-            responseModels: null,
+            body: "HelloRequest",
+            returnType: "void",
+            http: {
+              method: "post",
+              path: "/hello",
+            },
           },
         ])
         expect(Array.from(models.values())).toEqual([
@@ -134,10 +137,11 @@ describe("parseServerlessConfig", () => {
         expect(operations).toEqual([
           {
             name: "helloWorld",
-            route: "/hello-world",
-            method: "get",
-            requestModel: null,
-            responseModels: null,
+            returnType: "void",
+            http: {
+              method: "get",
+              path: "/hello-world",
+            },
           },
         ])
       })
@@ -152,20 +156,21 @@ describe("renderDefinitions", () => {
       //   route: "/users",
       //   method: "get",
       //   name: "getUsers",
-      //   requestModel: null,
       //   responseModel: "UserList",
       // },
       {
-        route: "/users",
-        method: "post",
         name: "createUser",
-        requestModel: "CreateUserRequest",
-        responseModels: [
+        body: "CreateUserRequest",
+        returnType: [
           {
             statusCode: 201,
-            body: "CreateUserResponse",
+            type: "CreateUserResponse",
           },
         ],
+        http: {
+          method: "post",
+          path: "/users",
+        },
       },
     ]
 
