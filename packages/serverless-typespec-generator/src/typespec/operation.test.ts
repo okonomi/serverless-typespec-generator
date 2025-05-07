@@ -12,7 +12,7 @@ describe("render", () => {
           name: "createUser",
           route: "/users",
           method: "post",
-          requestModel: "CreateUserRequest",
+          body: "CreateUserRequest",
           returnType: [
             {
               statusCode: 201,
@@ -38,7 +38,7 @@ describe("render", () => {
           name: "updateUser",
           route: "/users/{id}",
           method: "put",
-          requestModel: "UpdateUserRequest",
+          body: "UpdateUserRequest",
           returnType: "void",
         }
         expect(render(op)).toBe(dedent`
@@ -55,7 +55,6 @@ describe("render", () => {
           name: "getUser",
           route: "/users/{id}",
           method: "get",
-          requestModel: null,
           returnType: [
             {
               statusCode: 200,
@@ -81,7 +80,6 @@ describe("render", () => {
           name: "deleteUser",
           route: "/users/{id}",
           method: "delete",
-          requestModel: null,
           returnType: "void",
         }
         expect(render(op)).toBe(dedent`
@@ -98,7 +96,6 @@ describe("render", () => {
           name: "getUser",
           route: "/users/{id}",
           method: "get",
-          requestModel: null,
           returnType: [
             {
               statusCode: 200,

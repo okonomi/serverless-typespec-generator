@@ -56,7 +56,6 @@ describe("parseServerlessConfig", () => {
             name: "hello",
             route: "/hello",
             method: "get",
-            requestModel: null,
             returnType: "void",
           },
         ])
@@ -96,7 +95,7 @@ describe("parseServerlessConfig", () => {
             name: "hello",
             route: "/hello",
             method: "post",
-            requestModel: "HelloRequest",
+            body: "HelloRequest",
             returnType: "void",
           },
         ])
@@ -136,7 +135,6 @@ describe("parseServerlessConfig", () => {
             name: "helloWorld",
             route: "/hello-world",
             method: "get",
-            requestModel: null,
             returnType: "void",
           },
         ])
@@ -152,14 +150,13 @@ describe("renderDefinitions", () => {
       //   route: "/users",
       //   method: "get",
       //   name: "getUsers",
-      //   requestModel: null,
       //   responseModel: "UserList",
       // },
       {
         route: "/users",
         method: "post",
         name: "createUser",
-        requestModel: "CreateUserRequest",
+        body: "CreateUserRequest",
         returnType: [
           {
             statusCode: 201,

@@ -47,18 +47,18 @@ export function parseServerlessConfig(serverless: SLS): {
       const method = http.method.toLowerCase()
       const path = http.path.replace(/^\/|\/$/g, "")
 
-      let requestModel = null
+      let body = undefined
       if (http.request?.schemas?.["application/json"]) {
         const contentTypeSchema = http.request.schemas["application/json"]
         if (typeof contentTypeSchema === "object") {
           const schema = contentTypeSchema as JSONSchema
           const name = schema.title ?? "" // TODO: generate a unique name
           models.register(name, { name, schema })
-          requestModel = name
+          body = name
         } else if (typeof contentTypeSchema === "string") {
           const model = models.get(contentTypeSchema)
           if (model) {
-            requestModel = model.name
+            body = model.name
           }
         }
       }
@@ -95,7 +95,7 @@ export function parseServerlessConfig(serverless: SLS): {
         name: toCamelCase(functionName),
         route: `/${path}`,
         method,
-        requestModel,
+        body,
         returnType: returnType.length > 0 ? returnType : "void",
       })
     }

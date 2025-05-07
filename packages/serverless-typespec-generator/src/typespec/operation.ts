@@ -11,14 +11,14 @@ export type Operation = {
   name: string
   route: string
   method: string
-  requestModel: string | null
+  body?: TypeReference
   returnType: TypeReference | OperationResponse[]
 }
 
 export function render(operation: Operation): string {
   let operationArguments = ""
-  if (operation.requestModel) {
-    operationArguments = `@body body: ${operation.requestModel}`
+  if (operation.body) {
+    operationArguments = `@body body: ${operation.body}`
   }
 
   let operationReturn = "void"
