@@ -12,8 +12,8 @@ importers:
         specifier: ^1.9.4
         version: 1.9.4
       '@typespec/compiler':
-        specifier: 1.0.0-rc.1
-        version: 1.0.0-rc.1(@types/node@22.15.3)
+        specifier: ^1.0.0
+        version: 1.0.0(@types/node@22.15.3)
 
   examples/with-sls-v3:
     dependencies:
@@ -22,11 +22,11 @@ importers:
         version: link:../../packages/serverless-typespec-generator
     devDependencies:
       '@typespec/http':
-        specifier: 1.0.0-rc.1
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
+        specifier: ^1.0.0
+        version: 1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))
       '@typespec/openapi3':
-        specifier: 1.0.0-rc.1
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))))
+        specifier: ^1.0.0
+        version: 1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))))
       npm-run-all2:
         specifier: ^7.0.2
         version: 7.0.2
@@ -81,11 +81,11 @@ importers:
   tests/sls-v3:
     devDependencies:
       '@typespec/http':
-        specifier: 1.0.0-rc.1
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
+        specifier: ^1.0.0
+        version: 1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))
       '@typespec/openapi3':
-        specifier: 1.0.0-rc.1
-        version: 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))))
+        specifier: ^1.0.0
+        version: 1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))))
       serverless:
         specifier: ^3.40.0
         version: 3.40.0
@@ -307,10 +307,6 @@ packages:
 
   '@babel/helper-string-parser@7.27.1':
     resolution: {integrity: sha512-qMlSxKbpRlAridDExk92nSobyDdpPijUq2DW6oDnUqd0iOGxmQjyqhMIihI9+zv4LPyZdRje2cavWPbCbWm3eA==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/helper-validator-identifier@7.25.9':
-    resolution: {integrity: sha512-Ed61U6XJc3CVRfkERJWDz4dJwKe7iLmmJsbOGu9wSloNSFttHV0I8g6UAgb7qnK5ly5bGLPd4oXZlxCdANBOWQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/helper-validator-identifier@7.27.1':
@@ -1084,37 +1080,37 @@ packages:
   '@types/uuid@9.0.8':
     resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
 
-  '@typespec/asset-emitter@0.69.0':
-    resolution: {integrity: sha512-EO/i+XwbY5PYV0zwaYbauuZDKjTZ8XDuQHzYa52vMj4RRUVHDsuaJuZ7sD5ZUJSQSXg7oExDSTzO8KYaXvg5Gg==}
+  '@typespec/asset-emitter@0.70.0':
+    resolution: {integrity: sha512-GuQqYtbFrZQdsSfJcr87DDuG6g2u2iYG5RdVJpq2p+RtbTFP0qorxf5AauCphx8Y+S49nT2joshCFtO2jRqozg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.0.0-rc.1
+      '@typespec/compiler': ^1.0.0
 
-  '@typespec/compiler@1.0.0-rc.1':
-    resolution: {integrity: sha512-SDCB19wCVQVGTHOwkKnOnaGH2/vpr5aHLhTOs2k36AVsFrkurpMkL0TeE2QKiJszmkQeOnGW3bgH7Hbw15kXtw==}
+  '@typespec/compiler@1.0.0':
+    resolution: {integrity: sha512-QFy0otaB4xkN4kQmYyT17yu3OVhN0gti9+EKnZqs5JFylw2Xecx22BPwUE1Byj42pZYg5d9WlO+WwmY5ALtRDg==}
     engines: {node: '>=20.0.0'}
     hasBin: true
 
-  '@typespec/http@1.0.0-rc.1':
-    resolution: {integrity: sha512-USAxsTeRF1i4g39KeHOh7/x1RzW4lpSpWQqlz/xuHAxEPVsu23BRq9AJrN/nTpgYlpGvOTbJnadWXOs20/TmBA==}
+  '@typespec/http@1.0.0':
+    resolution: {integrity: sha512-Uy0UnnGxA+pgvakM5IOhA89GBKTxf1vVylXZuA2aWrIHefki4BswcQxYBObzCq1hA7FYJsxDQVAMOSRrhUsbPg==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
-      '@typespec/compiler': ^1.0.0-rc.1
-      '@typespec/streams': ^0.69.0
+      '@typespec/compiler': ^1.0.0
+      '@typespec/streams': ^0.70.0
     peerDependenciesMeta:
       '@typespec/streams':
         optional: true
 
-  '@typespec/openapi3@1.0.0-rc.1':
-    resolution: {integrity: sha512-k+JqALqXHwjFoS7zTsuhJkbMydsp7UobNwSuw00jABTC5mkvCLwS+ZkWrkUB4+Lc3B2iNWZOCNL/Ynx3rFkq4w==}
+  '@typespec/openapi3@1.0.0':
+    resolution: {integrity: sha512-cDsnNtJkQCx0R/+9AqXzqAKH6CgtwmnQGQMQHbkw0/Sxs5uk6hoiexx7vz0DUR7H4492MqPT2kE4351KZbDYMw==}
     engines: {node: '>=20.0.0'}
     hasBin: true
     peerDependencies:
-      '@typespec/compiler': ^1.0.0-rc.1
-      '@typespec/http': ^1.0.0-rc.1
-      '@typespec/json-schema': ^1.0.0-rc.1
-      '@typespec/openapi': ^1.0.0-rc.1
-      '@typespec/versioning': ^0.69.0
+      '@typespec/compiler': ^1.0.0
+      '@typespec/http': ^1.0.0
+      '@typespec/json-schema': ^1.0.0
+      '@typespec/openapi': ^1.0.0
+      '@typespec/versioning': ^0.70.0
       '@typespec/xml': '*'
     peerDependenciesMeta:
       '@typespec/json-schema':
@@ -4376,13 +4372,11 @@ snapshots:
 
   '@babel/code-frame@7.26.2':
     dependencies:
-      '@babel/helper-validator-identifier': 7.25.9
+      '@babel/helper-validator-identifier': 7.27.1
       js-tokens: 4.0.0
       picocolors: 1.1.1
 
   '@babel/helper-string-parser@7.27.1': {}
-
-  '@babel/helper-validator-identifier@7.25.9': {}
 
   '@babel/helper-validator-identifier@7.27.1': {}
 
@@ -5213,11 +5207,11 @@ snapshots:
 
   '@types/uuid@9.0.8': {}
 
-  '@typespec/asset-emitter@0.69.0(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))':
+  '@typespec/asset-emitter@0.70.0(@typespec/compiler@1.0.0(@types/node@22.15.3))':
     dependencies:
-      '@typespec/compiler': 1.0.0-rc.1(@types/node@22.15.3)
+      '@typespec/compiler': 1.0.0(@types/node@22.15.3)
 
-  '@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)':
+  '@typespec/compiler@1.0.0(@types/node@22.15.3)':
     dependencies:
       '@babel/code-frame': 7.26.2
       '@inquirer/prompts': 7.5.0(@types/node@22.15.3)
@@ -5239,24 +5233,24 @@ snapshots:
     transitivePeerDependencies:
       - '@types/node'
 
-  '@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))':
+  '@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))':
     dependencies:
-      '@typespec/compiler': 1.0.0-rc.1(@types/node@22.15.3)
+      '@typespec/compiler': 1.0.0(@types/node@22.15.3)
 
-  '@typespec/openapi3@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))))':
+  '@typespec/openapi3@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3)))(@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))))':
     dependencies:
       '@apidevtools/swagger-parser': 10.1.1(openapi-types@12.1.3)
-      '@typespec/asset-emitter': 0.69.0(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
-      '@typespec/compiler': 1.0.0-rc.1(@types/node@22.15.3)
-      '@typespec/http': 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
-      '@typespec/openapi': 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))
+      '@typespec/asset-emitter': 0.70.0(@typespec/compiler@1.0.0(@types/node@22.15.3))
+      '@typespec/compiler': 1.0.0(@types/node@22.15.3)
+      '@typespec/http': 1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))
+      '@typespec/openapi': 1.0.0-rc.1(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3)))
       openapi-types: 12.1.3
       yaml: 2.7.1
 
-  '@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))(@typespec/http@1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3)))':
+  '@typespec/openapi@1.0.0-rc.1(@typespec/compiler@1.0.0(@types/node@22.15.3))(@typespec/http@1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3)))':
     dependencies:
-      '@typespec/compiler': 1.0.0-rc.1(@types/node@22.15.3)
-      '@typespec/http': 1.0.0-rc.1(@typespec/compiler@1.0.0-rc.1(@types/node@22.15.3))
+      '@typespec/compiler': 1.0.0(@types/node@22.15.3)
+      '@typespec/http': 1.0.0(@typespec/compiler@1.0.0(@types/node@22.15.3))
 
   '@vitest/coverage-v8@3.1.3(vitest@3.1.2(@types/node@22.15.3)(yaml@2.7.1))':
     dependencies:
