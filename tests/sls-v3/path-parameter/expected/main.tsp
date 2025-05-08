@@ -12,8 +12,21 @@ op getUser(@path id: string): {
   @body body: User;
 };
 
+@route("/posts/{id}")
+@get
+op getPost(@path id: string): {
+  @statusCode statusCode: 200;
+  @body body: Post;
+};
+
 model User {
   id: string;
   name: string;
   email: string;
+}
+
+model Post {
+  id: string;
+  title: string;
+  content: string;
 }

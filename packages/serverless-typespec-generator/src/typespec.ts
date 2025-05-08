@@ -39,6 +39,12 @@ export function parseServerlessConfig(serverless: SLS): {
 
       const http = event.http as Aws.Http & {
         documentation?: {
+          pathParams?: {
+            name: string
+            schema: {
+              type: "string"
+            }
+          }[]
           methodResponses?: {
             statusCode: number
             responseModels?: {
@@ -55,7 +61,16 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       const pathParameters: Parameter[] = []
-      if (http.request?.parameters?.paths) {
+      if (http.documentation?.pathParams) {
+        const pathParams = http.documentation.pathParams
+        for (const { name, schema } of pathParams) {
+          pathParameters.push({
+            name,
+            type: schema.type,
+            required: true,
+          })
+        }
+      } else if (http.request?.parameters?.paths) {
         const paths = http.request.parameters.paths
         for (const [name, required] of Object.entries(paths)) {
           const type = "string"

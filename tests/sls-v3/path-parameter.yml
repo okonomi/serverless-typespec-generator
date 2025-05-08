@@ -22,11 +22,6 @@ functions:
               paths:
                 id: true
           documentation:
-            pathParams:
-              - name: id
-                description: "The ID of the user to retrieve."
-                schema:
-                  type: string
             methodResponses:
               - statusCode: 200
                 responseModels:
@@ -39,4 +34,29 @@ functions:
                       name:
                         type: string
                       email:
+                        type: string
+
+  getPost:
+    handler: handler.getPost
+    events:
+      - http:
+          path: posts/{id}
+          method: get
+          documentation:
+            pathParams:
+              - name: id
+                schema:
+                  type: string
+            methodResponses:
+              - statusCode: 200
+                responseModels:
+                  application/json:
+                    title: Post
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                      title:
+                        type: string
+                      content:
                         type: string
