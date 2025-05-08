@@ -2,7 +2,11 @@ import type Aws from "serverless/aws"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import type { SLS } from "./types/serverless"
-import { type Operation, render as renderOperation } from "./typespec/operation"
+import {
+  type Operation,
+  type Parameter,
+  render as renderOperation,
+} from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
 import { Registry } from "./registry"
 
@@ -48,6 +52,19 @@ export function parseServerlessConfig(serverless: SLS): {
       const path = http.path.replace(/^\/|\/$/g, "")
       if (!isHttpMethod(method)) {
         continue
+      }
+
+      const pathParameters: Parameter[] = []
+      if (http.request?.parameters?.paths) {
+        const paths = http.request.parameters.paths
+        for (const [name, required] of Object.entries(paths)) {
+          const type = "string"
+          pathParameters.push({
+            name,
+            type,
+            required,
+          })
+        }
       }
 
       let body = undefined
@@ -96,7 +113,8 @@ export function parseServerlessConfig(serverless: SLS): {
 
       operations.push({
         name: toCamelCase(functionName),
-        body,
+        ...(pathParameters.length > 0 && { pathParameters }),
+        ...(body && { body }),
         returnType: returnType.length > 0 ? returnType : "void",
         http: {
           method,

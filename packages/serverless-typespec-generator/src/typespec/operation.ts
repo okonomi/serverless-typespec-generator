@@ -2,10 +2,10 @@ import dedent from "dedent"
 
 type TypeReference = string
 
-type Parameter = {
+export type Parameter = {
   name: string
   type: TypeReference
-  optional?: boolean
+  required?: boolean
   decorators?: string[]
 }
 

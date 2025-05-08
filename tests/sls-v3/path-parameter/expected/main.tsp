@@ -7,7 +7,10 @@ namespace GeneratedApi;
 
 @route("/users/{id}")
 @get
-op getUser(@path id: string): User;
+op getUser(@path id: string): {
+  @statusCode statusCode: 200;
+  @body body: User;
+};
 
 model User {
   id: string;
