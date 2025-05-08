@@ -2,6 +2,13 @@ import dedent from "dedent"
 
 type TypeReference = string
 
+export type Parameter = {
+  name: string
+  type: TypeReference
+  required?: boolean
+  decorators?: string[]
+}
+
 type OperationResponse = {
   statusCode: number
   type: TypeReference
@@ -9,6 +16,8 @@ type OperationResponse = {
 
 export type Operation = {
   name: string
+
+  pathParameters?: Parameter[]
 
   body?: TypeReference
   returnType: TypeReference | OperationResponse[]
@@ -20,9 +29,14 @@ export type Operation = {
 }
 
 export function render(operation: Operation): string {
-  let operationArguments = ""
+  const parameters = []
+  if (operation.pathParameters) {
+    for (const param of operation.pathParameters) {
+      parameters.push(`@path ${param.name}: ${param.type}`)
+    }
+  }
   if (operation.body) {
-    operationArguments = `@body body: ${operation.body}`
+    parameters.push(`@body body: ${operation.body}`)
   }
 
   let operationReturn = "void"
@@ -46,6 +60,6 @@ export function render(operation: Operation): string {
   return [
     `@route("${operation.http.path}")`,
     `@${operation.http.method}`,
-    `op ${operation.name}(${operationArguments}): ${operationReturn};`,
+    `op ${operation.name}(${parameters.join(",")}): ${operationReturn};`,
   ].join("\n")
 }

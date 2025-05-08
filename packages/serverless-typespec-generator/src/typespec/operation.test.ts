@@ -130,5 +130,36 @@ describe("render", () => {
         `)
       })
     })
+    context("with path parameters", () => {
+      it("renders operation with path parameters", () => {
+        const op: Operation = {
+          name: "getUser",
+          pathParameters: [
+            {
+              name: "id",
+              type: "string",
+            },
+          ],
+          returnType: [
+            {
+              statusCode: 200,
+              type: "UserResponse",
+            },
+          ],
+          http: {
+            method: "get",
+            path: "/users/{id}",
+          },
+        }
+        expect(render(op)).toBe(dedent`
+          @route("/users/{id}")
+          @get
+          op getUser(@path id: string): {
+            @statusCode statusCode: 200;
+            @body body: UserResponse;
+          };
+        `)
+      })
+    })
   })
 })

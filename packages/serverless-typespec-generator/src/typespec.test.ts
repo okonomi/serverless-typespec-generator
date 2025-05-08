@@ -146,6 +146,72 @@ describe("parseServerlessConfig", () => {
         ])
       })
     })
+    context("with path parameters", () => {
+      it("should parse path parameters correctly", () => {
+        const serverless = createServerlessMock([
+          {
+            name: "getUser",
+            handler: "handler.getUser",
+            events: [
+              {
+                http: {
+                  method: "get",
+                  path: "/users/{id}",
+                  request: {
+                    parameters: {
+                      paths: {
+                        id: true,
+                      },
+                    },
+                  },
+                  documentation: {
+                    methodResponses: [
+                      {
+                        statusCode: 200,
+                        responseModels: {
+                          "application/json": {
+                            title: "User",
+                            type: "object",
+                            properties: {
+                              id: { type: "string" },
+                              name: { type: "string" },
+                              email: { type: "string" },
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          } as unknown as Serverless.FunctionDefinitionHandler,
+        ])
+        const { operations } = parseServerlessConfig(serverless)
+        expect(operations).toEqual([
+          {
+            name: "getUser",
+            pathParameters: [
+              {
+                name: "id",
+                type: "string",
+                required: true,
+              },
+            ],
+            returnType: [
+              {
+                statusCode: 200,
+                type: "User",
+              },
+            ],
+            http: {
+              method: "get",
+              path: "/users/{id}",
+            },
+          },
+        ])
+      })
+    })
   })
 })
 
