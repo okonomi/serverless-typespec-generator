@@ -9,7 +9,7 @@ for yml in *.yml; do
   name="${yml%.yml}"
   echo "Testing $yml ..."
   pnpm sls typespec generate --config "$yml" --output-dir "$name/actual"
-  if diff -u "$name/expected/main.tsp" "$name/actual/main.tsp"; then
+  if diff -u --color "$name/expected/main.tsp" "$name/actual/main.tsp"; then
     echo "success"
   else
     echo "fail"
