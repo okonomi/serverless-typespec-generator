@@ -161,5 +161,46 @@ describe("render", () => {
         `)
       })
     })
+    context("with anonymous response model", () => {
+      it("renders operation with anonymous response model", () => {
+        const op: Operation = {
+          name: "getUser",
+          pathParameters: [
+            {
+              name: "id",
+              type: "string",
+            },
+          ],
+          returnType: [
+            {
+              statusCode: 200,
+              type: {
+                name: null,
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                },
+              },
+            },
+          ],
+          http: {
+            method: "get",
+            path: "/users/{id}",
+          },
+        }
+        expect(render(op)).toBe(dedent`
+          @route("/users/{id}")
+          @get
+          op getUser(@path id: string): {
+            @statusCode statusCode: 200;
+            @body body: { id: string; name: string; email: string; };
+          };
+        `)
+      })
+    })
   })
 })

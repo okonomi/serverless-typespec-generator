@@ -7,16 +7,24 @@ export type Model = {
 
 export function render(model: Model): string {
   const lines: string[] = []
+  const anonymous = model.name === null
 
-  if (model.name === null) {
+  if (anonymous) {
     lines.push("{")
-  } else {
-    lines.push(`model ${model.name} {`)
+    for (const [name, detail] of Object.entries(
+      model.schema.properties ?? {},
+    )) {
+      lines.push(`${name}: ${detail.type};`)
+    }
+    lines.push("}")
+
+    return lines.join(" ")
   }
+
+  lines.push(`model ${model.name} {`)
   for (const [name, detail] of Object.entries(model.schema.properties ?? {})) {
     lines.push(`  ${name}: ${detail.type};`)
   }
   lines.push("}")
-
   return lines.join("\n")
 }

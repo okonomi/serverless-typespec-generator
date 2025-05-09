@@ -80,10 +80,7 @@ describe("render", () => {
         }
         const result = render(model)
         expect(result).toBe(dedent`
-          {
-            id: string;
-            age: number;
-          }
+          { id: string; age: number; }
         `)
       })
     })
