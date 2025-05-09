@@ -66,5 +66,26 @@ describe("render", () => {
         `)
       })
     })
+    context("without name", () => {
+      it("inline anonymous model", () => {
+        const model: Model = {
+          name: null,
+          schema: {
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              age: { type: "number" },
+            },
+          },
+        }
+        const result = render(model)
+        expect(result).toBe(dedent`
+          {
+            id: string;
+            age: number;
+          }
+        `)
+      })
+    })
   })
 })
