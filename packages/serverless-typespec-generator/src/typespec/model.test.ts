@@ -17,9 +17,9 @@ describe("render", () => {
         }
         const result = render(model)
         expect(result).toBe(dedent`
-        model TestModel {
-        }
-      `)
+          model TestModel {
+          }
+        `)
       })
     })
     context("with properties", () => {
@@ -58,12 +58,12 @@ describe("render", () => {
         }
         const result = render(model)
         expect(result).toBe(dedent`
-        model Mixed {
-          active: boolean;
-          tags: array;
-          meta: object;
-        }
-      `)
+          model Mixed {
+            active: boolean;
+            tags: array;
+            meta: object;
+          }
+        `)
       })
     })
   })
