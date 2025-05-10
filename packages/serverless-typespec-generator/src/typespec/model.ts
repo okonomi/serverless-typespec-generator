@@ -12,7 +12,7 @@ export function render(model: Model): string {
   return rasterize(lines)
 }
 
-function renderModel(
+export function renderModel(
   name: string | null,
   schema: JSONSchema,
   indent: number,

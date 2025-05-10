@@ -1,5 +1,5 @@
 import dedent from "dedent"
-import { type Model, render as renderModel } from "./model"
+import { type Model, renderModel } from "./model"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 import { rasterize, type RenderLine } from "../rendering"
 
@@ -80,29 +80,47 @@ function renderSingleResponseLines(model: OperationResponse): RenderLine[] {
   if (typeof model.type === "object") {
     if (model.type.schema.type === "array") {
       // Array of anonymous object
-      let itemRendered = renderModel({
-        name: null,
-        schema: model.type.schema.items as JSONSchema,
-      })
-      itemRendered = extractBody(itemRendered, 2)
-      return renderObjectLines(
-        [
-          `@statusCode statusCode: ${model.statusCode};`,
-          `@body body: {\n${itemRendered}\n  }[];`,
-        ],
+      const itemRendered = renderModel(
+        null,
+        model.type.schema.items as JSONSchema,
         0,
       )
+
+      return [
+        { indent: 0, statement: "{" },
+        {
+          indent: 1,
+          statement: `@statusCode statusCode: ${model.statusCode};`,
+        },
+        { indent: 1, statement: "@body body: {" },
+        {
+          indent: 1,
+          statement: itemRendered.filter(
+            (l) => l.statement !== "{" && l.statement !== "}",
+          ),
+        },
+        { indent: 1, statement: "}[];" },
+        { indent: 0, statement: "}" },
+      ]
     }
     // Not array, just render as is
-    let rendered = renderModel(model.type)
-    rendered = extractBody(rendered, 2)
-    return renderObjectLines(
-      [
-        `@statusCode statusCode: ${model.statusCode};`,
-        `@body body: {\n${rendered}\n  };`,
-      ],
-      0,
-    )
+    const rendered = renderModel(model.type.name, model.type.schema, 0)
+    return [
+      { indent: 0, statement: "{" },
+      {
+        indent: 1,
+        statement: `@statusCode statusCode: ${model.statusCode};`,
+      },
+      { indent: 1, statement: "@body body: {" },
+      {
+        indent: 1,
+        statement: rendered.filter(
+          (l) => l.statement !== "{" && l.statement !== "}",
+        ),
+      },
+      { indent: 1, statement: "};" },
+      { indent: 0, statement: "}" },
+    ]
   }
 
   return []
@@ -124,28 +142,4 @@ function renderReturnType(returnType: Operation["returnType"]): string {
       .join(" | ")
   }
   return returnType
-}
-
-// handle anonymous model (object or array)
-// model.type: { name: null, schema: ... }
-// Use renderModel to get the inline type
-// Helper to extract and indent the body of an anonymous model
-function extractBody(modelStr: string, extraIndent = 2): string {
-  // Remove leading/trailing whitespace and braces
-  let lines = modelStr.trim().split("\n")
-  if (lines[0].trim().startsWith("model ")) {
-    lines[0] = lines[0].replace(/^model\s+\w+\s*\{/, "{")
-  }
-  if (lines[0].trim() === "{") lines = lines.slice(1)
-  if (lines[lines.length - 1].trim() === "}") lines = lines.slice(0, -1)
-  while (lines.length && !lines[0].trim()) lines.shift()
-  while (lines.length && !lines[lines.length - 1].trim()) lines.pop()
-  // preserve original indent, add extraIndent (default 2 spaces)
-  return lines
-    .map((line) => {
-      const match = line.match(/^(\s*)/)
-      const base = match ? match[1].length : 0
-      return line.trim() ? " ".repeat(base + extraIndent) + line.trim() : ""
-    })
-    .join("\n")
 }
