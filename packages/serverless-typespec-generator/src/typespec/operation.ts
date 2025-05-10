@@ -69,15 +69,13 @@ function renderParameters(operation: Operation): string {
 
 function renderSingleResponse(model: OperationResponse): RenderLine[] {
   if (typeof model.type === "string") {
-    return [
-      { indent: 0, statement: "{" },
-      {
-        indent: 1,
-        statement: `@statusCode statusCode: ${model.statusCode};`,
-      },
-      { indent: 1, statement: `@body body: ${model.type};` },
-      { indent: 0, statement: "}" },
-    ]
+    return renderObject(
+      [
+        `@statusCode statusCode: ${model.statusCode};`,
+        `@body body: ${model.type};`,
+      ],
+      0,
+    )
   }
   if (typeof model.type === "object") {
     if (model.type.schema.type === "array") {
@@ -87,27 +85,35 @@ function renderSingleResponse(model: OperationResponse): RenderLine[] {
         schema: model.type.schema.items as JSONSchema,
       })
       itemRendered = extractBody(itemRendered, 2)
-      return [
-        { indent: 0, statement: "{" },
-        {
-          indent: 1,
-          statement: `@statusCode statusCode: ${model.statusCode};`,
-        },
-        { indent: 1, statement: `@body body: {\n${itemRendered}\n  }[];` },
-        { indent: 0, statement: "}" },
-      ]
+      return renderObject(
+        [
+          `@statusCode statusCode: ${model.statusCode};`,
+          `@body body: {\n${itemRendered}\n  }[];`,
+        ],
+        0,
+      )
     }
     // Not array, just render as is
     let rendered = renderModel(model.type)
     rendered = extractBody(rendered, 2)
-    return [
-      { indent: 0, statement: "{" },
-      { indent: 1, statement: `@statusCode statusCode: ${model.statusCode};` },
-      { indent: 1, statement: `@body body: {\n${rendered}\n  };` },
-      { indent: 0, statement: "}" },
-    ]
+    return renderObject(
+      [
+        `@statusCode statusCode: ${model.statusCode};`,
+        `@body body: {\n${rendered}\n  };`,
+      ],
+      0,
+    )
   }
+
   return []
+}
+
+function renderObject(body: string[], indent: number): RenderLine[] {
+  return [
+    { indent, statement: "{" },
+    ...body.map((line) => ({ indent: indent + 1, statement: line })),
+    { indent, statement: "}" },
+  ]
 }
 
 function renderReturnType(returnType: Operation["returnType"]): string {
