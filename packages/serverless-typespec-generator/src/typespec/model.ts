@@ -1,50 +1,90 @@
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
+import { type RenderLine, rasterize } from "./../rendering"
+
 export type Model = {
   name: string | null
   schema: JSONSchema
 }
 
 export function render(model: Model): string {
-  const lines: string[] = []
-  if (model.name) {
-    lines.push(`model ${model.name} {`)
-  } else {
-    lines.push("{")
-  }
-  for (const [name, detail] of Object.entries(model.schema.properties ?? {})) {
-    const rendered = renderProperty(detail, 4)
-    if (rendered.startsWith("{")) {
-      // Multi-line object
-      lines.push(`  ${name}: ${rendered};`)
-    } else {
-      lines.push(`  ${name}: ${rendered};`)
-    }
-  }
-  lines.push("}")
-  return lines.join("\n")
+  const lines = renderModel(model.name, model.schema, 0)
+  return rasterize(lines)
 }
 
-function renderProperty(detail: JSONSchema, indent = 2): string {
-  if (detail.type === "object" && detail.properties) {
-    const lines: string[] = ["{"]
-    for (const [k, v] of Object.entries(detail.properties)) {
-      const rendered = renderProperty(v, indent + 2)
-      lines.push(`${" ".repeat(indent)}${k}: ${rendered};`)
-    }
-    lines.push(`${" ".repeat(indent - 2)}}`)
-    return lines.join("\n")
-  }
+function renderModel(
+  name: string | null,
+  schema: JSONSchema,
+  indent: number,
+): RenderLine[] {
+  return [
+    { indent, statement: name ? `model ${name} {` : "{" },
+    ...renderProperties(schema.properties ?? {}, indent + 1),
+    { indent, statement: "}" },
+  ]
+}
 
+function renderProperties(
+  properties: Record<string, JSONSchema>,
+  indent: number,
+): RenderLine[] {
+  return Object.entries(properties).flatMap(([k, v]) => {
+    const propLines = renderProperty(v, indent)
+    if (propLines.length === 1) {
+      return [{ indent, statement: `${k}: ${propLines[0].statement};` }]
+    }
+
+    // 複数行（オブジェクトや多段配列など）の場合
+    const [first, ...rest] = propLines
+    return [
+      { indent, statement: `${k}: ${first.statement}` },
+      ...rest.slice(0, -1),
+      {
+        ...rest[rest.length - 1],
+        statement: `${rest[rest.length - 1].statement};`,
+      },
+    ]
+  })
+}
+
+function renderProperty(detail: JSONSchema, indent: number): RenderLine[] {
+  // 配列型
   if (detail.type === "array" && detail.items) {
-    // Render array item type
-    const itemType = renderProperty(detail.items as JSONSchema, indent)
-    // If itemType is multi-line (object), wrap in parentheses
-    if (itemType.startsWith("{")) {
-      return `${itemType}[]`
+    const items = Array.isArray(detail.items) ? detail.items[0] : detail.items
+    // 配列の要素がオブジェクト型
+    if (items && items.type === "object" && items.properties) {
+      return [
+        { indent, statement: "{" },
+        ...renderProperties(items.properties, indent + 1),
+        { indent, statement: "}[]" },
+      ]
     }
-    return `${itemType}[]`
+    // 配列の要素が配列型（多次元配列）やプリミティブ型
+    const itemLines = renderProperty(items, indent)
+    if (itemLines.length === 1) {
+      return [{ indent, statement: `${itemLines[0].statement}[]` }]
+    }
+    // 多段配列や複雑な型の場合
+    const [first, ...rest] = itemLines
+    return [
+      { indent, statement: `${first.statement}` },
+      ...rest.slice(0, -1),
+      {
+        ...rest[rest.length - 1],
+        statement: `${rest[rest.length - 1].statement}[]`,
+      },
+    ]
   }
 
-  return `${detail.type}`
+  // オブジェクト型
+  if (detail.type === "object" && detail.properties) {
+    return [
+      { indent, statement: "{" },
+      ...renderProperties(detail.properties, indent + 1),
+      { indent, statement: "}" },
+    ]
+  }
+
+  // プリミティブ型
+  return [{ indent, statement: `${detail.type}` }]
 }
