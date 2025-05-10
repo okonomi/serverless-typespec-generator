@@ -1,0 +1,28 @@
+service: basic
+frameworkVersion: "3"
+
+plugins:
+  - serverless-typespec-generator
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: ap-northeast-1
+  stage: dev
+
+functions:
+  getPost:
+    handler: handler.getPost
+    events:
+      - http:
+          path: posts/{id}
+          method: get
+          request:
+            parameters:
+              paths:
+                id: true
+          documentation:
+            methodResponses:
+              - statusCode: 200
+                responseModels:
+                  application/json: ${file(./05-complex-schema/models/post.yml)}
