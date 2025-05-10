@@ -6,45 +6,59 @@ export type Model = {
 }
 
 export function render(model: Model): string {
-  const lines: string[] = []
-  if (model.name) {
-    lines.push(`model ${model.name} {`)
-  } else {
-    lines.push("{")
-  }
-  for (const [name, detail] of Object.entries(model.schema.properties ?? {})) {
-    const rendered = renderProperty(detail, 4)
-    if (rendered.startsWith("{")) {
-      // Multi-line object
-      lines.push(`  ${name}: ${rendered};`)
-    } else {
-      lines.push(`  ${name}: ${rendered};`)
-    }
-  }
-  lines.push("}")
-  return lines.join("\n")
+  return renderModel(model.name, model.schema)
 }
 
-function renderProperty(detail: JSONSchema, indent = 2): string {
+function renderModel(name: string | null, schema: JSONSchema): string {
+  const indentLevel = 0
+  const header = name ? `model ${name} {` : "{"
+  const body = renderProperties(schema.properties ?? {}, indentLevel + 1)
+  return [header, body, `${indent(indentLevel)}}`].filter(Boolean).join("\n")
+}
+
+function renderProperties(
+  properties: Record<string, JSONSchema>,
+  indentLevel: number,
+): string {
+  return Object.entries(properties)
+    .map(
+      ([k, v]) =>
+        `${indent(indentLevel)}${k}: ${renderProperty(v, indentLevel)};`,
+    )
+    .join("\n")
+}
+
+function renderProperty(detail: JSONSchema, indentLevel = 1): string {
   if (detail.type === "object" && detail.properties) {
     const lines: string[] = ["{"]
-    for (const [k, v] of Object.entries(detail.properties)) {
-      const rendered = renderProperty(v, indent + 2)
-      lines.push(`${" ".repeat(indent)}${k}: ${rendered};`)
-    }
-    lines.push(`${" ".repeat(indent - 2)}}`)
+    lines.push(renderProperties(detail.properties, indentLevel + 1))
+    lines.push(`${indent(indentLevel)}}`)
     return lines.join("\n")
   }
 
   if (detail.type === "array" && detail.items) {
-    // Render array item type
-    const itemType = renderProperty(detail.items as JSONSchema, indent)
-    // If itemType is multi-line (object), wrap in parentheses
-    if (itemType.startsWith("{")) {
-      return `${itemType}[]`
+    // detail.items が配列でなく、かつオブジェクト型の場合のみ特別処理
+    if (
+      !Array.isArray(detail.items) &&
+      detail.items.type === "object" &&
+      detail.items.properties
+    ) {
+      const lines: string[] = ["{"]
+      lines.push(renderProperties(detail.items.properties, indentLevel + 1))
+      lines.push(`${indent(indentLevel)}}[]`)
+      return lines.join("\n")
     }
+    // それ以外は通常通り
+    const itemType = renderProperty(
+      Array.isArray(detail.items) ? detail.items[0] : detail.items,
+      indentLevel,
+    )
     return `${itemType}[]`
   }
 
   return `${detail.type}`
+}
+
+function indent(level: number): string {
+  return "  ".repeat(level)
 }
