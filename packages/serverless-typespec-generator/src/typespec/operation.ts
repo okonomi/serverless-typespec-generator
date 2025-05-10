@@ -1,6 +1,7 @@
 import dedent from "dedent"
 import { type Model, render as renderModel } from "./model"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
+import { rasterize, type RenderLine } from "../rendering"
 
 type TypeReference = string
 
@@ -31,7 +32,30 @@ export type Operation = {
 }
 
 export function render(operation: Operation): string {
-  const parameters = []
+  const decoratorLines = renderDecoratorLines(operation)
+  const parameters = renderParameters(operation)
+  const returnType = renderReturnType(operation.returnType)
+
+  const lines: RenderLine[] = [
+    ...decoratorLines,
+    {
+      indent: 0,
+      statement: `op ${operation.name}(${parameters}): ${returnType};`,
+    },
+  ]
+
+  return rasterize(lines)
+}
+
+function renderDecoratorLines(operation: Operation): RenderLine[] {
+  return [
+    { indent: 0, statement: `@route("${operation.http.path}")` },
+    { indent: 0, statement: `@${operation.http.method}` },
+  ]
+}
+
+function renderParameters(operation: Operation): string {
+  const parameters: string[] = []
   if (operation.pathParameters) {
     for (const param of operation.pathParameters) {
       parameters.push(`@path ${param.name}: ${param.type}`)
@@ -40,57 +64,66 @@ export function render(operation: Operation): string {
   if (operation.body) {
     parameters.push(`@body body: ${operation.body}`)
   }
+  return parameters.join(", ")
+}
 
-  let operationReturn = "void"
-  if (operation.returnType) {
-    if (typeof operation.returnType === "string") {
-      operationReturn = operation.returnType
-    } else if (Array.isArray(operation.returnType)) {
-      operationReturn = operation.returnType
-        .map((model) => {
-          if (typeof model.type === "string") {
-            return [
-              "{",
-              `  @statusCode statusCode: ${model.statusCode};`,
-              `  @body body: ${model.type};`,
-              "}",
-            ].join("\n")
-          }
-          if (typeof model.type === "object") {
-            if (model.type.schema.type === "array") {
-              // Array of anonymous object
-              let itemRendered = renderModel({
-                name: null,
-                schema: model.type.schema.items as JSONSchema,
-              })
-              itemRendered = extractBody(itemRendered, 2)
-              return [
-                "{",
-                `  @statusCode statusCode: ${model.statusCode};`,
-                `  @body body: {\n${itemRendered}\n  }[];`,
-                "}",
-              ].join("\n")
-            }
-            // Not array, just render as is
-            let rendered = renderModel(model.type)
-            rendered = extractBody(rendered, 2)
-            return [
-              "{",
-              `  @statusCode statusCode: ${model.statusCode};`,
-              `  @body body: {\n${rendered}\n  };`,
-              "}",
-            ].join("\n")
-          }
-        })
-        .join(" | ")
+function renderSingleResponseLines(model: OperationResponse): RenderLine[] {
+  if (typeof model.type === "string") {
+    return renderObjectLines(
+      [
+        `@statusCode statusCode: ${model.statusCode};`,
+        `@body body: ${model.type};`,
+      ],
+      0,
+    )
+  }
+  if (typeof model.type === "object") {
+    if (model.type.schema.type === "array") {
+      // Array of anonymous object
+      let itemRendered = renderModel({
+        name: null,
+        schema: model.type.schema.items as JSONSchema,
+      })
+      itemRendered = extractBody(itemRendered, 2)
+      return renderObjectLines(
+        [
+          `@statusCode statusCode: ${model.statusCode};`,
+          `@body body: {\n${itemRendered}\n  }[];`,
+        ],
+        0,
+      )
     }
+    // Not array, just render as is
+    let rendered = renderModel(model.type)
+    rendered = extractBody(rendered, 2)
+    return renderObjectLines(
+      [
+        `@statusCode statusCode: ${model.statusCode};`,
+        `@body body: {\n${rendered}\n  };`,
+      ],
+      0,
+    )
   }
 
+  return []
+}
+
+function renderObjectLines(body: string[], indent: number): RenderLine[] {
   return [
-    `@route("${operation.http.path}")`,
-    `@${operation.http.method}`,
-    `op ${operation.name}(${parameters.join(",")}): ${operationReturn};`,
-  ].join("\n")
+    { indent, statement: "{" },
+    ...body.map((line) => ({ indent: indent + 1, statement: line })),
+    { indent, statement: "}" },
+  ]
+}
+
+function renderReturnType(returnType: Operation["returnType"]): string {
+  if (!returnType) return "void"
+  if (Array.isArray(returnType)) {
+    return returnType
+      .map((model) => rasterize(renderSingleResponseLines(model)))
+      .join(" | ")
+  }
+  return returnType
 }
 
 // handle anonymous model (object or array)
