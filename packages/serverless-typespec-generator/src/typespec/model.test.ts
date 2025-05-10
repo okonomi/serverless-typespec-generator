@@ -84,5 +84,42 @@ describe("render", () => {
         `)
       })
     })
+    context("with nested properties", () => {
+      it("renders a model with nested properties", () => {
+        const model: Model = {
+          name: "Nested",
+          schema: {
+            type: "object",
+            properties: {
+              user: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  profile: {
+                    type: "object",
+                    properties: {
+                      age: { type: "number" },
+                      active: { type: "boolean" },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        }
+        const result = render(model)
+        expect(result).toBe(dedent`
+          model Nested {
+            user: {
+              id: string;
+              profile: {
+                age: number;
+                active: boolean;
+              };
+            };
+          }
+        `)
+      })
+    })
   })
 })

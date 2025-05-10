@@ -1,0 +1,9 @@
+type: object
+properties:
+  id:
+    type: string
+  title:
+    type: string
+  content:
+    type: string
+  author: ${file(./05-complex-schema/models/user.yml)}
