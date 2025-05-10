@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { rasterize } from "./rendering"
+import { rasterize, normalizeLines } from "./rendering"
 import dedent from "dedent"
 
 describe("rasterize", () => {
@@ -17,5 +17,57 @@ describe("rasterize", () => {
         }
       `)
     })
+  })
+  describe("when rendering nested lines", () => {
+    it("renders nested lines with the correct indentation", () => {
+      const lines = [
+        { indent: 0, statement: "{" },
+        {
+          indent: 1,
+          statement: [
+            { indent: 0, statement: "foo" },
+            { indent: 0, statement: "bar" },
+          ],
+        },
+        { indent: 0, statement: "}" },
+      ]
+      const result = rasterize(lines)
+      expect(result).toBe(dedent`
+        {
+          foo
+          bar
+        }
+      `)
+    })
+  })
+})
+
+describe("normalizeLines", () => {
+  it("normalizes lines with different indentations", () => {
+    const lines = [
+      { indent: 0, statement: "{" },
+      {
+        indent: 1,
+        statement: [
+          { indent: 0, statement: "foo" },
+          { indent: 0, statement: "{" },
+          {
+            indent: 1,
+            statement: [{ indent: 0, statement: "bar" }],
+          },
+          { indent: 0, statement: "}" },
+        ],
+      },
+      { indent: 0, statement: "}" },
+    ]
+    const result = normalizeLines(lines)
+    expect(result).toStrictEqual([
+      { indent: 0, statement: "{" },
+      { indent: 1, statement: "foo" },
+      { indent: 1, statement: "{" },
+      { indent: 2, statement: "bar" },
+      { indent: 1, statement: "}" },
+      { indent: 0, statement: "}" },
+    ])
   })
 })
