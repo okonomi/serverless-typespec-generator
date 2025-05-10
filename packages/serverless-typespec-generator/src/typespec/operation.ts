@@ -34,13 +34,13 @@ export type Operation = {
 export function render(operation: Operation): string {
   const decorators = renderDecorators(operation)
   const parameters = renderParameters(operation)
-  const operationReturn = renderOperationReturn(operation.returnType)
+  const returnType = renderReturnType(operation.returnType)
 
   const lines: RenderLine[] = [
     ...decorators,
     {
       indent: 0,
-      statement: `op ${operation.name}(${parameters}): ${operationReturn};`,
+      statement: `op ${operation.name}(${parameters}): ${returnType};`,
     },
   ]
 
@@ -110,17 +110,14 @@ function renderSingleResponse(model: OperationResponse): RenderLine[] {
   return []
 }
 
-function renderOperationReturn(returnType: Operation["returnType"]): string {
+function renderReturnType(returnType: Operation["returnType"]): string {
   if (!returnType) return "void"
-  if (typeof returnType === "string") {
-    return returnType
-  }
   if (Array.isArray(returnType)) {
     return returnType
       .map((model) => rasterize(renderSingleResponse(model)))
       .join(" | ")
   }
-  return "void"
+  return returnType
 }
 
 // handle anonymous model (object or array)
