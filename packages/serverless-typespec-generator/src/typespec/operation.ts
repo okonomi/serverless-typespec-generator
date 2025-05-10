@@ -32,12 +32,12 @@ export type Operation = {
 }
 
 export function render(operation: Operation): string {
-  const decorators = renderDecorators(operation)
+  const decoratorLines = renderDecoratorLines(operation)
   const parameters = renderParameters(operation)
   const returnType = renderReturnType(operation.returnType)
 
   const lines: RenderLine[] = [
-    ...decorators,
+    ...decoratorLines,
     {
       indent: 0,
       statement: `op ${operation.name}(${parameters}): ${returnType};`,
@@ -47,7 +47,7 @@ export function render(operation: Operation): string {
   return rasterize(lines)
 }
 
-function renderDecorators(operation: Operation): RenderLine[] {
+function renderDecoratorLines(operation: Operation): RenderLine[] {
   return [
     { indent: 0, statement: `@route("${operation.http.path}")` },
     { indent: 0, statement: `@${operation.http.method}` },
@@ -67,9 +67,9 @@ function renderParameters(operation: Operation): string {
   return parameters.join(", ")
 }
 
-function renderSingleResponse(model: OperationResponse): RenderLine[] {
+function renderSingleResponseLines(model: OperationResponse): RenderLine[] {
   if (typeof model.type === "string") {
-    return renderObject(
+    return renderObjectLines(
       [
         `@statusCode statusCode: ${model.statusCode};`,
         `@body body: ${model.type};`,
@@ -85,7 +85,7 @@ function renderSingleResponse(model: OperationResponse): RenderLine[] {
         schema: model.type.schema.items as JSONSchema,
       })
       itemRendered = extractBody(itemRendered, 2)
-      return renderObject(
+      return renderObjectLines(
         [
           `@statusCode statusCode: ${model.statusCode};`,
           `@body body: {\n${itemRendered}\n  }[];`,
@@ -96,7 +96,7 @@ function renderSingleResponse(model: OperationResponse): RenderLine[] {
     // Not array, just render as is
     let rendered = renderModel(model.type)
     rendered = extractBody(rendered, 2)
-    return renderObject(
+    return renderObjectLines(
       [
         `@statusCode statusCode: ${model.statusCode};`,
         `@body body: {\n${rendered}\n  };`,
@@ -108,7 +108,7 @@ function renderSingleResponse(model: OperationResponse): RenderLine[] {
   return []
 }
 
-function renderObject(body: string[], indent: number): RenderLine[] {
+function renderObjectLines(body: string[], indent: number): RenderLine[] {
   return [
     { indent, statement: "{" },
     ...body.map((line) => ({ indent: indent + 1, statement: line })),
@@ -120,7 +120,7 @@ function renderReturnType(returnType: Operation["returnType"]): string {
   if (!returnType) return "void"
   if (Array.isArray(returnType)) {
     return returnType
-      .map((model) => rasterize(renderSingleResponse(model)))
+      .map((model) => rasterize(renderSingleResponseLines(model)))
       .join(" | ")
   }
   return returnType
