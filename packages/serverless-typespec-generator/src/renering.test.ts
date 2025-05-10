@@ -43,10 +43,10 @@ describe("rasterize", () => {
   describe("when continuing a line", () => {
     it("continues a line with the correct indentation", () => {
       const lines = [
-        { indent: 0, statement: "foo:" },
-        { indent: 0, statement: "{", continuation: true },
-        { indent: 1, statement: "bar:" },
-        { indent: 1, statement: "{", continuation: true },
+        { indent: 0, statement: "foo:", continues: true },
+        { indent: 0, statement: "{" },
+        { indent: 1, statement: "bar:", continues: true },
+        { indent: 1, statement: "{" },
         { indent: 2, statement: "baz" },
         { indent: 1, statement: "}" },
         { indent: 0, statement: "}" },
