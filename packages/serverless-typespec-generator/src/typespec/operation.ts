@@ -31,7 +31,17 @@ export type Operation = {
 }
 
 export function render(operation: Operation): string {
-  const parameters = []
+  const decorators = renderDecorators(operation)
+  const parameters = renderParameters(operation)
+  const operationReturn = renderOperationReturn(operation.returnType)
+  return [
+    ...decorators,
+    `op ${operation.name}(${parameters.join(",")}): ${operationReturn};`,
+  ].join("\n")
+}
+
+function renderParameters(operation: Operation): string[] {
+  const parameters: string[] = []
   if (operation.pathParameters) {
     for (const param of operation.pathParameters) {
       parameters.push(`@path ${param.name}: ${param.type}`)
@@ -40,57 +50,59 @@ export function render(operation: Operation): string {
   if (operation.body) {
     parameters.push(`@body body: ${operation.body}`)
   }
+  return parameters
+}
 
-  let operationReturn = "void"
-  if (operation.returnType) {
-    if (typeof operation.returnType === "string") {
-      operationReturn = operation.returnType
-    } else if (Array.isArray(operation.returnType)) {
-      operationReturn = operation.returnType
-        .map((model) => {
-          if (typeof model.type === "string") {
-            return [
-              "{",
-              `  @statusCode statusCode: ${model.statusCode};`,
-              `  @body body: ${model.type};`,
-              "}",
-            ].join("\n")
-          }
-          if (typeof model.type === "object") {
-            if (model.type.schema.type === "array") {
-              // Array of anonymous object
-              let itemRendered = renderModel({
-                name: null,
-                schema: model.type.schema.items as JSONSchema,
-              })
-              itemRendered = extractBody(itemRendered, 2)
-              return [
-                "{",
-                `  @statusCode statusCode: ${model.statusCode};`,
-                `  @body body: {\n${itemRendered}\n  }[];`,
-                "}",
-              ].join("\n")
-            }
-            // Not array, just render as is
-            let rendered = renderModel(model.type)
-            rendered = extractBody(rendered, 2)
-            return [
-              "{",
-              `  @statusCode statusCode: ${model.statusCode};`,
-              `  @body body: {\n${rendered}\n  };`,
-              "}",
-            ].join("\n")
-          }
-        })
-        .join(" | ")
-    }
+function renderSingleResponse(model: OperationResponse): string {
+  if (typeof model.type === "string") {
+    return [
+      "{",
+      `  @statusCode statusCode: ${model.statusCode};`,
+      `  @body body: ${model.type};`,
+      "}",
+    ].join("\n")
   }
+  if (typeof model.type === "object") {
+    if (model.type.schema.type === "array") {
+      // Array of anonymous object
+      let itemRendered = renderModel({
+        name: null,
+        schema: model.type.schema.items as JSONSchema,
+      })
+      itemRendered = extractBody(itemRendered, 2)
+      return [
+        "{",
+        `  @statusCode statusCode: ${model.statusCode};`,
+        `  @body body: {\n${itemRendered}\n  }[];`,
+        "}",
+      ].join("\n")
+    }
+    // Not array, just render as is
+    let rendered = renderModel(model.type)
+    rendered = extractBody(rendered, 2)
+    return [
+      "{",
+      `  @statusCode statusCode: ${model.statusCode};`,
+      `  @body body: {\n${rendered}\n  };`,
+      "}",
+    ].join("\n")
+  }
+  return ""
+}
 
-  return [
-    `@route("${operation.http.path}")`,
-    `@${operation.http.method}`,
-    `op ${operation.name}(${parameters.join(",")}): ${operationReturn};`,
-  ].join("\n")
+function renderOperationReturn(returnType: Operation["returnType"]): string {
+  if (!returnType) return "void"
+  if (typeof returnType === "string") {
+    return returnType
+  }
+  if (Array.isArray(returnType)) {
+    return returnType.map(renderSingleResponse).join(" | ")
+  }
+  return "void"
+}
+
+function renderDecorators(operation: Operation): string[] {
+  return [`@route("${operation.http.path}")`, `@${operation.http.method}`]
 }
 
 // handle anonymous model (object or array)
