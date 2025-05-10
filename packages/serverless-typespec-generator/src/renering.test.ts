@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { rasterize, normalizeLines } from "./rendering"
+import { rasterize, normalizeLines, convertToRenderLines } from "./rendering"
 import dedent from "dedent"
 
 describe("rasterize", () => {
@@ -67,6 +67,24 @@ describe("normalizeLines", () => {
       { indent: 1, statement: "{" },
       { indent: 2, statement: "bar" },
       { indent: 1, statement: "}" },
+      { indent: 0, statement: "}" },
+    ])
+  })
+})
+
+describe("convertToRenderLines", () => {
+  it("converts a single line to RenderLine", () => {
+    const lines = ["foo"]
+    const result = convertToRenderLines(lines)
+    expect(result).toStrictEqual([{ indent: 0, statement: "foo" }])
+  })
+
+  it("converts nested lines to RenderLine", () => {
+    const lines = ["{", ["foo"], "}"]
+    const result = convertToRenderLines(lines)
+    expect(result).toStrictEqual([
+      { indent: 0, statement: "{" },
+      { indent: 0, statement: [{ indent: 0, statement: "foo" }] },
       { indent: 0, statement: "}" },
     ])
   })

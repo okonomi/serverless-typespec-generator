@@ -21,3 +21,14 @@ export function normalizeLines(lines: RenderLine[]): RenderLine[] {
   }
   return normalize(lines, 0)
 }
+
+export function convertToRenderLines(
+  lines: Array<string | string[]>,
+  indent = 0,
+): RenderLine[] {
+  return lines.map((line) =>
+    typeof line === "string"
+      ? { indent, statement: line }
+      : { indent, statement: convertToRenderLines(line, 0) },
+  )
+}
