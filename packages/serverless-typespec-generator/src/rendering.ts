@@ -4,9 +4,7 @@ export type RenderLine = {
 }
 
 export function rasterize(lines: RenderLine[]): string {
-  return normalizeLines(lines)
-    .map((l) => rasterizeLine(l))
-    .join("\n")
+  return normalizeLines(lines).map(rasterizeLine).join("\n")
 }
 
 function rasterizeLine(line: RenderLine): string {
