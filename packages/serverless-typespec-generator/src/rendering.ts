@@ -1,14 +1,14 @@
 export type RenderLine = {
   indent: number
   statement: string | RenderLine[]
-  continue?: boolean
+  continuation?: boolean
 }
 
 export function rasterize(lines: RenderLine[]): string {
   return normalizeLines(lines)
     .reduce<string[]>((acc, line) => {
       const rendered = rasterizeLine(line)
-      if (line.continue && acc.length > 0) {
+      if (line.continuation && acc.length > 0) {
         acc[acc.length - 1] += ` ${rendered.trimStart()}`
       } else {
         acc.push(rendered)
@@ -30,7 +30,7 @@ export function normalizeLines(lines: RenderLine[]): RenderLine[] {
             {
               indent: indent + line.indent,
               statement: line.statement,
-              ...(line.continue && { continue: true }),
+              ...(line.continuation && { continuation: true }),
             },
           ]
         : normalize(line.statement, indent + line.indent),
