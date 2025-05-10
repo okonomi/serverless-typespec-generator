@@ -29,5 +29,10 @@ op getPosts(): {
     id: string;
     title: string;
     content: string;
+    author: {
+      id: string;
+      name: string;
+      email: string;
+    };
   }[];
 };

@@ -1,5 +1,6 @@
 import dedent from "dedent"
 import { type Model, render as renderModel } from "./model"
+import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 type TypeReference = string
 
@@ -48,20 +49,37 @@ export function render(operation: Operation): string {
       operationReturn = operation.returnType
         .map((model) => {
           if (typeof model.type === "string") {
-            return dedent`
-            {
-              @statusCode statusCode: ${model.statusCode};
-              @body body: ${model.type};
-            }
-          `
+            return [
+              "{",
+              `  @statusCode statusCode: ${model.statusCode};`,
+              `  @body body: ${model.type};`,
+              "}",
+            ].join("\n")
           }
           if (typeof model.type === "object") {
-            return dedent`
-            {
-              @statusCode statusCode: ${model.statusCode};
-              @body body: ${renderModel(model.type)};
+            if (model.type.schema.type === "array") {
+              // Array of anonymous object
+              let itemRendered = renderModel({
+                name: null,
+                schema: model.type.schema.items as JSONSchema,
+              })
+              itemRendered = extractBody(itemRendered, 2)
+              return [
+                "{",
+                `  @statusCode statusCode: ${model.statusCode};`,
+                `  @body body: {\n${itemRendered}\n  }[];`,
+                "}",
+              ].join("\n")
             }
-          `
+            // Not array, just render as is
+            let rendered = renderModel(model.type)
+            rendered = extractBody(rendered, 2)
+            return [
+              "{",
+              `  @statusCode statusCode: ${model.statusCode};`,
+              `  @body body: {\n${rendered}\n  };`,
+              "}",
+            ].join("\n")
           }
         })
         .join(" | ")
@@ -73,4 +91,28 @@ export function render(operation: Operation): string {
     `@${operation.http.method}`,
     `op ${operation.name}(${parameters.join(",")}): ${operationReturn};`,
   ].join("\n")
+}
+
+// handle anonymous model (object or array)
+// model.type: { name: null, schema: ... }
+// Use renderModel to get the inline type
+// Helper to extract and indent the body of an anonymous model
+function extractBody(modelStr: string, extraIndent = 2): string {
+  // Remove leading/trailing whitespace and braces
+  let lines = modelStr.trim().split("\n")
+  if (lines[0].trim().startsWith("model ")) {
+    lines[0] = lines[0].replace(/^model\s+\w+\s*\{/, "{")
+  }
+  if (lines[0].trim() === "{") lines = lines.slice(1)
+  if (lines[lines.length - 1].trim() === "}") lines = lines.slice(0, -1)
+  while (lines.length && !lines[0].trim()) lines.shift()
+  while (lines.length && !lines[lines.length - 1].trim()) lines.pop()
+  // preserve original indent, add extraIndent (default 2 spaces)
+  return lines
+    .map((line) => {
+      const match = line.match(/^(\s*)/)
+      const base = match ? match[1].length : 0
+      return line.trim() ? " ".repeat(base + extraIndent) + line.trim() : ""
+    })
+    .join("\n")
 }

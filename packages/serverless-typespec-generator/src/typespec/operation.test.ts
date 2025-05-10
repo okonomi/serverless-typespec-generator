@@ -197,7 +197,105 @@ describe("render", () => {
           @get
           op getUser(@path id: string): {
             @statusCode statusCode: 200;
-            @body body: { id: string; name: string; email: string; };
+            @body body: {
+              id: string;
+              name: string;
+              email: string;
+            };
+          };
+        `)
+      })
+    })
+    context("with nested anonymous response model", () => {
+      it("renders operation with nested anonymous response model", () => {
+        const op: Operation = {
+          name: "getUser",
+          pathParameters: [
+            {
+              name: "id",
+              type: "string",
+            },
+          ],
+          returnType: [
+            {
+              statusCode: 200,
+              type: {
+                name: null,
+                schema: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    profile: {
+                      type: "object",
+                      properties: {
+                        age: { type: "number" },
+                        active: { type: "boolean" },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+          http: {
+            method: "get",
+            path: "/users/{id}",
+          },
+        }
+        expect(render(op)).toBe(dedent`
+          @route("/users/{id}")
+          @get
+          op getUser(@path id: string): {
+            @statusCode statusCode: 200;
+            @body body: {
+              id: string;
+              profile: {
+                age: number;
+                active: boolean;
+              };
+            };
+          };
+        `)
+      })
+    })
+    context("with array response model", () => {
+      it("renders operation with array response model", () => {
+        const op: Operation = {
+          name: "getUsers",
+          returnType: [
+            {
+              statusCode: 200,
+              type: {
+                name: null,
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      name: { type: "string" },
+                      email: { type: "string" },
+                    },
+                  },
+                },
+              },
+            },
+          ],
+          http: {
+            method: "get",
+            path: "/users",
+          },
+        }
+        expect(render(op)).toBe(dedent`
+          @route("/users")
+          @get
+          op getUsers(): {
+            @statusCode statusCode: 200;
+            @body body: {
+              id: string;
+              name: string;
+              email: string;
+            }[];
           };
         `)
       })

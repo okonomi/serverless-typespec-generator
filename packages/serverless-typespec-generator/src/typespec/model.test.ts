@@ -80,7 +80,10 @@ describe("render", () => {
         }
         const result = render(model)
         expect(result).toBe(dedent`
-          { id: string; age: number; }
+          {
+            id: string;
+            age: number;
+          }
         `)
       })
     })
@@ -117,6 +120,42 @@ describe("render", () => {
                 active: boolean;
               };
             };
+          }
+        `)
+      })
+    })
+    context("with array properties", () => {
+      it("renders a model with array properties", () => {
+        const model: Model = {
+          name: "ArrayModel",
+          schema: {
+            type: "object",
+            properties: {
+              items: {
+                type: "array",
+                items: {
+                  type: "string",
+                },
+              },
+              items2: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        }
+        const result = render(model)
+        expect(result).toBe(dedent`
+          model ArrayModel {
+            items: string[];
+            items2: {
+              id: string;
+            }[];
           }
         `)
       })
