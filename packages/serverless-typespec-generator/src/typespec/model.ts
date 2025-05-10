@@ -17,11 +17,11 @@ function renderModel(
   schema: JSONSchema,
   indent: number,
 ): RenderLine[] {
-  const lines: RenderLine[] = []
-  lines.push({ indent, statement: name ? `model ${name} {` : "{" })
-  lines.push(...renderProperties(schema.properties ?? {}, indent + 1))
-  lines.push({ indent, statement: "}" })
-  return lines
+  return [
+    { indent, statement: name ? `model ${name} {` : "{" },
+    ...renderProperties(schema.properties ?? {}, indent + 1),
+    { indent, statement: "}" },
+  ]
 }
 
 function renderProperties(
@@ -48,36 +48,22 @@ function renderProperties(
 }
 
 function renderProperty(detail: JSONSchema, indent: number): RenderLine[] {
-  if (detail.type === "object" && detail.properties) {
-    const lines: RenderLine[] = []
-    lines.push({ indent, statement: "{" })
-    lines.push(...renderProperties(detail.properties, indent + 1))
-    lines.push({ indent, statement: "}" })
-    return lines
-  }
-
+  // 配列型
   if (detail.type === "array" && detail.items) {
-    // detail.items が配列でなく、かつオブジェクト型の場合のみ特別処理
-    if (
-      !Array.isArray(detail.items) &&
-      detail.items.type === "object" &&
-      detail.items.properties
-    ) {
-      const lines: RenderLine[] = []
-      lines.push({ indent, statement: "{" })
-      lines.push(...renderProperties(detail.items.properties, indent + 1))
-      lines.push({ indent, statement: "}[]" })
-      return lines
+    const items = Array.isArray(detail.items) ? detail.items[0] : detail.items
+    // 配列の要素がオブジェクト型
+    if (items && items.type === "object" && items.properties) {
+      return [
+        { indent, statement: "{" },
+        ...renderProperties(items.properties, indent + 1),
+        { indent, statement: "}[]" },
+      ]
     }
-    // それ以外は通常通り
-    const itemLines = renderProperty(
-      Array.isArray(detail.items) ? detail.items[0] : detail.items,
-      indent,
-    )
+    // 配列の要素が配列型（多次元配列）やプリミティブ型
+    const itemLines = renderProperty(items, indent)
     if (itemLines.length === 1) {
       return [{ indent, statement: `${itemLines[0].statement}[]` }]
     }
-
     // 多段配列や複雑な型の場合
     const [first, ...rest] = itemLines
     return [
@@ -90,5 +76,15 @@ function renderProperty(detail: JSONSchema, indent: number): RenderLine[] {
     ]
   }
 
+  // オブジェクト型
+  if (detail.type === "object" && detail.properties) {
+    return [
+      { indent, statement: "{" },
+      ...renderProperties(detail.properties, indent + 1),
+      { indent, statement: "}" },
+    ]
+  }
+
+  // プリミティブ型
   return [{ indent, statement: `${detail.type}` }]
 }
