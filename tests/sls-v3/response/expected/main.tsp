@@ -12,10 +12,7 @@ op createUser(@body body: User): {
   @body body: CreatedUser;
 } | {
   @statusCode statusCode: 400;
-  @body body: {
-    code: string;
-    message: string;
-  }
+  @body body: { code: string; message: string; };
 };
 
 model User {
