@@ -98,7 +98,7 @@ export function parseServerlessConfig(serverless: SLS): {
         }
       }
 
-      const returnType = []
+      const returnType: Operation["returnType"] = []
       if (http.documentation?.methodResponses) {
         const methodResponses = http.documentation.methodResponses
         for (const methodResponse of methodResponses) {
@@ -107,15 +107,25 @@ export function parseServerlessConfig(serverless: SLS): {
               methodResponse.responseModels["application/json"]
             if (typeof contentTypeSchema === "object") {
               const schema = contentTypeSchema
-              const name = schema.title ?? "" // TODO: generate a unique name
-              models.register(name, { name, schema })
-              returnType.push({
-                statusCode: methodResponse.statusCode,
-                type: name,
-              })
+              const name = schema.title ?? null
+              if (name) {
+                models.register(name, { name, schema })
+                returnType.push({
+                  statusCode: methodResponse.statusCode,
+                  type: name,
+                })
+              } else {
+                returnType.push({
+                  statusCode: methodResponse.statusCode,
+                  type: {
+                    name: null,
+                    schema,
+                  },
+                })
+              }
             } else if (typeof contentTypeSchema === "string") {
               const model = models.get(contentTypeSchema)
-              if (model) {
+              if (model?.name) {
                 returnType.push({
                   statusCode: methodResponse.statusCode,
                   type: model.name,

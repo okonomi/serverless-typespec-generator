@@ -1,4 +1,5 @@
 import dedent from "dedent"
+import { type Model, render as renderModel } from "./model"
 
 type TypeReference = string
 
@@ -11,7 +12,7 @@ export type Parameter = {
 
 type OperationResponse = {
   statusCode: number
-  type: TypeReference
+  type: TypeReference | Model
 }
 
 export type Operation = {
@@ -46,12 +47,22 @@ export function render(operation: Operation): string {
     } else if (Array.isArray(operation.returnType)) {
       operationReturn = operation.returnType
         .map((model) => {
-          return dedent`
-          {
-            @statusCode statusCode: ${model.statusCode};
-            @body body: ${model.type};
+          if (typeof model.type === "string") {
+            return dedent`
+            {
+              @statusCode statusCode: ${model.statusCode};
+              @body body: ${model.type};
+            }
+          `
           }
-        `
+          if (typeof model.type === "object") {
+            return dedent`
+            {
+              @statusCode statusCode: ${model.statusCode};
+              @body body: ${renderModel(model.type)};
+            }
+          `
+          }
         })
         .join(" | ")
     }

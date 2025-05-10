@@ -44,7 +44,6 @@ functions:
               - statusCode: 400
                 responseModels:
                   application/json:
-                    title: BadRequest
                     type: object
                     properties:
                       code:
