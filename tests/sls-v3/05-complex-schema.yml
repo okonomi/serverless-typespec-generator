@@ -26,3 +26,17 @@ functions:
               - statusCode: 200
                 responseModels:
                   application/json: ${file(./05-complex-schema/models/post.yml)}
+
+  getPosts:
+    handler: handler.getPosts
+    events:
+      - http:
+          path: posts
+          method: get
+          documentation:
+            methodResponses:
+              - statusCode: 200
+                responseModels:
+                  application/json:
+                    type: array
+                    items: ${file(./05-complex-schema/models/post.yml)}
