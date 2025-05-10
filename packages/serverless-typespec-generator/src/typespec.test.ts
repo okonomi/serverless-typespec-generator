@@ -287,6 +287,73 @@ describe("parseServerlessConfig", () => {
         ])
       })
     })
+    context("with array response model", () => {
+      it("should parse array response model correctly", () => {
+        const serverless = createServerlessMock([
+          {
+            name: "getUsers",
+            handler: "handler.getUsers",
+            events: [
+              {
+                http: {
+                  method: "get",
+                  path: "/users",
+                  documentation: {
+                    methodResponses: [
+                      {
+                        statusCode: 200,
+                        responseModels: {
+                          "application/json": {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                id: { type: "string" },
+                                name: { type: "string" },
+                                email: { type: "string" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          } as unknown as Serverless.FunctionDefinitionHandler,
+        ])
+        const { operations, models } = parseServerlessConfig(serverless)
+        expect(operations).toEqual([
+          {
+            name: "getUsers",
+            returnType: [
+              {
+                statusCode: 200,
+                type: {
+                  name: null,
+                  schema: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        email: { type: "string" },
+                      },
+                    },
+                  },
+                },
+              },
+            ],
+            http: {
+              method: "get",
+              path: "/users",
+            },
+          },
+        ])
+      })
+    })
   })
 })
 

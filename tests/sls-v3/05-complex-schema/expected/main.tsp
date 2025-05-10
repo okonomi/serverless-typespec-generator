@@ -20,3 +20,19 @@ op getPost(@path id: string): {
     };
   };
 };
+
+@route("/posts")
+@get
+op getPosts(): {
+  @statusCode statusCode: 200;
+  @body body: {
+    id: string;
+    title: string;
+    content: string;
+    author: {
+      id: string;
+      name: string;
+      email: string;
+    };
+  }[];
+};

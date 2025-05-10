@@ -6,17 +6,12 @@ export type Model = {
 }
 
 export function render(model: Model): string {
-  const anonymous = model.name === null
-  if (anonymous) {
-    const props = model.schema.properties ?? {}
-    const propStrs = Object.entries(props).map(
-      ([name, detail]) => `${name}: ${renderProperty(detail)};`,
-    )
-    return `{ ${propStrs.join(" ")} }`
-  }
-
   const lines: string[] = []
-  lines.push(`model ${model.name} {`)
+  if (model.name) {
+    lines.push(`model ${model.name} {`)
+  } else {
+    lines.push("{")
+  }
   for (const [name, detail] of Object.entries(model.schema.properties ?? {})) {
     const rendered = renderProperty(detail, 4)
     if (rendered.startsWith("{")) {
@@ -35,20 +30,20 @@ function renderProperty(detail: JSONSchema, indent = 2): string {
     const lines: string[] = ["{"]
     for (const [k, v] of Object.entries(detail.properties)) {
       const rendered = renderProperty(v, indent + 2)
-      if (rendered.startsWith("{")) {
-        // Multi-line object
-        lines.push(`${" ".repeat(indent)}${k}: ${rendered};`)
-      } else {
-        lines.push(`${" ".repeat(indent)}${k}: ${rendered};`)
-      }
+      lines.push(`${" ".repeat(indent)}${k}: ${rendered};`)
     }
     lines.push(`${" ".repeat(indent - 2)}}`)
     return lines.join("\n")
   }
 
   if (detail.type === "array" && detail.items) {
-    // Optionally handle array of objects, but for now just 'array'
-    return "array"
+    // Render array item type
+    const itemType = renderProperty(detail.items as JSONSchema, indent)
+    // If itemType is multi-line (object), wrap in parentheses
+    if (itemType.startsWith("{")) {
+      return `${itemType}[]`
+    }
+    return `${itemType}[]`
   }
 
   return `${detail.type}`
