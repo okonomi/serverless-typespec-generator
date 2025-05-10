@@ -5,7 +5,13 @@ set -euo pipefail
 cd $(dirname "$0")
 cd sls-v3
 
-for yml in *.yml; do
+if [ "$#" -gt 0 ]; then
+  ymls=("$@")
+else
+  ymls=( *.yml )
+fi
+
+for yml in "${ymls[@]}"; do
   name="${yml%.yml}"
   echo "Testing $yml ..."
   pnpm sls typespec generate --config "$yml" --output-dir "$name/actual"
