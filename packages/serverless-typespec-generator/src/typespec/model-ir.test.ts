@@ -1,5 +1,10 @@
 import { describe, it, expect } from "vitest"
-import { type ModelIR, emitTypeSpec } from "./model-ir"
+import {
+  type ModelIR,
+  type JSONSchema,
+  jsonSchemaToModelIR,
+  emitTypeSpec,
+} from "./model-ir"
 import dedent from "dedent"
 import { formatTypeSpec } from "@typespec/compiler"
 
@@ -11,6 +16,72 @@ async function normalizeTypeSpec(code: string) {
   })
   return formattedCode.trimEnd()
 }
+
+describe("jsonSchemaToModelIR", () => {
+  it("should convert a simple JSON schema to ModelIR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        age: { type: "integer" },
+      },
+      required: ["id"],
+    }
+    const modelIR = jsonSchemaToModelIR(schema, "Model")
+    expect(modelIR).toEqual({
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "int32", required: false },
+      },
+    })
+  })
+  it("should convert a JSON schema with array properties to ModelIR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        tags: { type: "array", items: { type: "string" } },
+      },
+      required: ["tags"],
+    }
+    const modelIR = jsonSchemaToModelIR(schema, "ArrayModel")
+    expect(modelIR).toEqual({
+      name: "ArrayModel",
+      props: {
+        tags: { type: { array: "string" }, required: true },
+      },
+    })
+  })
+  it("should convert a JSON schema with nested object properties to ModelIR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        meta: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+          },
+          required: ["name"],
+        },
+      },
+      required: ["meta"],
+    }
+    const modelIR = jsonSchemaToModelIR(schema, "ObjectModel")
+    expect(modelIR).toEqual({
+      name: "ObjectModel",
+      props: {
+        meta: {
+          type: {
+            object: {
+              name: { type: "string", required: true },
+            },
+          },
+          required: true,
+        },
+      },
+    })
+  })
+})
 
 describe("emitTypeSpec", () => {
   it("should emit a simple model", async () => {
