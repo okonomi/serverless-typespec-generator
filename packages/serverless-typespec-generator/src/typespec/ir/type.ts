@@ -31,3 +31,4 @@ export type PropTypeIR =
   | "boolean"
   | PropTypeIR[]
   | Record<string, PropIR>
+  | { ref: string }

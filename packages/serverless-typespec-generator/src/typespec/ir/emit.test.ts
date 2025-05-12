@@ -204,4 +204,20 @@ describe("emitOperation", () => {
       }[];
     `)
   })
+  it("should emit an operation with external model", async () => {
+    const operation: OperationIR = {
+      name: "getUser",
+      method: "get",
+      route: "/users/{id}",
+      responseBody: {
+        ref: "User",
+      },
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users/{id}")
+      @get
+      op getUser(): User;
+    `)
+  })
 })

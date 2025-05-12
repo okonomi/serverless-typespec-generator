@@ -54,6 +54,10 @@ function renderType(type: PropTypeIR): string {
     return `${renderType(type[0])}[]`
   }
 
+  if ("ref" in type) {
+    return type.ref
+  }
+
   const props = Object.entries(type)
     .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
     .join(", ")
