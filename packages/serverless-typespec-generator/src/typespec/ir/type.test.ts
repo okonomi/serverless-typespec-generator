@@ -1,5 +1,11 @@
 import { describe, it, expect } from "vitest"
-import { isArrayType, isObjectType, isPrimitiveType, isRefType } from "./type"
+import {
+  isArrayType,
+  isObjectType,
+  isPrimitiveType,
+  isRefType,
+  isUnionType,
+} from "./type"
 
 describe("isPrimitiveType", () => {
   it("should return true for a primitive type", () => {
@@ -20,6 +26,18 @@ describe("ifRefType", () => {
 
   it("should return false for a non-reference type", () => {
     const result = isRefType("string")
+    expect(result).toBe(false)
+  })
+})
+
+describe("isUnionType", () => {
+  it("should return true for a union type", () => {
+    const result = isUnionType({ union: ["string", "numeric"] })
+    expect(result).toBe(true)
+  })
+
+  it("should return false for a non-union type", () => {
+    const result = isUnionType("string")
     expect(result).toBe(false)
   })
 })

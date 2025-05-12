@@ -24,16 +24,21 @@ export type PropIR = {
   required: boolean
 }
 
-export type PrimitiveType = "numeric" | "string" | "boolean"
-
 export type PropTypeIR =
   | PrimitiveType
   | RefType
+  | UnionType
   | Record<string, PropIR>
   | PropTypeIR[]
 
+export type PrimitiveType = "numeric" | "string" | "boolean"
+
 export type RefType = {
   ref: string
+}
+
+export type UnionType = {
+  union: PropTypeIR[]
 }
 
 export function isPrimitiveType(type: PropTypeIR): type is PrimitiveType {
@@ -42,6 +47,10 @@ export function isPrimitiveType(type: PropTypeIR): type is PrimitiveType {
 
 export function isRefType(type: PropTypeIR): type is RefType {
   return typeof type === "object" && "ref" in type
+}
+
+export function isUnionType(type: PropTypeIR): type is UnionType {
+  return typeof type === "object" && "union" in type
 }
 
 export function isObjectType(type: PropTypeIR): type is Record<string, PropIR> {

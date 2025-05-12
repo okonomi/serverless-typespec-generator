@@ -1,9 +1,12 @@
-import type {
-  ModelIR,
-  OperationIR,
-  PropTypeIR,
-  RefType,
-  TypeSpecIR,
+import {
+  isArrayType,
+  isPrimitiveType,
+  isRefType,
+  isUnionType,
+  type ModelIR,
+  type OperationIR,
+  type PropTypeIR,
+  type TypeSpecIR,
 } from "./type"
 
 export function emitTypeSpec(ir: TypeSpecIR): string {
@@ -52,11 +55,11 @@ export function emitOperation(operation: OperationIR): string {
 }
 
 function renderType(type: PropTypeIR): string {
-  if (typeof type === "string") {
+  if (isPrimitiveType(type)) {
     return type
   }
 
-  if (Array.isArray(type)) {
+  if (isArrayType(type)) {
     return `${renderType(type[0])}[]`
   }
 
@@ -64,12 +67,12 @@ function renderType(type: PropTypeIR): string {
     return type.ref
   }
 
+  if (isUnionType(type)) {
+    return type.union.map(renderType).join(" | ")
+  }
+
   const props = Object.entries(type)
     .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
     .join(", ")
   return `{ ${props} }`
-}
-
-function isRefType(type: PropTypeIR): type is RefType {
-  return typeof type === "object" && "ref" in type
 }

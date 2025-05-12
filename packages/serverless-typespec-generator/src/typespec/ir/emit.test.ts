@@ -220,4 +220,37 @@ describe("emitOperation", () => {
       op getUser(): User;
     `)
   })
+  it("should emit an operation with union model", async () => {
+    const operation: OperationIR = {
+      name: "getUser",
+      method: "get",
+      route: "/users/{id}",
+      returnType: {
+        union: [
+          {
+            id: { type: "string", required: true },
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+          {
+            code: { type: "string", required: true },
+            message: { type: "string", required: true },
+          },
+        ],
+      },
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users/{id}")
+      @get
+      op getUser(): {
+        id: string;
+        name: string;
+        email: string;
+      } | {
+        code: string;
+        message: string;
+      };
+    `)
+  })
 })
