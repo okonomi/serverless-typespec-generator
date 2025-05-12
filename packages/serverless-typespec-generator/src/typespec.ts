@@ -9,6 +9,8 @@ import {
 } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
 import { Registry } from "./registry"
+import { jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
+import { emitTypeSpec } from "./typespec/ir/emit"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
@@ -193,8 +195,15 @@ export function renderDefinitions(
   }
 
   for (const model of models.values()) {
-    lines.push(renderModel(model))
-    lines.push("")
+    // fallback
+    if (!model.name) {
+      lines.push(renderModel(model))
+      lines.push("")
+      continue
+    }
+
+    const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
+    lines.push(emitTypeSpec(ir))
   }
 
   return lines.join("\n")
