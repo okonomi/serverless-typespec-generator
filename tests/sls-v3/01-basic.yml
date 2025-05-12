@@ -27,3 +27,6 @@ functions:
                     type: string
                   email:
                     type: string
+                required:
+                  - name
+                  - email

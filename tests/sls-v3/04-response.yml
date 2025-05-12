@@ -27,6 +27,9 @@ functions:
                     type: string
                   email:
                     type: string
+                required:
+                  - name
+                  - email
           documentation:
             methodResponses:
               - statusCode: 201
@@ -41,6 +44,10 @@ functions:
                         type: string
                       email:
                         type: string
+                    required:
+                      - id
+                      - name
+                      - email
               - statusCode: 400
                 responseModels:
                   application/json:

@@ -35,6 +35,10 @@ functions:
                         type: string
                       email:
                         type: string
+                    required:
+                      - id
+                      - name
+                      - email
 
   getPost:
     handler: handler.getPost
@@ -60,3 +64,7 @@ functions:
                         type: string
                       content:
                         type: string
+                    required:
+                      - id
+                      - title
+                      - content
