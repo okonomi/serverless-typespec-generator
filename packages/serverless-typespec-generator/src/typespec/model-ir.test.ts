@@ -30,8 +30,8 @@ describe("jsonSchemaToTypeSpecIR", () => {
       },
       required: ["id"],
     }
-    const typeSpecIR = jsonSchemaToTypeSpecIR(schema, "Model")
-    expect(typeSpecIR).toEqual({
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual({
       kind: "model",
       model: {
         name: "Model",
@@ -47,8 +47,8 @@ describe("jsonSchemaToTypeSpecIR", () => {
       type: "array",
       "items": { type: "string" },
     }
-    const typeSpecIR = jsonSchemaToTypeSpecIR(schema, "Tags")
-    expect(typeSpecIR).toEqual({
+    const result = jsonSchemaToTypeSpecIR(schema, "Tags")
+    expect(result).toEqual({
       kind: "alias",
       name: "Tags",
       type: ["string"],
@@ -66,8 +66,8 @@ describe("jsonSchemaToModelIR", () => {
       },
       required: ["id"],
     }
-    const modelIR = jsonSchemaToModelIR(schema, "Model")
-    expect(modelIR).toEqual({
+    const result = jsonSchemaToModelIR(schema, "Model")
+    expect(result).toEqual({
       name: "Model",
       props: {
         id: { type: "string", required: true },
@@ -83,8 +83,8 @@ describe("jsonSchemaToModelIR", () => {
       },
       required: ["tags"],
     }
-    const modelIR = jsonSchemaToModelIR(schema, "ArrayModel")
-    expect(modelIR).toEqual({
+    const result = jsonSchemaToModelIR(schema, "ArrayModel")
+    expect(result).toEqual({
       name: "ArrayModel",
       props: {
         tags: { type: ["string"], required: true }
@@ -105,8 +105,8 @@ describe("jsonSchemaToModelIR", () => {
       },
       required: ["meta"],
     }
-    const modelIR = jsonSchemaToModelIR(schema, "ObjectModel")
-    expect(modelIR).toEqual({
+    const result = jsonSchemaToModelIR(schema, "ObjectModel")
+    expect(result).toEqual({
       name: "ObjectModel",
       props: {
         meta: {
