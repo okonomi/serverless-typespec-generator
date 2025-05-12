@@ -2,8 +2,8 @@ import { describe, it, expect } from "vitest"
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
 
-import type { ModelIR, TypeSpecIR } from "./type"
-import { emitModel, emitTypeSpec } from "./emit"
+import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
+import { emitModel, emitOperation, emitTypeSpec } from "./emit"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {
@@ -24,7 +24,7 @@ describe("emitTypeSpec", () => {
           id: { type: "string", required: true },
           age: { type: "int32", required: false },
         },
-      }
+      },
     }
     const result = emitTypeSpec(ir)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
@@ -122,6 +122,86 @@ describe("emitModel", () => {
           name: string;
         };
       }
+    `)
+  })
+})
+
+describe("emitOperation", () => {
+  it("should emit a simple operation", async () => {
+    const operation: OperationIR = {
+      name: "createUser",
+      method: "post",
+      route: "/users",
+      requestBody: {
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
+      },
+      responseBody: {
+        id: { type: "string", required: true },
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
+      },
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users")
+      @post
+      op createUser(
+        @body body: {
+          name: string;
+          email: string;
+        },
+      ): {
+        id: string;
+        name: string;
+        email: string;
+      };
+    `)
+  })
+  it("should emit an operation with no request body", async () => {
+    const operation: OperationIR = {
+      name: "getUser",
+      method: "get",
+      route: "/users/{id}",
+      responseBody: {
+        id: { type: "string", required: true },
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
+      },
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users/{id}")
+      @get
+      op getUser(): {
+        id: string;
+        name: string;
+        email: string;
+      };
+    `)
+  })
+  it("should emit an operation with array response", async () => {
+    const operation: OperationIR = {
+      name: "getUsers",
+      method: "get",
+      route: "/users",
+      responseBody: [
+        {
+          id: { type: "string", required: true },
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+      ],
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users")
+      @get
+      op getUsers(): {
+        id: string;
+        name: string;
+        email: string;
+      }[];
     `)
   })
 })

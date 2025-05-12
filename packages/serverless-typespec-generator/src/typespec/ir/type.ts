@@ -11,6 +11,14 @@ export type ModelIR = {
   props: Record<string, PropIR>
 }
 
+export type OperationIR = {
+  name: string
+  method: "get" | "post" | "put" | "delete"
+  route: string
+  requestBody?: PropTypeIR
+  responseBody?: PropTypeIR
+}
+
 export type PropIR = {
   type: PropTypeIR
   required: boolean

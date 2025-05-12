@@ -1,4 +1,4 @@
-import type { ModelIR, PropTypeIR, TypeSpecIR } from "./type"
+import type { ModelIR, OperationIR, PropTypeIR, TypeSpecIR } from "./type"
 
 export function emitTypeSpec(ir: TypeSpecIR): string {
   if (ir.kind === "model") {
@@ -22,6 +22,25 @@ export function emitModel(model: ModelIR): string {
     lines.push(`${name}${optional}: ${type};`)
   }
   lines.push("}")
+
+  return lines.join("\n")
+}
+
+export function emitOperation(operation: OperationIR): string {
+  const lines: string[] = []
+
+  const parameters: string[] = []
+  if (operation.requestBody) {
+    parameters.push(`@body body: ${renderType(operation.requestBody)}`)
+  }
+
+  const returnType = operation.responseBody
+    ? renderType(operation.responseBody)
+    : "void"
+
+  lines.push(`@route("${operation.route}")`)
+  lines.push(`@${operation.method}`)
+  lines.push(`op ${operation.name}(${parameters.join(", ")}): ${returnType};`)
 
   return lines.join("\n")
 }

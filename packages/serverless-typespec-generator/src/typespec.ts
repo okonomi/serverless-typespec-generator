@@ -202,9 +202,15 @@ export function renderDefinitions(
       continue
     }
 
-    const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
-    lines.push(emitTypeSpec(ir))
-    lines.push("")
+    try {
+      const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
+      lines.push(emitTypeSpec(ir))
+      lines.push("")
+    } catch {
+      // fallback
+      lines.push(renderModel(model))
+      lines.push("")
+    }
   }
 
   return lines.join("\n")
