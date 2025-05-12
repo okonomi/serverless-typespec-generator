@@ -24,15 +24,30 @@ export type PropIR = {
   required: boolean
 }
 
+export type PrimitiveType = "numeric" | "string" | "boolean"
+
 export type PropTypeIR =
-  | "string"
-  | "int32"
-  | "float64"
-  | "boolean"
-  | PropTypeIR[]
+  | PrimitiveType
   | RefType
   | Record<string, PropIR>
+  | PropTypeIR[]
 
 export type RefType = {
   ref: string
+}
+
+export function isPrimitiveType(type: PropTypeIR): type is PrimitiveType {
+  return type === "numeric" || type === "string" || type === "boolean"
+}
+
+export function isRefType(type: PropTypeIR): type is RefType {
+  return typeof type === "object" && "ref" in type
+}
+
+export function isObjectType(type: PropTypeIR): type is Record<string, PropIR> {
+  return typeof type === "object" && !isRefType(type)
+}
+
+export function isArrayType(type: PropTypeIR): type is PropTypeIR[] {
+  return Array.isArray(type)
 }

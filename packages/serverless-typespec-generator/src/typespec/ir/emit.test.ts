@@ -22,7 +22,7 @@ describe("emitTypeSpec", () => {
         name: "TestModel",
         props: {
           id: { type: "string", required: true },
-          age: { type: "int32", required: false },
+          age: { type: "numeric", required: false },
         },
       },
     }
@@ -30,7 +30,7 @@ describe("emitTypeSpec", () => {
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model TestModel {
         id: string;
-        age?: int32;
+        age?: numeric;
       }
     `)
   })
@@ -53,14 +53,14 @@ describe("emitModel", () => {
       name: "TestModel",
       props: {
         id: { type: "string", required: true },
-        age: { type: "int32", required: false },
+        age: { type: "numeric", required: false },
       },
     }
     const result = emitModel(model)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model TestModel {
         id: string;
-        age?: int32;
+        age?: numeric;
       }
     `)
   })
