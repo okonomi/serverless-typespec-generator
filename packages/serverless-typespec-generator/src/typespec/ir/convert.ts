@@ -1,28 +1,4 @@
-import type { JSONSchema4 } from "json-schema"
-
-export type JSONSchema = JSONSchema4
-
-export type TypeSpecIR =
-  | { kind: "alias"; name: string; type: PropTypeIR }
-  | { kind: "model"; model: ModelIR }
-
-export type ModelIR = {
-  name: string
-  props: Record<string, PropIR>
-}
-
-export type PropIR = {
-  type: PropTypeIR
-  required: boolean
-}
-
-export type PropTypeIR =
-  | "string"
-  | "int32"
-  | "float64"
-  | "boolean"
-  | PropTypeIR[]
-  | Record<string, PropIR>
+import type { JSONSchema, ModelIR, PropIR, PropTypeIR, TypeSpecIR } from "./type"
 
 export function jsonSchemaToTypeSpecIR(schema: JSONSchema, name: string): TypeSpecIR {
   if (schema.type === "array") {
@@ -84,45 +60,4 @@ function convertType(schema: JSONSchema): PropTypeIR {
     default:
       throw new Error(`Unknown type: ${schema.type}`)
   }
-}
-
-export function emitTypeSpec(ir: TypeSpecIR): string {
-  if (ir.kind === "model") {
-    return emitModel(ir.model)
-  }
-  if (ir.kind === "alias") {
-    const type = renderType(ir.type)
-    return `alias ${ir.name} = ${type};`
-  }
-
-  throw new Error(`Unknown IR: ${ir}`)
-}
-
-export function emitModel(model: ModelIR): string {
-  const lines: string[] = []
-
-  lines.push(`model ${model.name} {`)
-  for (const [name, prop] of Object.entries(model.props)) {
-    const type = renderType(prop.type)
-    const optional = prop.required ? "" : "?"
-    lines.push(`${name}${optional}: ${type};`)
-  }
-  lines.push("}")
-
-  return lines.join("\n")
-}
-
-function renderType(type: PropTypeIR): string {
-  if (typeof type === "string") {
-    return type
-  }
-
-  if (Array.isArray(type)) {
-    return `${renderType(type[0])}[]`
-  }
-
-  const props = Object.entries(type)
-    .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
-    .join(", ")
-  return `{ ${props} }`
 }
