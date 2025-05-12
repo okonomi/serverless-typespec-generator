@@ -4,12 +4,22 @@ import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
 import dedent from "dedent"
+import { formatTypeSpec } from "@typespec/compiler"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
 import type { Operation } from "./typespec/operation"
 
 const context = describe
+
+async function normalizeTypeSpec(code: string) {
+  const formattedCode = await formatTypeSpec(code, {
+    indent: "  ",
+    lineWidth: 80,
+    trailingNewline: false,
+  })
+  return formattedCode.trimEnd()
+}
 
 function createServerlessMock(
   functions: Serverless.FunctionDefinitionHandler[],
@@ -358,7 +368,7 @@ describe("parseServerlessConfig", () => {
 })
 
 describe("renderDefinitions", () => {
-  it("should generate TypeSpec definitions for given operations and models", () => {
+  it("should generate TypeSpec definitions for given operations and models", async () => {
     const operations: Operation[] = [
       // {
       //   route: "/users",
@@ -394,18 +404,22 @@ describe("renderDefinitions", () => {
     models.register("CreateUserRequest", {
       name: "CreateUserRequest",
       schema: {
+        type: "object",
         properties: {
           name: { type: "string" },
           email: { type: "string" },
         },
+        required: ["name", "email"],
       },
     })
     models.register("CreateUserResponse", {
       name: "CreateUserResponse",
       schema: {
+        type: "object",
         properties: {
           id: { type: "string" },
         },
+        required: ["id"],
       },
     })
 
@@ -436,6 +450,6 @@ describe("renderDefinitions", () => {
       }
     `
 
-    expect(result).toBe(`${expected}\n`)
+    expect(await normalizeTypeSpec(result)).toBe(expected)
   })
 })
