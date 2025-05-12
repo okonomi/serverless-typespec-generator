@@ -10,7 +10,8 @@ import {
 import { type Model, render as renderModel } from "./typespec/model"
 import { Registry } from "./registry"
 import { jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
-import { emitTypeSpec } from "./typespec/ir/emit"
+import { emitOperation, emitTypeSpec } from "./typespec/ir/emit"
+import type { OperationIR, PropTypeIR } from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
@@ -190,7 +191,16 @@ export function renderDefinitions(
   lines.push("")
 
   for (const operation of operations) {
-    lines.push(renderOperation(operation))
+    const ir: OperationIR = {
+      name: operation.name,
+      route: operation.http.path,
+      method: operation.http.method,
+    }
+    if (operation.body) {
+      ir.requestBody = { ref: operation.body }
+    }
+
+    lines.push(emitOperation(ir))
     lines.push("")
   }
 

@@ -13,7 +13,7 @@ export type ModelIR = {
 
 export type OperationIR = {
   name: string
-  method: "get" | "post" | "put" | "delete"
+  method: "get" | "post" | "put" | "delete" | "patch"
   route: string
   requestBody?: PropTypeIR
   responseBody?: PropTypeIR

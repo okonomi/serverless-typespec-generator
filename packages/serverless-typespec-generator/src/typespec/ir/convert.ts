@@ -1,6 +1,15 @@
-import type { JSONSchema, ModelIR, PropIR, PropTypeIR, TypeSpecIR } from "./type"
+import type {
+  JSONSchema,
+  ModelIR,
+  PropIR,
+  PropTypeIR,
+  TypeSpecIR,
+} from "./type"
 
-export function jsonSchemaToTypeSpecIR(schema: JSONSchema, name: string): TypeSpecIR {
+export function jsonSchemaToTypeSpecIR(
+  schema: JSONSchema,
+  name: string,
+): TypeSpecIR {
   if (schema.type === "array") {
     if (!schema.items || Array.isArray(schema.items)) {
       throw new Error("Array 'items' must be a single schema object")
@@ -24,7 +33,7 @@ export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
-function extractProps(schema: JSONSchema): Record<string, PropIR> {
+export function extractProps(schema: JSONSchema): Record<string, PropIR> {
   const required = new Set(
     Array.isArray(schema.required) ? schema.required : [],
   )
