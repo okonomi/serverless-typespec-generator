@@ -52,16 +52,16 @@ function extractProps(schema: JSONSchema): Record<string, PropIR> {
   const required = new Set(
     Array.isArray(schema.required) ? schema.required : [],
   )
-  const out: Record<string, PropIR> = {}
+  const props: Record<string, PropIR> = {}
 
   for (const [key, def] of Object.entries(schema.properties || {})) {
-    out[key] = {
+    props[key] = {
       type: convertType(def),
       required: required.has(key),
     }
   }
 
-  return out
+  return props
 }
 
 function convertType(schema: JSONSchema): PropTypeIR {
