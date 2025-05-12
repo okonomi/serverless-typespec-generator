@@ -48,7 +48,7 @@ describe("jsonSchemaToModelIR", () => {
     expect(modelIR).toEqual({
       name: "ArrayModel",
       props: {
-        tags: { type: { array: "string" }, required: true },
+        tags: { type: ["string"], required: true }
       },
     })
   })
@@ -72,9 +72,7 @@ describe("jsonSchemaToModelIR", () => {
       props: {
         meta: {
           type: {
-            object: {
-              name: { type: "string", required: true },
-            },
+            name: { type: "string", required: true },
           },
           required: true,
         },
@@ -104,7 +102,7 @@ describe("emitTypeSpec", () => {
     const model: ModelIR = {
       name: "ArrayModel",
       props: {
-        tags: { type: { array: "string" }, required: true },
+        tags: { type: ["string"], required: true },
       },
     }
     const result = emitTypeSpec(model)
@@ -120,9 +118,7 @@ describe("emitTypeSpec", () => {
       props: {
         meta: {
           type: {
-            object: {
-              name: { type: "string", required: true },
-            },
+            name: { type: "string", required: true },
           },
           required: true,
         },
@@ -142,12 +138,10 @@ describe("emitTypeSpec", () => {
       name: "MixedModel",
       props: {
         active: { type: "boolean", required: true },
-        tags: { type: { array: "string" }, required: false },
+        tags: { type: ["string"], required: false },
         meta: {
           type: {
-            object: {
-              name: { type: "string", required: true },
-            },
+            name: { type: "string", required: true },
           },
           required: false,
         },

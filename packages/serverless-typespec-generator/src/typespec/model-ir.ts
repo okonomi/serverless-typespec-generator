@@ -17,8 +17,8 @@ export type PropTypeIR =
   | "int32"
   | "float64"
   | "boolean"
-  | { array: PropTypeIR }
-  | { object: Record<string, PropIR> }
+  | PropTypeIR[]
+  | Record<string, PropIR>
 
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   let props: Record<string, PropIR> = {}
@@ -79,9 +79,9 @@ function convertType(schema: JSONSchema): PropTypeIR {
       if (!schema.items || Array.isArray(schema.items)) {
         throw new Error("Array 'items' must be a single schema object")
       }
-      return { array: convertType(schema.items) }
+      return [convertType(schema.items)]
     case "object":
-      return { object: extractProps(schema) }
+      return extractProps(schema)
     default:
       throw new Error(`Unknown type: ${schema.type}`)
   }
@@ -106,16 +106,12 @@ function renderType(type: PropTypeIR): string {
     return type
   }
 
-  if ("array" in type) {
-    return `${renderType(type.array)}[]`
+  if (Array.isArray(type)) {
+    return `${renderType(type[0])}[]`
   }
 
-  if ("object" in type) {
-    const props = Object.entries(type.object)
-      .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
-      .join(", ")
-    return `{ ${props} }`
-  }
-
-  throw new Error(`Unknown type: ${type}`)
+  const props = Object.entries(type)
+    .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
+    .join(", ")
+  return `{ ${props} }`
 }
