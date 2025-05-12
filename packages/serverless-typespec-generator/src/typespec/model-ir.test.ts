@@ -1,9 +1,12 @@
 import { describe, it, expect } from "vitest"
 import {
+  type TypeSpecIR,
   type ModelIR,
   type JSONSchema,
+  jsonSchemaToTypeSpecIR,
   jsonSchemaToModelIR,
   emitTypeSpec,
+  emitModel,
 } from "./model-ir"
 import dedent from "dedent"
 import { formatTypeSpec } from "@typespec/compiler"
@@ -16,6 +19,42 @@ async function normalizeTypeSpec(code: string) {
   })
   return formattedCode.trimEnd()
 }
+
+describe("jsonSchemaToTypeSpecIR", () => {
+  it("should convert a simple JSON schema to TypeSpec IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        age: { type: "integer" },
+      },
+      required: ["id"],
+    }
+    const typeSpecIR = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(typeSpecIR).toEqual({
+      kind: "model",
+      model: {
+        name: "Model",
+        props: {
+          id: { type: "string", required: true },
+          age: { type: "int32", required: false },
+        },
+      },
+    })
+  })
+  it("should convert a JSON schema of array to TypeSpec IR", () => {
+    const schema: JSONSchema = {
+      type: "array",
+      "items": { type: "string" },
+    }
+    const typeSpecIR = jsonSchemaToTypeSpecIR(schema, "Tags")
+    expect(typeSpecIR).toEqual({
+      kind: "alias",
+      name: "Tags",
+      type: ["string"],
+    })
+  })
+})
 
 describe("jsonSchemaToModelIR", () => {
   it("should convert a simple JSON schema to ModelIR", () => {
@@ -83,6 +122,39 @@ describe("jsonSchemaToModelIR", () => {
 
 describe("emitTypeSpec", () => {
   it("should emit a simple model", async () => {
+    const ir: TypeSpecIR = {
+      kind: "model",
+      model: {
+        name: "TestModel",
+        props: {
+          id: { type: "string", required: true },
+          age: { type: "int32", required: false },
+        },
+      }
+    }
+    const result = emitTypeSpec(ir)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      model TestModel {
+        id: string;
+        age?: int32;
+      }
+    `)
+  })
+  it("should emit a alias for an array", async () => {
+    const ir: TypeSpecIR = {
+      kind: "alias",
+      name: "Tags",
+      type: ["string"],
+    }
+    const result = emitTypeSpec(ir)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      alias Tags = string[];
+    `)
+  })
+})
+
+describe("emitModel", () => {
+  it("should emit a simple model", async () => {
     const model: ModelIR = {
       name: "TestModel",
       props: {
@@ -90,7 +162,7 @@ describe("emitTypeSpec", () => {
         age: { type: "int32", required: false },
       },
     }
-    const result = emitTypeSpec(model)
+    const result = emitModel(model)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model TestModel {
         id: string;
@@ -105,7 +177,7 @@ describe("emitTypeSpec", () => {
         tags: { type: ["string"], required: true },
       },
     }
-    const result = emitTypeSpec(model)
+    const result = emitModel(model)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model ArrayModel {
         tags: string[];
@@ -124,7 +196,7 @@ describe("emitTypeSpec", () => {
         },
       },
     }
-    const result = emitTypeSpec(model)
+    const result = emitModel(model)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model ObjectModel {
         meta: {
@@ -147,7 +219,7 @@ describe("emitTypeSpec", () => {
         },
       },
     }
-    const result = emitTypeSpec(model)
+    const result = emitModel(model)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model MixedModel {
         active: boolean;

@@ -2,6 +2,10 @@ import type { JSONSchema4 } from "json-schema"
 
 export type JSONSchema = JSONSchema4
 
+export type TypeSpecIR =
+  | { kind: "alias"; name: string; type: PropTypeIR }
+  | { kind: "model"; model: ModelIR }
+
 export type ModelIR = {
   name: string
   props: Record<string, PropIR>
@@ -19,6 +23,21 @@ export type PropTypeIR =
   | "boolean"
   | PropTypeIR[]
   | Record<string, PropIR>
+
+export function jsonSchemaToTypeSpecIR(schema: JSONSchema, name: string): TypeSpecIR {
+  if (schema.type === "array") {
+    if (!schema.items || Array.isArray(schema.items)) {
+      throw new Error("Array 'items' must be a single schema object")
+    }
+    const type = [convertType(schema.items)]
+    return { kind: "alias", name, type }
+  }
+  if (schema.type === "object") {
+    const model = jsonSchemaToModelIR(schema, name)
+    return { kind: "model", model }
+  }
+  throw new Error(`Unsupported schema type: ${schema.type}`)
+}
 
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   let props: Record<string, PropIR> = {}
@@ -87,7 +106,19 @@ function convertType(schema: JSONSchema): PropTypeIR {
   }
 }
 
-export function emitTypeSpec(model: ModelIR): string {
+export function emitTypeSpec(ir: TypeSpecIR): string {
+  if (ir.kind === "model") {
+    return emitModel(ir.model)
+  }
+  if (ir.kind === "alias") {
+    const type = renderType(ir.type)
+    return `alias ${ir.name} = ${type};`
+  }
+
+  throw new Error(`Unknown IR: ${ir}`)
+}
+
+export function emitModel(model: ModelIR): string {
   const lines: string[] = []
 
   lines.push(`model ${model.name} {`)
