@@ -1,0 +1,63 @@
+import type { JSONSchema, ModelIR, PropIR, PropTypeIR, TypeSpecIR } from "./type"
+
+export function jsonSchemaToTypeSpecIR(schema: JSONSchema, name: string): TypeSpecIR {
+  if (schema.type === "array") {
+    if (!schema.items || Array.isArray(schema.items)) {
+      throw new Error("Array 'items' must be a single schema object")
+    }
+    const type = [convertType(schema.items)]
+    return { kind: "alias", name, type }
+  }
+  if (schema.type === "object") {
+    const model = jsonSchemaToModelIR(schema, name)
+    return { kind: "model", model }
+  }
+  throw new Error(`Unsupported schema type: ${schema.type}`)
+}
+
+export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
+  if (schema.type === "object") {
+    const props = extractProps(schema)
+    return { name, props }
+  }
+
+  throw new Error(`Unsupported schema type: ${schema.type}`)
+}
+
+function extractProps(schema: JSONSchema): Record<string, PropIR> {
+  const required = new Set(
+    Array.isArray(schema.required) ? schema.required : [],
+  )
+  const props: Record<string, PropIR> = {}
+
+  for (const [key, def] of Object.entries(schema.properties || {})) {
+    props[key] = {
+      type: convertType(def),
+      required: required.has(key),
+    }
+  }
+
+  return props
+}
+
+function convertType(schema: JSONSchema): PropTypeIR {
+  switch (schema.type) {
+    case "string":
+      return "string"
+    case "integer":
+      return "int32"
+    case "number":
+      return "float64"
+    case "boolean":
+      return "boolean"
+    case "array":
+      if (!schema.items || Array.isArray(schema.items)) {
+        throw new Error("Array 'items' must be a single schema object")
+      }
+      return [convertType(schema.items)]
+    case "object":
+      return extractProps(schema)
+    default:
+      throw new Error(`Unknown type: ${schema.type}`)
+  }
+}
