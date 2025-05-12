@@ -199,6 +199,9 @@ export function renderDefinitions(
     if (operation.body) {
       ir.requestBody = { ref: operation.body }
     }
+    // if (typeof operation.returnType === "string") {
+    //   ir.responseBody = { ref: operation.returnType }
+    // }
 
     lines.push(emitOperation(ir))
     lines.push("")
