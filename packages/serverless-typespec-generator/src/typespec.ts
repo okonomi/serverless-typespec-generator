@@ -204,6 +204,7 @@ export function renderDefinitions(
 
     const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
     lines.push(emitTypeSpec(ir))
+    lines.push("")
   }
 
   return lines.join("\n")
