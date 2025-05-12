@@ -47,25 +47,6 @@ export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   }
 
   return { name, props }
-
-  // for (const [key, value] of Object.entries(schema.properties ?? {})) {
-  //   if (value.type === "object") {
-  //     model.props[key] = {
-  //       type: { object: jsonSchemaToModelIR(value).props },
-  //       required: value.required ?? false,
-  //     }
-  //   } else if (value.type === "array") {
-  //     model.props[key] = {
-  //       type: { array: value.items?.type ?? "string" },
-  //       required: value.required ?? false,
-  //     }
-  //   } else {
-  //     model.props[key] = {
-  //       type: value.type,
-  //       required: value.required ?? false,
-  //     }
-  //   }
-  // }
 }
 
 function extractProps(schema: JSONSchema): Record<string, PropIR> {
