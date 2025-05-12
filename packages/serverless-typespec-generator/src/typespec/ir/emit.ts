@@ -40,8 +40,8 @@ export function emitOperation(operation: OperationIR): string {
     parameters.push(`@body body: ${renderType(operation.requestBody)}`)
   }
 
-  const returnType = operation.responseBody
-    ? renderType(operation.responseBody)
+  const returnType = operation.returnType
+    ? renderType(operation.returnType)
     : "void"
 
   lines.push(`@route("${operation.route}")`)

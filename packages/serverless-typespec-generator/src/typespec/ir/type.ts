@@ -16,7 +16,7 @@ export type OperationIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   route: string
   requestBody?: PropTypeIR
-  responseBody?: PropTypeIR
+  returnType?: PropTypeIR
 }
 
 export type PropIR = {

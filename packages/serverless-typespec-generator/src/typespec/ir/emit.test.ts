@@ -136,7 +136,7 @@ describe("emitOperation", () => {
         name: { type: "string", required: true },
         email: { type: "string", required: true },
       },
-      responseBody: {
+      returnType: {
         id: { type: "string", required: true },
         name: { type: "string", required: true },
         email: { type: "string", required: true },
@@ -163,7 +163,7 @@ describe("emitOperation", () => {
       name: "getUser",
       method: "get",
       route: "/users/{id}",
-      responseBody: {
+      returnType: {
         id: { type: "string", required: true },
         name: { type: "string", required: true },
         email: { type: "string", required: true },
@@ -185,7 +185,7 @@ describe("emitOperation", () => {
       name: "getUsers",
       method: "get",
       route: "/users",
-      responseBody: [
+      returnType: [
         {
           id: { type: "string", required: true },
           name: { type: "string", required: true },
@@ -209,7 +209,7 @@ describe("emitOperation", () => {
       name: "getUser",
       method: "get",
       route: "/users/{id}",
-      responseBody: {
+      returnType: {
         ref: "User",
       },
     }
