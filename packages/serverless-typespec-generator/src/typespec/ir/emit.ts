@@ -1,4 +1,10 @@
-import type { ModelIR, OperationIR, PropTypeIR, TypeSpecIR } from "./type"
+import type {
+  ModelIR,
+  OperationIR,
+  PropTypeIR,
+  RefType,
+  TypeSpecIR,
+} from "./type"
 
 export function emitTypeSpec(ir: TypeSpecIR): string {
   if (ir.kind === "model") {
@@ -54,7 +60,7 @@ function renderType(type: PropTypeIR): string {
     return `${renderType(type[0])}[]`
   }
 
-  if ("ref" in type) {
+  if (isRefType(type)) {
     return type.ref
   }
 
@@ -62,4 +68,8 @@ function renderType(type: PropTypeIR): string {
     .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
     .join(", ")
   return `{ ${props} }`
+}
+
+function isRefType(type: PropTypeIR): type is RefType {
+  return typeof type === "object" && "ref" in type
 }

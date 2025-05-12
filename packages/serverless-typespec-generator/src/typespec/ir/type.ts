@@ -30,5 +30,9 @@ export type PropTypeIR =
   | "float64"
   | "boolean"
   | PropTypeIR[]
+  | RefType
   | Record<string, PropIR>
-  | { ref: string }
+
+export type RefType = {
+  ref: string
+}
