@@ -40,13 +40,12 @@ export function jsonSchemaToTypeSpecIR(schema: JSONSchema, name: string): TypeSp
 }
 
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
-  let props: Record<string, PropIR> = {}
-
   if (schema.type === "object") {
-    props = extractProps(schema)
+    const props = extractProps(schema)
+    return { name, props }
   }
 
-  return { name, props }
+  throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
 function extractProps(schema: JSONSchema): Record<string, PropIR> {
