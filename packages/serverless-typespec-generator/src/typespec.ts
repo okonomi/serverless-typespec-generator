@@ -9,8 +9,18 @@ import {
 } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
 import { Registry } from "./registry"
-import { jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
-import { emitTypeSpec } from "./typespec/ir/emit"
+import {
+  extractProps,
+  jsonSchemaToModelIR,
+  jsonSchemaToTypeSpecIR,
+} from "./typespec/ir/convert"
+import { emitOperation, emitTypeSpec } from "./typespec/ir/emit"
+import {
+  isPrimitiveType,
+  isPropType,
+  type OperationIR,
+  type PropTypeIR,
+} from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
@@ -190,7 +200,41 @@ export function renderDefinitions(
   lines.push("")
 
   for (const operation of operations) {
-    lines.push(renderOperation(operation))
+    const ir: OperationIR = {
+      name: operation.name,
+      route: operation.http.path,
+      method: operation.http.method,
+    }
+    if (operation.pathParameters) {
+      ir.parameters = {}
+      ir.http = {
+        params: operation.pathParameters.map((param) => param.name),
+      }
+      for (const param of operation.pathParameters) {
+        ir.parameters[param.name] = {
+          type: isPropType(param.type) ? param.type : "string",
+          required: param.required ?? false,
+        }
+      }
+    }
+    if (operation.body) {
+      ir.requestBody = { ref: operation.body }
+    }
+    if (typeof operation.returnType === "string") {
+      ir.returnType = { ref: operation.returnType }
+    } else if (Array.isArray(operation.returnType)) {
+      ir.returnType = operation.returnType.map((r) => {
+        return {
+          statusCode: r.statusCode,
+          body:
+            typeof r.type === "string"
+              ? { ref: r.type }
+              : extractProps(r.type.schema),
+        }
+      })
+    }
+
+    lines.push(emitOperation(ir))
     lines.push("")
   }
 
@@ -202,9 +246,15 @@ export function renderDefinitions(
       continue
     }
 
-    const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
-    lines.push(emitTypeSpec(ir))
-    lines.push("")
+    try {
+      const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
+      lines.push(emitTypeSpec(ir))
+      lines.push("")
+    } catch {
+      // fallback
+      lines.push(renderModel(model))
+      lines.push("")
+    }
   }
 
   return lines.join("\n")

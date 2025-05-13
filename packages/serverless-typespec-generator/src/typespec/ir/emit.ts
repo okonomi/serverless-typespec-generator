@@ -1,4 +1,16 @@
-import type { ModelIR, PropTypeIR, TypeSpecIR } from "./type"
+import {
+  type HttpResponseIR,
+  isArrayType,
+  isHttpResponse,
+  isHttpResponses,
+  isPrimitiveType,
+  isRefType,
+  isUnionType,
+  type ModelIR,
+  type OperationIR,
+  type PropTypeIR,
+  type TypeSpecIR,
+} from "./type"
 
 export function emitTypeSpec(ir: TypeSpecIR): string {
   if (ir.kind === "model") {
@@ -26,13 +38,59 @@ export function emitModel(model: ModelIR): string {
   return lines.join("\n")
 }
 
+export function emitOperation(operation: OperationIR): string {
+  const lines: string[] = []
+
+  const parameters: string[] = []
+  const paramEntries = Object.entries(operation.parameters ?? {})
+  const pathParams = new Set(operation.http?.params ?? [])
+  for (const [name, prop] of paramEntries) {
+    const decorator = pathParams.has(name) ? "@path" : ""
+    const optional = prop.required ? "" : "?"
+    const type = renderType(prop.type)
+    parameters.push(`${decorator} ${name}${optional}: ${type}`)
+  }
+
+  if (operation.requestBody) {
+    parameters.push(`@body body: ${renderType(operation.requestBody)}`)
+  }
+
+  let returnType = "void"
+  if (isHttpResponses(operation.returnType)) {
+    returnType = operation.returnType.map(renderHttpResponse).join(" | ")
+  } else if (isHttpResponse(operation.returnType)) {
+    returnType = renderHttpResponse(operation.returnType)
+  } else if (operation.returnType) {
+    returnType = renderType(operation.returnType)
+  }
+
+  lines.push(`@route("${operation.route}")`)
+  lines.push(`@${operation.method}`)
+  lines.push(`op ${operation.name}(${parameters.join(", ")}): ${returnType};`)
+
+  return lines.join("\n")
+}
+
+function renderHttpResponse(r: HttpResponseIR): string {
+  const body = renderType(r.body)
+  return `{ @statusCode statusCode: ${r.statusCode}; @body body: ${body} }`
+}
+
 function renderType(type: PropTypeIR): string {
-  if (typeof type === "string") {
+  if (isPrimitiveType(type)) {
     return type
   }
 
-  if (Array.isArray(type)) {
+  if (isArrayType(type)) {
     return `${renderType(type[0])}[]`
+  }
+
+  if (isRefType(type)) {
+    return type.ref
+  }
+
+  if (isUnionType(type)) {
+    return type.union.map(renderType).join(" | ")
   }
 
   const props = Object.entries(type)
