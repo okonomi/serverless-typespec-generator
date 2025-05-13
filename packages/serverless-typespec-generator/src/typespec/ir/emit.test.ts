@@ -18,12 +18,10 @@ describe("emitTypeSpec", () => {
   it("should emit a simple model", async () => {
     const ir: TypeSpecIR = {
       kind: "model",
-      model: {
-        name: "TestModel",
-        props: {
-          id: { type: "string", required: true },
-          age: { type: "numeric", required: false },
-        },
+      name: "TestModel",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
       },
     }
     const result = emitTypeSpec(ir)
@@ -84,6 +82,7 @@ describe("emitTypeSpec", () => {
 describe("emitModel", () => {
   it("should emit a simple model", async () => {
     const model: ModelIR = {
+      kind: "model",
       name: "TestModel",
       props: {
         id: { type: "string", required: true },
@@ -100,6 +99,7 @@ describe("emitModel", () => {
   })
   it("should emit a model with array properties", async () => {
     const model: ModelIR = {
+      kind: "model",
       name: "ArrayModel",
       props: {
         tags: { type: ["string"], required: true },
@@ -114,6 +114,7 @@ describe("emitModel", () => {
   })
   it("should emit a model with object properties", async () => {
     const model: ModelIR = {
+      kind: "model",
       name: "ObjectModel",
       props: {
         meta: {
@@ -135,6 +136,7 @@ describe("emitModel", () => {
   })
   it("should emit a model with mixed properties", async () => {
     const model: ModelIR = {
+      kind: "model",
       name: "MixedModel",
       props: {
         active: { type: "boolean", required: true },

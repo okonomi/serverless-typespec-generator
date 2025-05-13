@@ -111,11 +111,9 @@ describe("parseServerlessConfig", () => {
         expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
           {
             kind: "model",
-            model: {
-              name: "HelloRequest",
-              props: {
-                name: { type: "string", required: false },
-              },
+            name: "HelloRequest",
+            props: {
+              name: { type: "string", required: false },
             },
           },
         ])
@@ -435,21 +433,17 @@ describe("renderDefinitions", () => {
       },
       {
         kind: "model",
-        model: {
-          name: "CreateUserRequest",
-          props: {
-            name: { type: "string", required: true },
-            email: { type: "string", required: true },
-          },
+        name: "CreateUserRequest",
+        props: {
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
         },
       },
       {
         kind: "model",
-        model: {
-          name: "CreateUserResponse",
-          props: {
-            id: { type: "string", required: true },
-          },
+        name: "CreateUserResponse",
+        props: {
+          id: { type: "string", required: true },
         },
       },
     ]

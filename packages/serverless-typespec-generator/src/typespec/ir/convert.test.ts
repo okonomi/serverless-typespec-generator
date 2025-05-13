@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest"
 
-import type { JSONSchema } from "./type"
+import type { JSONSchema, ModelIR } from "./type"
 import { jsonSchemaToModelIR, jsonSchemaToTypeSpecIR } from "./convert"
+import { K } from "vitest/dist/chunks/reporters.d.79o4mouw"
 
 describe("jsonSchemaToTypeSpecIR", () => {
   it("should convert a simple JSON schema to TypeSpec IR", () => {
@@ -14,14 +15,12 @@ describe("jsonSchemaToTypeSpecIR", () => {
       required: ["id"],
     }
     const result = jsonSchemaToTypeSpecIR(schema, "Model")
-    expect(result).toEqual({
+    expect(result).toEqual<ModelIR>({
       kind: "model",
-      model: {
-        name: "Model",
-        props: {
-          id: { type: "string", required: true },
-          age: { type: "numeric", required: false },
-        },
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
       },
     })
   })
@@ -50,7 +49,8 @@ describe("jsonSchemaToModelIR", () => {
       required: ["id"],
     }
     const result = jsonSchemaToModelIR(schema, "Model")
-    expect(result).toEqual({
+    expect(result).toEqual<ModelIR>({
+      kind: "model",
       name: "Model",
       props: {
         id: { type: "string", required: true },
@@ -67,7 +67,8 @@ describe("jsonSchemaToModelIR", () => {
       required: ["tags"],
     }
     const result = jsonSchemaToModelIR(schema, "ArrayModel")
-    expect(result).toEqual({
+    expect(result).toEqual<ModelIR>({
+      kind: "model",
       name: "ArrayModel",
       props: {
         tags: { type: ["string"], required: true },
@@ -89,7 +90,8 @@ describe("jsonSchemaToModelIR", () => {
       required: ["meta"],
     }
     const result = jsonSchemaToModelIR(schema, "ObjectModel")
-    expect(result).toEqual({
+    expect(result).toEqual<ModelIR>({
+      kind: "model",
       name: "ObjectModel",
       props: {
         meta: {

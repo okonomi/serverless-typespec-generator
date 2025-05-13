@@ -4,10 +4,11 @@ export type JSONSchema = JSONSchema4
 
 export type TypeSpecIR =
   | { kind: "alias"; name: string; type: PropTypeIR }
-  | { kind: "model"; model: ModelIR }
+  | ModelIR
   | { kind: "operation"; operation: OperationIR }
 
 export type ModelIR = {
+  kind: "model"
   name: string
   props: Record<string, PropIR>
 }

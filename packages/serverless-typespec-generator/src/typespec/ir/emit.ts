@@ -14,7 +14,7 @@ import {
 
 export function emitTypeSpec(ir: TypeSpecIR): string {
   if (ir.kind === "model") {
-    return emitModel(ir.model)
+    return emitModel(ir)
   }
   if (ir.kind === "alias") {
     const type = renderType(ir.type)

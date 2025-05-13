@@ -18,8 +18,7 @@ export function jsonSchemaToTypeSpecIR(
     return { kind: "alias", name, type }
   }
   if (schema.type === "object") {
-    const model = jsonSchemaToModelIR(schema, name)
-    return { kind: "model", model }
+    return jsonSchemaToModelIR(schema, name)
   }
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
@@ -27,7 +26,7 @@ export function jsonSchemaToTypeSpecIR(
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   if (schema.type === "object") {
     const props = extractProps(schema)
-    return { name, props }
+    return { kind: "model", name, props }
   }
 
   throw new Error(`Unsupported schema type: ${schema.type}`)
