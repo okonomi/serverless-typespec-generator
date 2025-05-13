@@ -90,14 +90,8 @@ export function parseServerlessConfig(serverless: SLS): {
           body = name
         } else if (typeof contentTypeSchema === "string") {
           const model = models.get(contentTypeSchema)
-          const name =
-            model?.kind === "model"
-              ? model.name
-              : model?.kind === "alias"
-                ? model.name
-                : null
-          if (name) {
-            body = name
+          if (model) {
+            body = model.name
           }
         }
       }
@@ -146,16 +140,10 @@ export function parseServerlessConfig(serverless: SLS): {
               }
             } else if (typeof contentTypeSchema === "string") {
               const model = models.get(contentTypeSchema)
-              const name =
-                model?.kind === "model"
-                  ? model.name
-                  : model?.kind === "alias"
-                    ? model.name
-                    : null
-              if (name) {
+              if (model) {
                 returnType.push({
                   statusCode: methodResponse.statusCode,
-                  body: { ref: name },
+                  body: { ref: model.name },
                 })
               }
             }
