@@ -253,4 +253,32 @@ describe("emitOperation", () => {
       };
     `)
   })
+  it("should emit an operation with status code", async () => {
+    const operation: OperationIR = {
+      name: "getUser",
+      method: "get",
+      route: "/users/{id}",
+      returnType: {
+        statusCode: 200,
+        body: {
+          id: { type: "string", required: true },
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+      },
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users/{id}")
+      @get
+      op getUser(): {
+        @statusCode statusCode: 200;
+        @body body: {
+          id: string;
+          name: string;
+          email: string;
+        };
+      };
+    `)
+  })
 })

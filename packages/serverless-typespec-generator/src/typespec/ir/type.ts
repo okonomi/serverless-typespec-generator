@@ -16,7 +16,12 @@ export type OperationIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   route: string
   requestBody?: PropTypeIR
-  returnType?: PropTypeIR
+  returnType?: PropTypeIR | HttpResponseIR | HttpResponseIR[]
+}
+
+export type HttpResponseIR = {
+  statusCode: number
+  body: PropTypeIR
 }
 
 export type PropIR = {
@@ -39,6 +44,20 @@ export type RefType = {
 
 export type UnionType = {
   union: PropTypeIR[]
+}
+
+export function isHttpResponse(type: unknown): type is HttpResponseIR {
+  return (
+    typeof type === "object" &&
+    type !== null &&
+    "statusCode" in type &&
+    "body" in type &&
+    typeof type.statusCode === "number"
+  )
+}
+
+export function isHttpResponses(type: unknown): type is HttpResponseIR[] {
+  return Array.isArray(type) && type.every((t) => isHttpResponse(t))
 }
 
 export function isPrimitiveType(type: PropTypeIR): type is PrimitiveType {

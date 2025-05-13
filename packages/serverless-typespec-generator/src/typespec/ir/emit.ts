@@ -1,5 +1,8 @@
 import {
+  type HttpResponseIR,
   isArrayType,
+  isHttpResponse,
+  isHttpResponses,
   isPrimitiveType,
   isRefType,
   isUnionType,
@@ -43,15 +46,25 @@ export function emitOperation(operation: OperationIR): string {
     parameters.push(`@body body: ${renderType(operation.requestBody)}`)
   }
 
-  const returnType = operation.returnType
-    ? renderType(operation.returnType)
-    : "void"
+  let returnType = "void"
+  if (isHttpResponses(operation.returnType)) {
+    returnType = operation.returnType.map(renderHttpResponse).join(" | ")
+  } else if (isHttpResponse(operation.returnType)) {
+    returnType = renderHttpResponse(operation.returnType)
+  } else if (operation.returnType) {
+    returnType = renderType(operation.returnType)
+  }
 
   lines.push(`@route("${operation.route}")`)
   lines.push(`@${operation.method}`)
   lines.push(`op ${operation.name}(${parameters.join(", ")}): ${returnType};`)
 
   return lines.join("\n")
+}
+
+function renderHttpResponse(r: HttpResponseIR): string {
+  const body = renderType(r.body)
+  return `{ @statusCode statusCode: ${r.statusCode}; @body body: ${body} }`
 }
 
 function renderType(type: PropTypeIR): string {

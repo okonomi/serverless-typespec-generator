@@ -9,7 +9,11 @@ import {
 } from "./typespec/operation"
 import { type Model, render as renderModel } from "./typespec/model"
 import { Registry } from "./registry"
-import { jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
+import {
+  extractProps,
+  jsonSchemaToModelIR,
+  jsonSchemaToTypeSpecIR,
+} from "./typespec/ir/convert"
 import { emitOperation, emitTypeSpec } from "./typespec/ir/emit"
 import type { OperationIR, PropTypeIR } from "./typespec/ir/type"
 
@@ -199,9 +203,18 @@ export function renderDefinitions(
     if (operation.body) {
       ir.requestBody = { ref: operation.body }
     }
-    // if (typeof operation.returnType === "string") {
-    //   ir.responseBody = { ref: operation.returnType }
-    // }
+    if (typeof operation.returnType === "string") {
+      ir.returnType = { ref: operation.returnType }
+    } else if (Array.isArray(operation.returnType)) {
+      ir.returnType = {
+        union: operation.returnType.map((r) => {
+          if (typeof r.type === "string") {
+            return { ref: r.type }
+          }
+          return extractProps(r.type.schema)
+        }),
+      }
+    }
 
     lines.push(emitOperation(ir))
     lines.push("")
