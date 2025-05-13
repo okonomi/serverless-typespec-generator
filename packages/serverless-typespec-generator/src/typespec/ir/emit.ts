@@ -21,7 +21,7 @@ export function emitTypeSpec(ir: TypeSpecIR): string {
     return `alias ${ir.name} = ${type};`
   }
   if (ir.kind === "operation") {
-    return emitOperation(ir.operation)
+    return emitOperation(ir)
   }
 
   throw new Error(`Unknown IR: ${ir}`)

@@ -46,19 +46,17 @@ describe("emitTypeSpec", () => {
   it("should emit a simple operation", async () => {
     const ir: TypeSpecIR = {
       kind: "operation",
-      operation: {
-        name: "createUser",
-        method: "post",
-        route: "/users",
-        requestBody: {
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
-        },
-        returnType: {
-          id: { type: "string", required: true },
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
-        },
+      name: "createUser",
+      method: "post",
+      route: "/users",
+      requestBody: {
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
+      },
+      returnType: {
+        id: { type: "string", required: true },
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
       },
     }
     const result = emitTypeSpec(ir)
@@ -165,6 +163,7 @@ describe("emitModel", () => {
 describe("emitOperation", () => {
   it("should emit a simple operation", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "createUser",
       method: "post",
       route: "/users",
@@ -196,6 +195,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with no request body", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUser",
       method: "get",
       route: "/users/{id}",
@@ -218,6 +218,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with array response", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUsers",
       method: "get",
       route: "/users",
@@ -242,6 +243,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with external model", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUser",
       method: "get",
       route: "/users/{id}",
@@ -258,6 +260,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with union model", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUser",
       method: "get",
       route: "/users/{id}",
@@ -291,6 +294,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with http response", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUser",
       method: "get",
       route: "/users/{id}",
@@ -319,6 +323,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with http response with array", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUsers",
       method: "get",
       route: "/users",
@@ -349,6 +354,7 @@ describe("emitOperation", () => {
   })
   it("should emit an operation with path parameters", async () => {
     const operation: OperationIR = {
+      kind: "operation",
       name: "getUser",
       method: "get",
       route: "/users/{id}",

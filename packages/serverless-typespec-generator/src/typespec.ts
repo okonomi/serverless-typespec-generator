@@ -164,6 +164,7 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       operations.push({
+        kind: "operation",
         name: toCamelCase(functionName),
         method,
         route: `/${path}`,

@@ -2,10 +2,7 @@ import type { JSONSchema4 } from "json-schema"
 
 export type JSONSchema = JSONSchema4
 
-export type TypeSpecIR =
-  | AliasIR
-  | ModelIR
-  | { kind: "operation"; operation: OperationIR }
+export type TypeSpecIR = AliasIR | ModelIR | OperationIR
 
 export type AliasIR = {
   kind: "alias"
@@ -20,6 +17,7 @@ export type ModelIR = {
 }
 
 export type OperationIR = {
+  kind: "operation"
   name: string
   method: "get" | "post" | "put" | "delete" | "patch"
   route: string
