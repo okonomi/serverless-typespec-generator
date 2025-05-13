@@ -6,8 +6,7 @@ import dedent from "dedent"
 import { formatTypeSpec } from "@typespec/compiler"
 
 import type { SLS } from "./types/serverless"
-import { Registry } from "./registry"
-import type { ModelIR, OperationIR } from "./typespec/ir/type"
+import type { OperationIR, TypeSpecIR } from "./typespec/ir/type"
 
 const context = describe
 
@@ -22,10 +21,13 @@ async function normalizeTypeSpec(code: string) {
 
 function createServerlessMock(
   functions: Serverless.FunctionDefinitionHandler[],
+  apiGateway?: SLS["service"]["provider"]["apiGateway"],
 ): SLS {
   return {
     service: {
-      provider: {},
+      provider: {
+        ...(apiGateway && { apiGateway }),
+      },
       getAllFunctions: vi.fn(() => {
         return functions.map((fn) => fn.name)
       }),
@@ -106,11 +108,14 @@ describe("parseServerlessConfig", () => {
             requestBody: { ref: "HelloRequest" },
           },
         ])
-        expect(Array.from(models.values())).toEqual<ModelIR[]>([
+        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
           {
-            name: "HelloRequest",
-            props: {
-              name: { type: "string", required: false },
+            kind: "model",
+            model: {
+              name: "HelloRequest",
+              props: {
+                name: { type: "string", required: false },
+              },
             },
           },
         ])
@@ -329,56 +334,126 @@ describe("parseServerlessConfig", () => {
         ])
       })
     })
+    context("with array", () => {
+      it("should parse array api model correctly", () => {
+        const serverless = createServerlessMock(
+          [
+            {
+              name: "getUsers",
+              handler: "handler.getUsers",
+              events: [
+                {
+                  http: {
+                    method: "get",
+                    path: "/users",
+                    documentation: {
+                      methodResponses: [
+                        {
+                          statusCode: 200,
+                          responseModels: {
+                            "application/json": "users",
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            } as unknown as Serverless.FunctionDefinitionHandler,
+          ],
+          {
+            request: {
+              schemas: {
+                users: {
+                  name: "Users",
+                  schema: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        email: { type: "string" },
+                      },
+                      required: ["id", "name", "email"],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        )
+        const { operations, models } = parseServerlessConfig(serverless)
+        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
+          {
+            kind: "alias",
+            name: "Users",
+            type: [
+              {
+                id: { type: "string", required: true },
+                name: { type: "string", required: true },
+                email: { type: "string", required: true },
+              },
+            ],
+          },
+        ])
+        expect(operations).toEqual<OperationIR[]>([
+          {
+            name: "getUsers",
+            method: "get",
+            route: "/users",
+            returnType: [
+              {
+                statusCode: 200,
+                body: { ref: "Users" },
+              },
+            ],
+          },
+        ])
+      })
+    })
   })
 })
 
 describe("renderDefinitions", () => {
   it("should generate TypeSpec definitions for given operations and models", async () => {
-    const operations: OperationIR[] = [
-      // {
-      //   route: "/users",
-      //   method: "get",
-      //   name: "getUsers",
-      //   responseModel: "UserList",
-      // },
+    const irList: TypeSpecIR[] = [
       {
-        name: "createUser",
-        method: "post",
-        route: "/users",
-        requestBody: { ref: "CreateUserRequest" },
-        returnType: [
-          {
-            statusCode: 201,
-            body: { ref: "CreateUserResponse" },
+        kind: "operation",
+        operation: {
+          name: "createUser",
+          method: "post",
+          route: "/users",
+          requestBody: { ref: "CreateUserRequest" },
+          returnType: [
+            {
+              statusCode: 201,
+              body: { ref: "CreateUserResponse" },
+            },
+          ],
+        },
+      },
+      {
+        kind: "model",
+        model: {
+          name: "CreateUserRequest",
+          props: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
           },
-        ],
+        },
+      },
+      {
+        kind: "model",
+        model: {
+          name: "CreateUserResponse",
+          props: {
+            id: { type: "string", required: true },
+          },
+        },
       },
     ]
-
-    const models = new Registry<ModelIR>()
-    // models.register("UserList", {
-    //   name: "UserList",
-    //   schema: {
-    //     properties: {
-    //       users: { type: "array", items: { type: "object" } },
-    //     },
-    //   },
-    // })
-    models.register("CreateUserRequest", {
-      name: "CreateUserRequest",
-      props: {
-        name: { type: "string", required: true },
-        email: { type: "string", required: true },
-      },
-    })
-    models.register("CreateUserResponse", {
-      name: "CreateUserResponse",
-      props: {
-        id: { type: "string", required: true },
-      },
-    })
-
-    const result = renderDefinitions(operations, models)
+    const result = renderDefinitions(irList)
 
     const expected = dedent`
       import "@typespec/http";

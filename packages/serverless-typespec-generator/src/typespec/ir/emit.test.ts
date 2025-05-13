@@ -45,6 +45,40 @@ describe("emitTypeSpec", () => {
       alias Tags = string[];
     `)
   })
+  it("should emit a simple operation", async () => {
+    const ir: TypeSpecIR = {
+      kind: "operation",
+      operation: {
+        name: "createUser",
+        method: "post",
+        route: "/users",
+        requestBody: {
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+        returnType: {
+          id: { type: "string", required: true },
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+      },
+    }
+    const result = emitTypeSpec(ir)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users")
+      @post
+      op createUser(
+        @body body: {
+          name: string;
+          email: string;
+        },
+      ): {
+        id: string;
+        name: string;
+        email: string;
+      };
+    `)
+  })
 })
 
 describe("emitModel", () => {
@@ -281,21 +315,21 @@ describe("emitOperation", () => {
       };
     `)
   })
-  it.skip("should emit an operation with http response with array", async () => {
+  it("should emit an operation with http response with array", async () => {
     const operation: OperationIR = {
       name: "getUsers",
       method: "get",
       route: "/users",
-      returnType: [
-        {
-          statusCode: 200,
-          body: {
+      returnType: {
+        statusCode: 200,
+        body: [
+          {
             id: { type: "string", required: true },
             name: { type: "string", required: true },
             email: { type: "string", required: true },
           },
-        },
-      ],
+        ],
+      },
     }
     const result = emitOperation(operation)
     expect(await normalizeTypeSpec(result)).toBe(dedent`

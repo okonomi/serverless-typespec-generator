@@ -20,6 +20,9 @@ export function emitTypeSpec(ir: TypeSpecIR): string {
     const type = renderType(ir.type)
     return `alias ${ir.name} = ${type};`
   }
+  if (ir.kind === "operation") {
+    return emitOperation(ir.operation)
+  }
 
   throw new Error(`Unknown IR: ${ir}`)
 }
