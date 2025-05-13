@@ -15,7 +15,12 @@ import {
   jsonSchemaToTypeSpecIR,
 } from "./typespec/ir/convert"
 import { emitOperation, emitTypeSpec } from "./typespec/ir/emit"
-import type { OperationIR, PropTypeIR } from "./typespec/ir/type"
+import {
+  isPrimitiveType,
+  isPropType,
+  type OperationIR,
+  type PropTypeIR,
+} from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
@@ -199,6 +204,18 @@ export function renderDefinitions(
       name: operation.name,
       route: operation.http.path,
       method: operation.http.method,
+    }
+    if (operation.pathParameters) {
+      ir.parameters = {}
+      ir.http = {
+        params: operation.pathParameters.map((param) => param.name),
+      }
+      for (const param of operation.pathParameters) {
+        ir.parameters[param.name] = {
+          type: isPropType(param.type) ? param.type : "string",
+          required: param.required ?? false,
+        }
+      }
     }
     if (operation.body) {
       ir.requestBody = { ref: operation.body }

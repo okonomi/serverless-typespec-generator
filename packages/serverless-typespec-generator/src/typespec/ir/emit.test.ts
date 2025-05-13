@@ -281,4 +281,24 @@ describe("emitOperation", () => {
       };
     `)
   })
+  it("should emit an operation with path parameters", async () => {
+    const operation: OperationIR = {
+      name: "getUser",
+      method: "get",
+      route: "/users/{id}",
+      parameters: {
+        id: { type: "string", required: true },
+      },
+      returnType: { ref: "User" },
+      http: {
+        params: ["id"],
+      },
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users/{id}")
+      @get
+      op getUser(@path id: string): User;
+    `)
+  })
 })

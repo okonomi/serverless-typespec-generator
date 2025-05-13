@@ -42,6 +42,15 @@ export function emitOperation(operation: OperationIR): string {
   const lines: string[] = []
 
   const parameters: string[] = []
+  const paramEntries = Object.entries(operation.parameters ?? {})
+  const pathParams = new Set(operation.http?.params ?? [])
+  for (const [name, prop] of paramEntries) {
+    const decorator = pathParams.has(name) ? "@path" : ""
+    const optional = prop.required ? "" : "?"
+    const type = renderType(prop.type)
+    parameters.push(`${decorator} ${name}${optional}: ${type}`)
+  }
+
   if (operation.requestBody) {
     parameters.push(`@body body: ${renderType(operation.requestBody)}`)
   }
