@@ -4,12 +4,13 @@ import type { JSONSchema4 as JSONSchema } from "json-schema"
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
 import { extractProps, jsonSchemaToModelIR } from "./typespec/ir/convert"
-import { emitModel, emitOperation } from "./typespec/ir/emit"
+import { emitTypeSpec } from "./typespec/ir/emit"
 import type {
   HttpResponseIR,
   ModelIR,
   OperationIR,
   PropIR,
+  TypeSpecIR,
 } from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
@@ -187,10 +188,7 @@ function isHttpMethod(
   )
 }
 
-export function renderDefinitions(
-  operations: OperationIR[],
-  models: Registry<ModelIR>,
-): string {
+export function renderDefinitions(irList: TypeSpecIR[]): string {
   const lines: string[] = []
   lines.push('import "@typespec/http";')
   lines.push("")
@@ -201,13 +199,8 @@ export function renderDefinitions(
   lines.push("namespace GeneratedApi;")
   lines.push("")
 
-  for (const operation of operations) {
-    lines.push(emitOperation(operation))
-    lines.push("")
-  }
-
-  for (const model of models.values()) {
-    lines.push(emitModel(model))
+  for (const ir of irList) {
+    lines.push(emitTypeSpec(ir))
     lines.push("")
   }
 

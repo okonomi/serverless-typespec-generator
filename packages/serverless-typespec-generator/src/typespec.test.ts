@@ -6,8 +6,7 @@ import dedent from "dedent"
 import { formatTypeSpec } from "@typespec/compiler"
 
 import type { SLS } from "./types/serverless"
-import { Registry } from "./registry"
-import type { ModelIR, OperationIR } from "./typespec/ir/type"
+import type { ModelIR, OperationIR, TypeSpecIR } from "./typespec/ir/type"
 
 const context = describe
 
@@ -334,51 +333,43 @@ describe("parseServerlessConfig", () => {
 
 describe("renderDefinitions", () => {
   it("should generate TypeSpec definitions for given operations and models", async () => {
-    const operations: OperationIR[] = [
-      // {
-      //   route: "/users",
-      //   method: "get",
-      //   name: "getUsers",
-      //   responseModel: "UserList",
-      // },
+    const irList: TypeSpecIR[] = [
       {
-        name: "createUser",
-        method: "post",
-        route: "/users",
-        requestBody: { ref: "CreateUserRequest" },
-        returnType: [
-          {
-            statusCode: 201,
-            body: { ref: "CreateUserResponse" },
+        kind: "operation",
+        operation: {
+          name: "createUser",
+          method: "post",
+          route: "/users",
+          requestBody: { ref: "CreateUserRequest" },
+          returnType: [
+            {
+              statusCode: 201,
+              body: { ref: "CreateUserResponse" },
+            },
+          ],
+        },
+      },
+      {
+        kind: "model",
+        model: {
+          name: "CreateUserRequest",
+          props: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
           },
-        ],
+        },
+      },
+      {
+        kind: "model",
+        model: {
+          name: "CreateUserResponse",
+          props: {
+            id: { type: "string", required: true },
+          },
+        },
       },
     ]
-
-    const models = new Registry<ModelIR>()
-    // models.register("UserList", {
-    //   name: "UserList",
-    //   schema: {
-    //     properties: {
-    //       users: { type: "array", items: { type: "object" } },
-    //     },
-    //   },
-    // })
-    models.register("CreateUserRequest", {
-      name: "CreateUserRequest",
-      props: {
-        name: { type: "string", required: true },
-        email: { type: "string", required: true },
-      },
-    })
-    models.register("CreateUserResponse", {
-      name: "CreateUserResponse",
-      props: {
-        id: { type: "string", required: true },
-      },
-    })
-
-    const result = renderDefinitions(operations, models)
+    const result = renderDefinitions(irList)
 
     const expected = dedent`
       import "@typespec/http";
