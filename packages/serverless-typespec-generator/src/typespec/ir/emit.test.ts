@@ -3,7 +3,7 @@ import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
 
 import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
-import { emitModel, emitOperation, emitTypeSpec } from "./emit"
+import { emitAlias, emitModel, emitOperation, emitTypeSpec } from "./emit"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {
@@ -30,17 +30,6 @@ describe("emitTypeSpec", () => {
         id: string;
         age?: numeric;
       }
-    `)
-  })
-  it("should emit a alias for an array", async () => {
-    const ir: TypeSpecIR = {
-      kind: "alias",
-      name: "Tags",
-      type: ["string"],
-    }
-    const result = emitTypeSpec(ir)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      alias Tags = string[];
     `)
   })
   it("should emit a simple operation", async () => {
@@ -73,6 +62,20 @@ describe("emitTypeSpec", () => {
         name: string;
         email: string;
       };
+    `)
+  })
+})
+
+describe("emitAlias", () => {
+  it("should emit a alias for an array", async () => {
+    const ir: TypeSpecIR = {
+      kind: "alias",
+      name: "Tags",
+      type: ["string"],
+    }
+    const result = emitAlias(ir)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      alias Tags = string[];
     `)
   })
 })
