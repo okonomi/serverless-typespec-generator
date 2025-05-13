@@ -99,13 +99,10 @@ options:
 
   async generateTypespec(outputDir: string) {
     const { operations, models } = parseServerlessConfig(this.serverless)
-    const o: TypeSpecIR[] = operations.map((operation) => {
-      return {
-        kind: "operation",
-        operation,
-      }
-    })
-    const typespec = renderDefinitions([...o, ...Array.from(models.values())])
+    const typespec = renderDefinitions([
+      ...operations,
+      ...Array.from(models.values()),
+    ])
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
