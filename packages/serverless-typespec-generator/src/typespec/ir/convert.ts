@@ -54,9 +54,9 @@ function convertType(schema: JSONSchema): PropTypeIR {
     case "string":
       return "string"
     case "integer":
-      return "int32"
+      return "numeric"
     case "number":
-      return "float64"
+      return "numeric"
     case "boolean":
       return "boolean"
     case "array":
