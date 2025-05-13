@@ -9,6 +9,7 @@ import { formatTypeSpec } from "@typespec/compiler"
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
 import type { Operation } from "./typespec/operation"
+import type { ModelIR } from "./typespec/ir/type"
 
 const context = describe
 
@@ -113,15 +114,11 @@ describe("parseServerlessConfig", () => {
             },
           },
         ])
-        expect(Array.from(models.values())).toEqual([
+        expect(Array.from(models.values())).toEqual<ModelIR[]>([
           {
             name: "HelloRequest",
-            schema: {
-              title: "HelloRequest",
-              type: "object",
-              properties: {
-                name: { type: "string" },
-              },
+            props: {
+              name: { type: "string", required: false },
             },
           },
         ])
@@ -392,7 +389,7 @@ describe("renderDefinitions", () => {
       },
     ]
 
-    const models = new Registry<Model>()
+    const models = new Registry<ModelIR>()
     // models.register("UserList", {
     //   name: "UserList",
     //   schema: {
@@ -403,23 +400,15 @@ describe("renderDefinitions", () => {
     // })
     models.register("CreateUserRequest", {
       name: "CreateUserRequest",
-      schema: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          email: { type: "string" },
-        },
-        required: ["name", "email"],
+      props: {
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
       },
     })
     models.register("CreateUserResponse", {
       name: "CreateUserResponse",
-      schema: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-        },
-        required: ["id"],
+      props: {
+        id: { type: "string", required: true },
       },
     })
 

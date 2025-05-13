@@ -14,30 +14,27 @@ import {
   jsonSchemaToModelIR,
   jsonSchemaToTypeSpecIR,
 } from "./typespec/ir/convert"
-import { emitOperation, emitTypeSpec } from "./typespec/ir/emit"
+import { emitModel, emitOperation, emitTypeSpec } from "./typespec/ir/emit"
 import {
   isPrimitiveType,
   isPropType,
+  type ModelIR,
   type OperationIR,
   type PropTypeIR,
 } from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: Operation[]
-  models: Registry<Model>
+  models: Registry<ModelIR>
 } {
   const operations: Operation[] = []
-  const models = new Registry<Model>()
+  const models = new Registry<ModelIR>()
 
   const apiGatewaySchemas =
     serverless.service.provider.apiGateway?.request?.schemas
   if (apiGatewaySchemas) {
     for (const [name, schema] of Object.entries(apiGatewaySchemas)) {
-      const model = {
-        name: schema.name ?? "", // TODO: generate a unique name
-        schema: schema.schema,
-      }
-
+      const model = jsonSchemaToModelIR(schema.schema, schema.name ?? "")
       models.register(name, model)
     }
   }
@@ -100,7 +97,7 @@ export function parseServerlessConfig(serverless: SLS): {
         if (typeof contentTypeSchema === "object") {
           const schema = contentTypeSchema as JSONSchema
           const name = schema.title ?? "" // TODO: generate a unique name
-          models.register(name, { name, schema })
+          models.register(name, jsonSchemaToModelIR(schema, name))
           body = name
         } else if (typeof contentTypeSchema === "string") {
           const model = models.get(contentTypeSchema)
@@ -121,7 +118,7 @@ export function parseServerlessConfig(serverless: SLS): {
               const schema = contentTypeSchema
               const name = schema.title ?? null
               if (name) {
-                models.register(name, { name, schema })
+                models.register(name, jsonSchemaToModelIR(schema, name))
                 returnType.push({
                   statusCode: methodResponse.statusCode,
                   type: name,
@@ -187,7 +184,7 @@ function isHttpMethod(
 
 export function renderDefinitions(
   operations: Operation[],
-  models: Registry<Model>,
+  models: Registry<ModelIR>,
 ): string {
   const lines: string[] = []
   lines.push('import "@typespec/http";')
@@ -239,22 +236,8 @@ export function renderDefinitions(
   }
 
   for (const model of models.values()) {
-    // fallback
-    if (!model.name) {
-      lines.push(renderModel(model))
-      lines.push("")
-      continue
-    }
-
-    try {
-      const ir = jsonSchemaToTypeSpecIR(model.schema, model.name)
-      lines.push(emitTypeSpec(ir))
-      lines.push("")
-    } catch {
-      // fallback
-      lines.push(renderModel(model))
-      lines.push("")
-    }
+    lines.push(emitModel(model))
+    lines.push("")
   }
 
   return lines.join("\n")
