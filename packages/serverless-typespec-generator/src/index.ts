@@ -105,13 +105,7 @@ options:
         operation,
       }
     })
-    const m: TypeSpecIR[] = Array.from(models.values()).map((model) => {
-      return {
-        kind: "model",
-        model,
-      }
-    })
-    const typespec = renderDefinitions([...o, ...m])
+    const typespec = renderDefinitions([...o, ...Array.from(models.values())])
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),

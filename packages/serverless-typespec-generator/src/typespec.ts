@@ -3,11 +3,10 @@ import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
-import { extractProps, jsonSchemaToModelIR } from "./typespec/ir/convert"
+import { extractProps, jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
 import { emitTypeSpec } from "./typespec/ir/emit"
 import type {
   HttpResponseIR,
-  ModelIR,
   OperationIR,
   PropIR,
   TypeSpecIR,
@@ -15,16 +14,16 @@ import type {
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: OperationIR[]
-  models: Registry<ModelIR>
+  models: Registry<TypeSpecIR>
 } {
   const operations: OperationIR[] = []
-  const models = new Registry<ModelIR>()
+  const models = new Registry<TypeSpecIR>()
 
   const apiGatewaySchemas =
     serverless.service.provider.apiGateway?.request?.schemas
   if (apiGatewaySchemas) {
     for (const [name, schema] of Object.entries(apiGatewaySchemas)) {
-      const model = jsonSchemaToModelIR(schema.schema, schema.name ?? "")
+      const model = jsonSchemaToTypeSpecIR(schema.schema, schema.name ?? "")
       models.register(name, model)
     }
   }
@@ -87,12 +86,18 @@ export function parseServerlessConfig(serverless: SLS): {
         if (typeof contentTypeSchema === "object") {
           const schema = contentTypeSchema as JSONSchema
           const name = schema.title ?? "" // TODO: generate a unique name
-          models.register(name, jsonSchemaToModelIR(schema, name))
+          models.register(name, jsonSchemaToTypeSpecIR(schema, name))
           body = name
         } else if (typeof contentTypeSchema === "string") {
           const model = models.get(contentTypeSchema)
-          if (model) {
-            body = model.name
+          const name =
+            model?.kind === "model"
+              ? model.model.name
+              : model?.kind === "alias"
+                ? model.name
+                : null
+          if (name) {
+            body = name
           }
         }
       }
@@ -109,7 +114,7 @@ export function parseServerlessConfig(serverless: SLS): {
                 const schema = contentTypeSchema
                 const name = schema.title ?? null
                 if (name) {
-                  models.register(name, jsonSchemaToModelIR(schema, name))
+                  models.register(name, jsonSchemaToTypeSpecIR(schema, name))
                   returnType.push({
                     statusCode: methodResponse.statusCode,
                     body: { ref: name },
@@ -127,7 +132,7 @@ export function parseServerlessConfig(serverless: SLS): {
                 }
                 const name = schema.items.title ?? null
                 if (name) {
-                  models.register(name, jsonSchemaToModelIR(schema, name))
+                  models.register(name, jsonSchemaToTypeSpecIR(schema, name))
                   returnType.push({
                     statusCode: methodResponse.statusCode,
                     body: { ref: name },
@@ -141,10 +146,16 @@ export function parseServerlessConfig(serverless: SLS): {
               }
             } else if (typeof contentTypeSchema === "string") {
               const model = models.get(contentTypeSchema)
-              if (model?.name) {
+              const name =
+                model?.kind === "model"
+                  ? model.model.name
+                  : model?.kind === "alias"
+                    ? model.name
+                    : null
+              if (name) {
                 returnType.push({
                   statusCode: methodResponse.statusCode,
-                  body: { ref: model.name },
+                  body: { ref: name },
                 })
               }
             }

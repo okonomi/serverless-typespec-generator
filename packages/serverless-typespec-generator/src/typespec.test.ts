@@ -6,7 +6,7 @@ import dedent from "dedent"
 import { formatTypeSpec } from "@typespec/compiler"
 
 import type { SLS } from "./types/serverless"
-import type { ModelIR, OperationIR, TypeSpecIR } from "./typespec/ir/type"
+import type { OperationIR, TypeSpecIR } from "./typespec/ir/type"
 
 const context = describe
 
@@ -105,11 +105,14 @@ describe("parseServerlessConfig", () => {
             requestBody: { ref: "HelloRequest" },
           },
         ])
-        expect(Array.from(models.values())).toEqual<ModelIR[]>([
+        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
           {
-            name: "HelloRequest",
-            props: {
-              name: { type: "string", required: false },
+            kind: "model",
+            model: {
+              name: "HelloRequest",
+              props: {
+                name: { type: "string", required: false },
+              },
             },
           },
         ])
