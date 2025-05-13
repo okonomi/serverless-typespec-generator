@@ -21,10 +21,13 @@ async function normalizeTypeSpec(code: string) {
 
 function createServerlessMock(
   functions: Serverless.FunctionDefinitionHandler[],
+  apiGateway?: SLS["service"]["provider"]["apiGateway"],
 ): SLS {
   return {
     service: {
-      provider: {},
+      provider: {
+        ...(apiGateway && { apiGateway }),
+      },
       getAllFunctions: vi.fn(() => {
         return functions.map((fn) => fn.name)
       }),
@@ -325,6 +328,84 @@ describe("parseServerlessConfig", () => {
                     email: { type: "string", required: false },
                   },
                 ],
+              },
+            ],
+          },
+        ])
+      })
+    })
+    context("with array", () => {
+      it("should parse array api model correctly", () => {
+        const serverless = createServerlessMock(
+          [
+            {
+              name: "getUsers",
+              handler: "handler.getUsers",
+              events: [
+                {
+                  http: {
+                    method: "get",
+                    path: "/users",
+                    documentation: {
+                      methodResponses: [
+                        {
+                          statusCode: 200,
+                          responseModels: {
+                            "application/json": "users",
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              ],
+            } as unknown as Serverless.FunctionDefinitionHandler,
+          ],
+          {
+            request: {
+              schemas: {
+                users: {
+                  name: "Users",
+                  schema: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        id: { type: "string" },
+                        name: { type: "string" },
+                        email: { type: "string" },
+                      },
+                      required: ["id", "name", "email"],
+                    },
+                  },
+                },
+              },
+            },
+          },
+        )
+        const { operations, models } = parseServerlessConfig(serverless)
+        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
+          {
+            kind: "alias",
+            name: "Users",
+            type: [
+              {
+                id: { type: "string", required: true },
+                name: { type: "string", required: true },
+                email: { type: "string", required: true },
+              },
+            ],
+          },
+        ])
+        expect(operations).toEqual<OperationIR[]>([
+          {
+            name: "getUsers",
+            method: "get",
+            route: "/users",
+            returnType: [
+              {
+                statusCode: 200,
+                body: { ref: "Users" },
               },
             ],
           },
