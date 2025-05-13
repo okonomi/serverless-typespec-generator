@@ -1,4 +1,5 @@
 import {
+  type AliasIR,
   type HttpResponseIR,
   isArrayType,
   isHttpResponse,
@@ -14,17 +15,21 @@ import {
 
 export function emitTypeSpec(ir: TypeSpecIR): string {
   if (ir.kind === "model") {
-    return emitModel(ir.model)
+    return emitModel(ir)
   }
   if (ir.kind === "alias") {
-    const type = renderType(ir.type)
-    return `alias ${ir.name} = ${type};`
+    return emitAlias(ir)
   }
   if (ir.kind === "operation") {
-    return emitOperation(ir.operation)
+    return emitOperation(ir)
   }
 
   throw new Error(`Unknown IR: ${ir}`)
+}
+
+export function emitAlias(alias: AliasIR): string {
+  const type = renderType(alias.type)
+  return `alias ${alias.name} = ${type};`
 }
 
 export function emitModel(model: ModelIR): string {

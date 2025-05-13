@@ -92,7 +92,7 @@ export function parseServerlessConfig(serverless: SLS): {
           const model = models.get(contentTypeSchema)
           const name =
             model?.kind === "model"
-              ? model.model.name
+              ? model.name
               : model?.kind === "alias"
                 ? model.name
                 : null
@@ -148,7 +148,7 @@ export function parseServerlessConfig(serverless: SLS): {
               const model = models.get(contentTypeSchema)
               const name =
                 model?.kind === "model"
-                  ? model.model.name
+                  ? model.name
                   : model?.kind === "alias"
                     ? model.name
                     : null
@@ -164,6 +164,7 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       operations.push({
+        kind: "operation",
         name: toCamelCase(functionName),
         method,
         route: `/${path}`,

@@ -64,6 +64,7 @@ describe("parseServerlessConfig", () => {
 
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "hello",
             method: "get",
             route: "/hello",
@@ -102,6 +103,7 @@ describe("parseServerlessConfig", () => {
 
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "hello",
             method: "post",
             route: "/hello",
@@ -111,11 +113,9 @@ describe("parseServerlessConfig", () => {
         expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
           {
             kind: "model",
-            model: {
-              name: "HelloRequest",
-              props: {
-                name: { type: "string", required: false },
-              },
+            name: "HelloRequest",
+            props: {
+              name: { type: "string", required: false },
             },
           },
         ])
@@ -140,6 +140,7 @@ describe("parseServerlessConfig", () => {
         const { operations } = parseServerlessConfig(serverless)
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "helloWorld",
             method: "get",
             route: "/hello-world",
@@ -191,6 +192,7 @@ describe("parseServerlessConfig", () => {
         const { operations } = parseServerlessConfig(serverless)
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "getUser",
             method: "get",
             route: "/users/{id}",
@@ -253,6 +255,7 @@ describe("parseServerlessConfig", () => {
         const { operations, models } = parseServerlessConfig(serverless)
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "getUser",
             method: "get",
             route: "/users/{id}",
@@ -315,6 +318,7 @@ describe("parseServerlessConfig", () => {
         const { operations, models } = parseServerlessConfig(serverless)
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "getUsers",
             method: "get",
             route: "/users",
@@ -399,6 +403,7 @@ describe("parseServerlessConfig", () => {
         ])
         expect(operations).toEqual<OperationIR[]>([
           {
+            kind: "operation",
             name: "getUsers",
             method: "get",
             route: "/users",
@@ -420,36 +425,30 @@ describe("renderDefinitions", () => {
     const irList: TypeSpecIR[] = [
       {
         kind: "operation",
-        operation: {
-          name: "createUser",
-          method: "post",
-          route: "/users",
-          requestBody: { ref: "CreateUserRequest" },
-          returnType: [
-            {
-              statusCode: 201,
-              body: { ref: "CreateUserResponse" },
-            },
-          ],
+        name: "createUser",
+        method: "post",
+        route: "/users",
+        requestBody: { ref: "CreateUserRequest" },
+        returnType: [
+          {
+            statusCode: 201,
+            body: { ref: "CreateUserResponse" },
+          },
+        ],
+      },
+      {
+        kind: "model",
+        name: "CreateUserRequest",
+        props: {
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
         },
       },
       {
         kind: "model",
-        model: {
-          name: "CreateUserRequest",
-          props: {
-            name: { type: "string", required: true },
-            email: { type: "string", required: true },
-          },
-        },
-      },
-      {
-        kind: "model",
-        model: {
-          name: "CreateUserResponse",
-          props: {
-            id: { type: "string", required: true },
-          },
+        name: "CreateUserResponse",
+        props: {
+          id: { type: "string", required: true },
         },
       },
     ]
