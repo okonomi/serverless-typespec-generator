@@ -315,21 +315,21 @@ describe("emitOperation", () => {
       };
     `)
   })
-  it.skip("should emit an operation with http response with array", async () => {
+  it("should emit an operation with http response with array", async () => {
     const operation: OperationIR = {
       name: "getUsers",
       method: "get",
       route: "/users",
-      returnType: [
-        {
-          statusCode: 200,
-          body: {
+      returnType: {
+        statusCode: 200,
+        body: [
+          {
             id: { type: "string", required: true },
             name: { type: "string", required: true },
             email: { type: "string", required: true },
           },
-        },
-      ],
+        ],
+      },
     }
     const result = emitOperation(operation)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
