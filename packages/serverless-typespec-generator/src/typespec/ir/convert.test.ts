@@ -20,7 +20,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         name: "Model",
         props: {
           id: { type: "string", required: true },
-          age: { type: "int32", required: false },
+          age: { type: "numeric", required: false },
         },
       },
     })
@@ -54,7 +54,7 @@ describe("jsonSchemaToModelIR", () => {
       name: "Model",
       props: {
         id: { type: "string", required: true },
-        age: { type: "int32", required: false },
+        age: { type: "numeric", required: false },
       },
     })
   })
