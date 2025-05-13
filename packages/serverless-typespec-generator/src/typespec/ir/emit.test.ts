@@ -253,7 +253,7 @@ describe("emitOperation", () => {
       };
     `)
   })
-  it("should emit an operation with status code", async () => {
+  it("should emit an operation with http response", async () => {
     const operation: OperationIR = {
       name: "getUser",
       method: "get",
@@ -278,6 +278,36 @@ describe("emitOperation", () => {
           name: string;
           email: string;
         };
+      };
+    `)
+  })
+  it.skip("should emit an operation with http response with array", async () => {
+    const operation: OperationIR = {
+      name: "getUsers",
+      method: "get",
+      route: "/users",
+      returnType: [
+        {
+          statusCode: 200,
+          body: {
+            id: { type: "string", required: true },
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+        },
+      ],
+    }
+    const result = emitOperation(operation)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users")
+      @get
+      op getUsers(): {
+        @statusCode statusCode: 200;
+        @body body: {
+          id: string;
+          name: string;
+          email: string;
+        }[];
       };
     `)
   })
