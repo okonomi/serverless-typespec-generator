@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
 import { parseServerlessConfig, renderDefinitions } from "./typespec"
-import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
 import dedent from "dedent"
@@ -8,7 +7,6 @@ import { formatTypeSpec } from "@typespec/compiler"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
-import type { Operation } from "./typespec/operation"
 import type { ModelIR, OperationIR } from "./typespec/ir/type"
 
 const context = describe
