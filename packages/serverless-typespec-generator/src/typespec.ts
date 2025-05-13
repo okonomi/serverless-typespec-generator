@@ -2,27 +2,14 @@ import type Aws from "serverless/aws"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
 
 import type { SLS } from "./types/serverless"
-import {
-  type Operation,
-  type Parameter,
-  render as renderOperation,
-} from "./typespec/operation"
-import { type Model, render as renderModel } from "./typespec/model"
 import { Registry } from "./registry"
-import {
-  extractProps,
-  jsonSchemaToModelIR,
-  jsonSchemaToTypeSpecIR,
-} from "./typespec/ir/convert"
-import { emitModel, emitOperation, emitTypeSpec } from "./typespec/ir/emit"
-import {
-  type HttpResponseIR,
-  isPrimitiveType,
-  isPropType,
-  type ModelIR,
-  type OperationIR,
-  type PropIR,
-  type PropTypeIR,
+import { extractProps, jsonSchemaToModelIR } from "./typespec/ir/convert"
+import { emitModel, emitOperation } from "./typespec/ir/emit"
+import type {
+  HttpResponseIR,
+  ModelIR,
+  OperationIR,
+  PropIR,
 } from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
@@ -85,7 +72,6 @@ export function parseServerlessConfig(serverless: SLS): {
       } else if (http.request?.parameters?.paths) {
         const paths = http.request.parameters.paths
         for (const [name, required] of Object.entries(paths)) {
-          const type = "string"
           parameters[name] = {
             type: "string",
             required,
