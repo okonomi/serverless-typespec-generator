@@ -9,7 +9,7 @@ import { formatTypeSpec } from "@typespec/compiler"
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
 import type { Operation } from "./typespec/operation"
-import type { ModelIR } from "./typespec/ir/type"
+import type { ModelIR, OperationIR } from "./typespec/ir/type"
 
 const context = describe
 
@@ -62,14 +62,11 @@ describe("parseServerlessConfig", () => {
         ])
         const { operations } = parseServerlessConfig(serverless)
 
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "hello",
-            returnType: "void",
-            http: {
-              method: "get",
-              path: "/hello",
-            },
+            method: "get",
+            route: "/hello",
           },
         ])
       })
@@ -103,15 +100,12 @@ describe("parseServerlessConfig", () => {
         ])
         const { operations, models } = parseServerlessConfig(serverless)
 
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "hello",
-            body: "HelloRequest",
-            returnType: "void",
-            http: {
-              method: "post",
-              path: "/hello",
-            },
+            method: "post",
+            route: "/hello",
+            requestBody: { ref: "HelloRequest" },
           },
         ])
         expect(Array.from(models.values())).toEqual<ModelIR[]>([
@@ -141,14 +135,11 @@ describe("parseServerlessConfig", () => {
           },
         ])
         const { operations } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "helloWorld",
-            returnType: "void",
-            http: {
-              method: "get",
-              path: "/hello-world",
-            },
+            method: "get",
+            route: "/hello-world",
           },
         ])
       })
@@ -195,25 +186,22 @@ describe("parseServerlessConfig", () => {
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
         const { operations } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "getUser",
-            pathParameters: [
-              {
-                name: "id",
-                type: "string",
-                required: true,
-              },
-            ],
+            method: "get",
+            route: "/users/{id}",
+            parameters: {
+              id: { type: "string", required: true },
+            },
             returnType: [
               {
                 statusCode: 200,
-                type: "User",
+                body: { ref: "User" },
               },
             ],
             http: {
-              method: "get",
-              path: "/users/{id}",
+              params: ["id"],
             },
           },
         ])
@@ -260,35 +248,26 @@ describe("parseServerlessConfig", () => {
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
         const { operations, models } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "getUser",
-            pathParameters: [
-              {
-                name: "id",
-                type: "string",
-                required: true,
-              },
-            ],
+            method: "get",
+            route: "/users/{id}",
+            parameters: {
+              id: { type: "string", required: true },
+            },
             returnType: [
               {
                 statusCode: 200,
-                type: {
-                  name: null,
-                  schema: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string" },
-                      name: { type: "string" },
-                      email: { type: "string" },
-                    },
-                  },
+                body: {
+                  id: { type: "string", required: false },
+                  name: { type: "string", required: false },
+                  email: { type: "string", required: false },
                 },
               },
             ],
             http: {
-              method: "get",
-              path: "/users/{id}",
+              params: ["id"],
             },
           },
         ])
@@ -331,32 +310,23 @@ describe("parseServerlessConfig", () => {
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
         const { operations, models } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "getUsers",
+            method: "get",
+            route: "/users",
             returnType: [
               {
                 statusCode: 200,
-                type: {
-                  name: null,
-                  schema: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string" },
-                        name: { type: "string" },
-                        email: { type: "string" },
-                      },
-                    },
+                body: [
+                  {
+                    id: { type: "string", required: false },
+                    name: { type: "string", required: false },
+                    email: { type: "string", required: false },
                   },
-                },
+                ],
               },
             ],
-            http: {
-              method: "get",
-              path: "/users",
-            },
           },
         ])
       })
@@ -366,7 +336,7 @@ describe("parseServerlessConfig", () => {
 
 describe("renderDefinitions", () => {
   it("should generate TypeSpec definitions for given operations and models", async () => {
-    const operations: Operation[] = [
+    const operations: OperationIR[] = [
       // {
       //   route: "/users",
       //   method: "get",
@@ -375,17 +345,15 @@ describe("renderDefinitions", () => {
       // },
       {
         name: "createUser",
-        body: "CreateUserRequest",
+        method: "post",
+        route: "/users",
+        requestBody: { ref: "CreateUserRequest" },
         returnType: [
           {
             statusCode: 201,
-            type: "CreateUserResponse",
+            body: { ref: "CreateUserResponse" },
           },
         ],
-        http: {
-          method: "post",
-          path: "/users",
-        },
       },
     ]
 

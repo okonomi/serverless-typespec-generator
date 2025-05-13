@@ -16,18 +16,20 @@ import {
 } from "./typespec/ir/convert"
 import { emitModel, emitOperation, emitTypeSpec } from "./typespec/ir/emit"
 import {
+  type HttpResponseIR,
   isPrimitiveType,
   isPropType,
   type ModelIR,
   type OperationIR,
+  type PropIR,
   type PropTypeIR,
 } from "./typespec/ir/type"
 
 export function parseServerlessConfig(serverless: SLS): {
-  operations: Operation[]
+  operations: OperationIR[]
   models: Registry<ModelIR>
 } {
-  const operations: Operation[] = []
+  const operations: OperationIR[] = []
   const models = new Registry<ModelIR>()
 
   const apiGatewaySchemas =
@@ -69,25 +71,26 @@ export function parseServerlessConfig(serverless: SLS): {
         continue
       }
 
-      const pathParameters: Parameter[] = []
+      const parameters: Record<string, PropIR> = {}
+      const httpParams: string[] = []
       if (http.documentation?.pathParams) {
         const pathParams = http.documentation.pathParams
         for (const { name, schema } of pathParams) {
-          pathParameters.push({
-            name,
+          parameters[name] = {
             type: schema.type,
             required: true,
-          })
+          }
+          httpParams.push(name)
         }
       } else if (http.request?.parameters?.paths) {
         const paths = http.request.parameters.paths
         for (const [name, required] of Object.entries(paths)) {
           const type = "string"
-          pathParameters.push({
-            name,
-            type,
+          parameters[name] = {
+            type: "string",
             required,
-          })
+          }
+          httpParams.push(name)
         }
       }
 
@@ -107,37 +110,54 @@ export function parseServerlessConfig(serverless: SLS): {
         }
       }
 
-      const returnType: Operation["returnType"] = []
+      const returnType: HttpResponseIR[] = []
       if (http.documentation?.methodResponses) {
         const methodResponses = http.documentation.methodResponses
         for (const methodResponse of methodResponses) {
-          if (methodResponse.responseModels?.["application/json"]) {
-            const contentTypeSchema =
-              methodResponse.responseModels["application/json"]
+          const contentTypeSchema =
+            methodResponse.responseModels?.["application/json"]
+          if (contentTypeSchema) {
             if (typeof contentTypeSchema === "object") {
-              const schema = contentTypeSchema
-              const name = schema.title ?? null
-              if (name) {
-                models.register(name, jsonSchemaToModelIR(schema, name))
-                returnType.push({
-                  statusCode: methodResponse.statusCode,
-                  type: name,
-                })
-              } else {
-                returnType.push({
-                  statusCode: methodResponse.statusCode,
-                  type: {
-                    name: null,
-                    schema,
-                  },
-                })
+              if (contentTypeSchema.type === "object") {
+                const schema = contentTypeSchema
+                const name = schema.title ?? null
+                if (name) {
+                  models.register(name, jsonSchemaToModelIR(schema, name))
+                  returnType.push({
+                    statusCode: methodResponse.statusCode,
+                    body: { ref: name },
+                  })
+                } else {
+                  returnType.push({
+                    statusCode: methodResponse.statusCode,
+                    body: extractProps(schema),
+                  })
+                }
+              } else if (contentTypeSchema.type === "array") {
+                const schema = contentTypeSchema
+                if (!schema.items || Array.isArray(schema.items)) {
+                  throw new Error("Invalid schema for array response")
+                }
+                const name = schema.items.title ?? null
+                if (name) {
+                  models.register(name, jsonSchemaToModelIR(schema, name))
+                  returnType.push({
+                    statusCode: methodResponse.statusCode,
+                    body: { ref: name },
+                  })
+                } else {
+                  returnType.push({
+                    statusCode: methodResponse.statusCode,
+                    body: [extractProps(schema.items)],
+                  })
+                }
               }
             } else if (typeof contentTypeSchema === "string") {
               const model = models.get(contentTypeSchema)
               if (model?.name) {
                 returnType.push({
                   statusCode: methodResponse.statusCode,
-                  type: model.name,
+                  body: { ref: model.name },
                 })
               }
             }
@@ -147,13 +167,12 @@ export function parseServerlessConfig(serverless: SLS): {
 
       operations.push({
         name: toCamelCase(functionName),
-        ...(pathParameters.length > 0 && { pathParameters }),
-        ...(body && { body }),
-        returnType: returnType.length > 0 ? returnType : "void",
-        http: {
-          method,
-          path: `/${path}`,
-        },
+        method,
+        route: `/${path}`,
+        ...(Object.keys(parameters).length > 0 && { parameters }),
+        ...(body && { requestBody: { ref: body } }),
+        ...(returnType.length > 0 && { returnType }),
+        ...(httpParams.length > 0 && { http: { params: httpParams } }),
       })
     }
   }
@@ -183,7 +202,7 @@ function isHttpMethod(
 }
 
 export function renderDefinitions(
-  operations: Operation[],
+  operations: OperationIR[],
   models: Registry<ModelIR>,
 ): string {
   const lines: string[] = []
@@ -197,41 +216,7 @@ export function renderDefinitions(
   lines.push("")
 
   for (const operation of operations) {
-    const ir: OperationIR = {
-      name: operation.name,
-      route: operation.http.path,
-      method: operation.http.method,
-    }
-    if (operation.pathParameters) {
-      ir.parameters = {}
-      ir.http = {
-        params: operation.pathParameters.map((param) => param.name),
-      }
-      for (const param of operation.pathParameters) {
-        ir.parameters[param.name] = {
-          type: isPropType(param.type) ? param.type : "string",
-          required: param.required ?? false,
-        }
-      }
-    }
-    if (operation.body) {
-      ir.requestBody = { ref: operation.body }
-    }
-    if (typeof operation.returnType === "string") {
-      ir.returnType = { ref: operation.returnType }
-    } else if (Array.isArray(operation.returnType)) {
-      ir.returnType = operation.returnType.map((r) => {
-        return {
-          statusCode: r.statusCode,
-          body:
-            typeof r.type === "string"
-              ? { ref: r.type }
-              : extractProps(r.type.schema),
-        }
-      })
-    }
-
-    lines.push(emitOperation(ir))
+    lines.push(emitOperation(operation))
     lines.push("")
   }
 
