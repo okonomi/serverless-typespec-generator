@@ -81,8 +81,8 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       let body = undefined
-      if (http.request?.schemas?.["application/json"]) {
-        const contentTypeSchema = http.request.schemas["application/json"]
+      const contentTypeSchema = http.request?.schemas?.["application/json"]
+      if (contentTypeSchema) {
         if (typeof contentTypeSchema === "object") {
           const schema = contentTypeSchema as JSONSchema
           const name = schema.title ?? "" // TODO: generate a unique name
@@ -97,8 +97,8 @@ export function parseServerlessConfig(serverless: SLS): {
       }
 
       const returnType: HttpResponseIR[] = []
-      if (http.documentation?.methodResponses) {
-        const methodResponses = http.documentation.methodResponses
+      const methodResponses = http.documentation?.methodResponses
+      if (methodResponses) {
         for (const methodResponse of methodResponses) {
           const contentTypeSchema =
             methodResponse.responseModels?.["application/json"]
