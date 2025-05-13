@@ -223,14 +223,15 @@ export function renderDefinitions(
     if (typeof operation.returnType === "string") {
       ir.returnType = { ref: operation.returnType }
     } else if (Array.isArray(operation.returnType)) {
-      ir.returnType = {
-        union: operation.returnType.map((r) => {
-          if (typeof r.type === "string") {
-            return { ref: r.type }
-          }
-          return extractProps(r.type.schema)
-        }),
-      }
+      ir.returnType = operation.returnType.map((r) => {
+        return {
+          statusCode: r.statusCode,
+          body:
+            typeof r.type === "string"
+              ? { ref: r.type }
+              : extractProps(r.type.schema),
+        }
+      })
     }
 
     lines.push(emitOperation(ir))
