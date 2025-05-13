@@ -1,6 +1,5 @@
 import { describe, it, expect, vi } from "vitest"
 import { parseServerlessConfig, renderDefinitions } from "./typespec"
-import type { Model } from "./typespec/model"
 
 import type Serverless from "serverless"
 import dedent from "dedent"
@@ -8,7 +7,7 @@ import { formatTypeSpec } from "@typespec/compiler"
 
 import type { SLS } from "./types/serverless"
 import { Registry } from "./registry"
-import type { Operation } from "./typespec/operation"
+import type { ModelIR, OperationIR } from "./typespec/ir/type"
 
 const context = describe
 
@@ -61,14 +60,11 @@ describe("parseServerlessConfig", () => {
         ])
         const { operations } = parseServerlessConfig(serverless)
 
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "hello",
-            returnType: "void",
-            http: {
-              method: "get",
-              path: "/hello",
-            },
+            method: "get",
+            route: "/hello",
           },
         ])
       })
@@ -102,26 +98,19 @@ describe("parseServerlessConfig", () => {
         ])
         const { operations, models } = parseServerlessConfig(serverless)
 
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "hello",
-            body: "HelloRequest",
-            returnType: "void",
-            http: {
-              method: "post",
-              path: "/hello",
-            },
+            method: "post",
+            route: "/hello",
+            requestBody: { ref: "HelloRequest" },
           },
         ])
-        expect(Array.from(models.values())).toEqual([
+        expect(Array.from(models.values())).toEqual<ModelIR[]>([
           {
             name: "HelloRequest",
-            schema: {
-              title: "HelloRequest",
-              type: "object",
-              properties: {
-                name: { type: "string" },
-              },
+            props: {
+              name: { type: "string", required: false },
             },
           },
         ])
@@ -144,14 +133,11 @@ describe("parseServerlessConfig", () => {
           },
         ])
         const { operations } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "helloWorld",
-            returnType: "void",
-            http: {
-              method: "get",
-              path: "/hello-world",
-            },
+            method: "get",
+            route: "/hello-world",
           },
         ])
       })
@@ -198,25 +184,22 @@ describe("parseServerlessConfig", () => {
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
         const { operations } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "getUser",
-            pathParameters: [
-              {
-                name: "id",
-                type: "string",
-                required: true,
-              },
-            ],
+            method: "get",
+            route: "/users/{id}",
+            parameters: {
+              id: { type: "string", required: true },
+            },
             returnType: [
               {
                 statusCode: 200,
-                type: "User",
+                body: { ref: "User" },
               },
             ],
             http: {
-              method: "get",
-              path: "/users/{id}",
+              params: ["id"],
             },
           },
         ])
@@ -263,35 +246,26 @@ describe("parseServerlessConfig", () => {
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
         const { operations, models } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "getUser",
-            pathParameters: [
-              {
-                name: "id",
-                type: "string",
-                required: true,
-              },
-            ],
+            method: "get",
+            route: "/users/{id}",
+            parameters: {
+              id: { type: "string", required: true },
+            },
             returnType: [
               {
                 statusCode: 200,
-                type: {
-                  name: null,
-                  schema: {
-                    type: "object",
-                    properties: {
-                      id: { type: "string" },
-                      name: { type: "string" },
-                      email: { type: "string" },
-                    },
-                  },
+                body: {
+                  id: { type: "string", required: false },
+                  name: { type: "string", required: false },
+                  email: { type: "string", required: false },
                 },
               },
             ],
             http: {
-              method: "get",
-              path: "/users/{id}",
+              params: ["id"],
             },
           },
         ])
@@ -334,32 +308,23 @@ describe("parseServerlessConfig", () => {
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
         const { operations, models } = parseServerlessConfig(serverless)
-        expect(operations).toEqual([
+        expect(operations).toEqual<OperationIR[]>([
           {
             name: "getUsers",
+            method: "get",
+            route: "/users",
             returnType: [
               {
                 statusCode: 200,
-                type: {
-                  name: null,
-                  schema: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string" },
-                        name: { type: "string" },
-                        email: { type: "string" },
-                      },
-                    },
+                body: [
+                  {
+                    id: { type: "string", required: false },
+                    name: { type: "string", required: false },
+                    email: { type: "string", required: false },
                   },
-                },
+                ],
               },
             ],
-            http: {
-              method: "get",
-              path: "/users",
-            },
           },
         ])
       })
@@ -369,7 +334,7 @@ describe("parseServerlessConfig", () => {
 
 describe("renderDefinitions", () => {
   it("should generate TypeSpec definitions for given operations and models", async () => {
-    const operations: Operation[] = [
+    const operations: OperationIR[] = [
       // {
       //   route: "/users",
       //   method: "get",
@@ -378,21 +343,19 @@ describe("renderDefinitions", () => {
       // },
       {
         name: "createUser",
-        body: "CreateUserRequest",
+        method: "post",
+        route: "/users",
+        requestBody: { ref: "CreateUserRequest" },
         returnType: [
           {
             statusCode: 201,
-            type: "CreateUserResponse",
+            body: { ref: "CreateUserResponse" },
           },
         ],
-        http: {
-          method: "post",
-          path: "/users",
-        },
       },
     ]
 
-    const models = new Registry<Model>()
+    const models = new Registry<ModelIR>()
     // models.register("UserList", {
     //   name: "UserList",
     //   schema: {
@@ -403,23 +366,15 @@ describe("renderDefinitions", () => {
     // })
     models.register("CreateUserRequest", {
       name: "CreateUserRequest",
-      schema: {
-        type: "object",
-        properties: {
-          name: { type: "string" },
-          email: { type: "string" },
-        },
-        required: ["name", "email"],
+      props: {
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
       },
     })
     models.register("CreateUserResponse", {
       name: "CreateUserResponse",
-      schema: {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-        },
-        required: ["id"],
+      props: {
+        id: { type: "string", required: true },
       },
     })
 

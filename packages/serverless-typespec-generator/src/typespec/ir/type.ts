@@ -5,6 +5,7 @@ export type JSONSchema = JSONSchema4
 export type TypeSpecIR =
   | { kind: "alias"; name: string; type: PropTypeIR }
   | { kind: "model"; model: ModelIR }
+  | { kind: "operation"; operation: OperationIR }
 
 export type ModelIR = {
   name: string
