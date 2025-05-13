@@ -28,7 +28,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
   it("should convert a JSON schema of array to TypeSpec IR", () => {
     const schema: JSONSchema = {
       type: "array",
-      "items": { type: "string" },
+      items: { type: "string" },
     }
     const result = jsonSchemaToTypeSpecIR(schema, "Tags")
     expect(result).toEqual({
@@ -70,7 +70,7 @@ describe("jsonSchemaToModelIR", () => {
     expect(result).toEqual({
       name: "ArrayModel",
       props: {
-        tags: { type: ["string"], required: true }
+        tags: { type: ["string"], required: true },
       },
     })
   })
