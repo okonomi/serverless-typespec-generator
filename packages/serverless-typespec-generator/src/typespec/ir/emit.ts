@@ -1,5 +1,4 @@
 import {
-  type AliasIR,
   type HttpResponseIR,
   type ModelIR,
   type OperationIR,
@@ -11,11 +10,6 @@ import {
   isRefType,
   isUnionType,
 } from "./type"
-
-export function emitAlias(alias: AliasIR): string {
-  const type = renderType(alias.type)
-  return `alias ${alias.name} = ${type};`
-}
 
 export function emitModel(model: ModelIR): string {
   const lines: string[] = []
@@ -69,7 +63,7 @@ function renderHttpResponse(r: HttpResponseIR): string {
   return `{ @statusCode statusCode: ${r.statusCode}; @body body: ${body} }`
 }
 
-function renderType(type: PropTypeIR): string {
+export function renderType(type: PropTypeIR): string {
   if (isPrimitiveType(type)) {
     return type
   }
