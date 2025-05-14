@@ -17,6 +17,26 @@ export function jsonSchemaToTypeSpecIR(
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
+export function extractProps(schema: JSONSchema): Record<string, PropIR> {
+  if (schema.allOf) {
+    return mergeAllOfObjectSchemas(schema.allOf)
+  }
+
+  const required = new Set(
+    Array.isArray(schema.required) ? schema.required : [],
+  )
+  const props: Record<string, PropIR> = {}
+
+  for (const [key, def] of Object.entries(schema.properties || {})) {
+    props[key] = {
+      type: convertType(def),
+      required: required.has(key),
+    }
+  }
+
+  return props
+}
+
 function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
   const required = new Set<string>()
   let props: Record<string, PropIR> = {}
@@ -38,26 +58,6 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
       props[key].required = true
     }
   }
-  return props
-}
-
-export function extractProps(schema: JSONSchema): Record<string, PropIR> {
-  if (schema.allOf) {
-    return mergeAllOfObjectSchemas(schema.allOf)
-  }
-
-  const required = new Set(
-    Array.isArray(schema.required) ? schema.required : [],
-  )
-  const props: Record<string, PropIR> = {}
-
-  for (const [key, def] of Object.entries(schema.properties || {})) {
-    props[key] = {
-      type: convertType(def),
-      required: required.has(key),
-    }
-  }
-
   return props
 }
 
