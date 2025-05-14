@@ -82,7 +82,12 @@ export function isPropType(type: unknown): type is PropTypeIR {
 }
 
 export function isPrimitiveType(type: unknown): type is PrimitiveType {
-  return type === "numeric" || type === "string" || type === "boolean"
+  return (
+    type === "numeric" ||
+    type === "string" ||
+    type === "boolean" ||
+    type === "null"
+  )
 }
 
 export function isRefType(type: unknown): type is RefType {
