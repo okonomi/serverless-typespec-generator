@@ -1,17 +1,16 @@
-import type Aws from "serverless/aws"
 import type { JSONSchema4 as JSONSchema } from "json-schema"
-
-import type { SLS } from "./types/serverless"
+import type Aws from "serverless/aws"
 import { Registry } from "./registry"
+import type { SLS } from "./types/serverless"
 import { extractProps, jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
 import { emitTypeSpec } from "./typespec/ir/emit"
+import { NotImplementedError } from "./typespec/ir/error"
 import type {
   HttpResponseIR,
   OperationIR,
   PropIR,
   TypeSpecIR,
 } from "./typespec/ir/type"
-import { NotImplementedError } from "./typespec/ir/error"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: OperationIR[]

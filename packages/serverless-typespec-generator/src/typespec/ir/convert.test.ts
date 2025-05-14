@@ -1,8 +1,7 @@
-import { describe, it, expect } from "vitest"
+import { describe, expect, it } from "vitest"
 
-import type { JSONSchema, ModelIR } from "./type"
 import { jsonSchemaToModelIR, jsonSchemaToTypeSpecIR } from "./convert"
-import { K } from "vitest/dist/chunks/reporters.d.79o4mouw"
+import type { JSONSchema, ModelIR } from "./type"
 
 describe("jsonSchemaToTypeSpecIR", () => {
   it("should convert a simple JSON schema to TypeSpec IR", () => {

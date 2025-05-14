@@ -1,9 +1,9 @@
-import { describe, it, expect } from "vitest"
+import { describe, expect, it } from "vitest"
+
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
-
-import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
 import { emitAlias, emitModel, emitOperation, emitTypeSpec } from "./emit"
+import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {

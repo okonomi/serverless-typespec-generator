@@ -1,16 +1,16 @@
 import {
   type AliasIR,
   type HttpResponseIR,
+  type ModelIR,
+  type OperationIR,
+  type PropTypeIR,
+  type TypeSpecIR,
   isArrayType,
   isHttpResponse,
   isHttpResponses,
   isPrimitiveType,
   isRefType,
   isUnionType,
-  type ModelIR,
-  type OperationIR,
-  type PropTypeIR,
-  type TypeSpecIR,
 } from "./type"
 
 export function emitTypeSpec(ir: TypeSpecIR): string {

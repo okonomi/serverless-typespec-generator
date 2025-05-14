@@ -1,12 +1,9 @@
+import path from "node:path"
+import type { JSONSchema4 as JSONSchema } from "json-schema"
 import type Serverless from "serverless"
 import type Plugin from "serverless/classes/Plugin"
-import type { JSONSchema4 as JSONSchema } from "json-schema"
-
-import path from "node:path"
-
 import type { SLS } from "./types/serverless"
 import { parseServerlessConfig, renderDefinitions } from "./typespec"
-import type { TypeSpecIR } from "./typespec/ir/type"
 
 export default class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks

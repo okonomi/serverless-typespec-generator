@@ -1,11 +1,10 @@
-import { describe, it, expect, vi } from "vitest"
-import { parseServerlessConfig, renderDefinitions } from "./typespec"
+import { describe, expect, it, vi } from "vitest"
 
-import type Serverless from "serverless"
-import dedent from "dedent"
 import { formatTypeSpec } from "@typespec/compiler"
-
+import dedent from "dedent"
+import type Serverless from "serverless"
 import type { SLS } from "./types/serverless"
+import { parseServerlessConfig, renderDefinitions } from "./typespec"
 import type { OperationIR, TypeSpecIR } from "./typespec/ir/type"
 
 const context = describe
