@@ -50,11 +50,7 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
 }
 
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
-  if (schema.allOf) {
-    const props = mergeAllOfObjectSchemas(schema.allOf)
-    return { kind: "model", name, props }
-  }
-  if (schema.type === "object") {
+  if (schema.type === "object" || schema.allOf) {
     const props = extractProps(schema)
     return { kind: "model", name, props }
   }
@@ -62,6 +58,10 @@ export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
 }
 
 export function extractProps(schema: JSONSchema): Record<string, PropIR> {
+  if (schema.allOf) {
+    return mergeAllOfObjectSchemas(schema.allOf)
+  }
+
   const required = new Set(
     Array.isArray(schema.required) ? schema.required : [],
   )
@@ -82,8 +82,9 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     const types = schema.oneOf.map(convertType)
     return { union: types }
   }
-  if (schema.allOf) {
-    return mergeAllOfObjectSchemas(schema.allOf)
+
+  if (schema.type === "object" || schema.allOf) {
+    return extractProps(schema)
   }
 
   switch (schema.type) {
@@ -102,8 +103,6 @@ export function convertType(schema: JSONSchema): PropTypeIR {
         throw new Error("Array 'items' must be a single schema object")
       }
       return [convertType(schema.items)]
-    case "object":
-      return extractProps(schema)
     default:
       throw new Error(`Unknown type: ${schema.type}`)
   }
