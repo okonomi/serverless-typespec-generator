@@ -1,4 +1,3 @@
-import type { JSONSchema4 as JSONSchema } from "json-schema"
 import type Aws from "serverless/aws"
 import { Registry } from "./registry"
 import type { SLS } from "./types/serverless"
@@ -7,6 +6,7 @@ import { emitTypeSpec } from "./typespec/ir/emit"
 import { NotImplementedError } from "./typespec/ir/error"
 import type {
   HttpResponseIR,
+  JSONSchema,
   OperationIR,
   PropIR,
   TypeSpecIR,
