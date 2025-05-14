@@ -11,6 +11,7 @@ import type {
   PropIR,
   TypeSpecIR,
 } from "./typespec/ir/type"
+import { NotImplementedError } from "./typespec/ir/error"
 
 export function parseServerlessConfig(serverless: SLS): {
   operations: OperationIR[]
@@ -23,8 +24,18 @@ export function parseServerlessConfig(serverless: SLS): {
     serverless.service.provider.apiGateway?.request?.schemas
   if (apiGatewaySchemas) {
     for (const [name, schema] of Object.entries(apiGatewaySchemas)) {
-      const model = jsonSchemaToTypeSpecIR(schema.schema, schema.name ?? "")
-      models.register(name, model)
+      try {
+        const model = jsonSchemaToTypeSpecIR(schema.schema, schema.name ?? "")
+        models.register(name, model)
+      } catch (e: unknown) {
+        if (e instanceof NotImplementedError) {
+          console.warn(
+            `Skipping schema "${name}" due to unsupported type: ${e.message}`,
+          )
+        } else {
+          throw e
+        }
+      }
     }
   }
 

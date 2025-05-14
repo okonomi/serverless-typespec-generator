@@ -1,3 +1,4 @@
+import { NotImplementedError } from "./error"
 import type {
   JSONSchema,
   ModelIR,
@@ -20,6 +21,10 @@ export function jsonSchemaToTypeSpecIR(
   if (schema.type === "object") {
     return jsonSchemaToModelIR(schema, name)
   }
+  if (schema.allOf) {
+    throw new NotImplementedError("allOf is not supported yet.")
+  }
+
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
