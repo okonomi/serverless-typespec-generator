@@ -38,3 +38,8 @@ op getPosts(): {
     tags: string | string[];
   }[];
 };
+
+alias Tags = {
+  slug: string;
+  name: string;
+}[];

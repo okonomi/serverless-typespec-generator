@@ -9,6 +9,14 @@ provider:
   runtime: nodejs20.x
   region: ap-northeast-1
   stage: dev
+  apiGateway:
+    request:
+      schemas:
+        tags:
+          name: Tags
+          schema:
+            type: array
+            items: ${file(./05-complex-schema/models/tag.yml)}
 
 functions:
   getPost:
