@@ -337,7 +337,7 @@ describe("parseServerlessConfig", () => {
         ])
       })
     })
-    context("with array", () => {
+    context("with array schema", () => {
       it("should parse array api model correctly", () => {
         const serverless = createServerlessMock(
           [
@@ -410,6 +410,56 @@ describe("parseServerlessConfig", () => {
               {
                 statusCode: 200,
                 body: { ref: "Users" },
+              },
+            ],
+          },
+        ])
+      })
+    })
+    context("with array schema with allOf", () => {
+      it("should parse array api model correctly", () => {
+        const serverless = createServerlessMock([], {
+          request: {
+            schemas: {
+              tags: {
+                name: "Tags",
+                schema: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    allOf: [
+                      {
+                        type: "object",
+                        properties: {
+                          slug: { type: "string" },
+                        },
+                      },
+                      {
+                        type: "object",
+                        properties: {
+                          name: { type: "string" },
+                        },
+                      },
+                      {
+                        type: "object",
+                        required: ["slug", "name"],
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        })
+        const { models } = parseServerlessConfig(serverless)
+        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
+          {
+            kind: "alias",
+            name: "Tags",
+            type: [
+              {
+                slug: { type: "string", required: true },
+                name: { type: "string", required: true },
               },
             ],
           },

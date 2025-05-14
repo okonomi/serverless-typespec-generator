@@ -83,6 +83,33 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     const types = schema.oneOf.map(convertType)
     return { union: types }
   }
+  if (schema.allOf) {
+    const required = new Set<string>()
+    let props: Record<string, PropIR> = {}
+    for (const subSchema of schema.allOf) {
+      if (subSchema.type !== "object") {
+        throw new NotImplementedError(
+          `Unsupported schema type in allOf: ${subSchema.type}`,
+        )
+      }
+
+      if (Array.isArray(subSchema.required)) {
+        for (const key of subSchema.required) {
+          required.add(key)
+        }
+      }
+
+      props = { ...props, ...extractProps(subSchema) }
+    }
+
+    for (const key of required) {
+      if (key in props) {
+        props[key].required = true
+      }
+    }
+
+    return props
+  }
 
   switch (schema.type) {
     case "string":
