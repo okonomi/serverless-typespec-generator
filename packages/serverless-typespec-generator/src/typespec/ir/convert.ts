@@ -1,28 +1,40 @@
 import { NotImplementedError } from "./error"
-import type {
-  JSONSchema,
-  ModelIR,
-  PropIR,
-  PropTypeIR,
-  TypeSpecIR,
-} from "./type"
+import type { JSONSchema, PropIR, PropTypeIR, TypeSpecIR } from "./type"
 
 export function jsonSchemaToTypeSpecIR(
   schema: JSONSchema,
   name: string,
 ): TypeSpecIR {
   if (schema.type === "array") {
-    if (!schema.items || Array.isArray(schema.items)) {
-      throw new Error("Array 'items' must be a single schema object")
-    }
-    const type = [convertType(schema.items)]
+    const type = convertType(schema)
     return { kind: "alias", name, type }
   }
   if (schema.type === "object" || schema.allOf) {
-    return jsonSchemaToModelIR(schema, name)
+    const props = extractProps(schema)
+    return { kind: "model", name, props }
   }
 
   throw new Error(`Unsupported schema type: ${schema.type}`)
+}
+
+export function extractProps(schema: JSONSchema): Record<string, PropIR> {
+  if (schema.allOf) {
+    return mergeAllOfObjectSchemas(schema.allOf)
+  }
+
+  const required = new Set(
+    Array.isArray(schema.required) ? schema.required : [],
+  )
+  const props: Record<string, PropIR> = {}
+
+  for (const [key, def] of Object.entries(schema.properties || {})) {
+    props[key] = {
+      type: convertType(def),
+      required: required.has(key),
+    }
+  }
+
+  return props
 }
 
 function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
@@ -49,41 +61,14 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
   return props
 }
 
-export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
-  if (schema.allOf) {
-    const props = mergeAllOfObjectSchemas(schema.allOf)
-    return { kind: "model", name, props }
-  }
-  if (schema.type === "object") {
-    const props = extractProps(schema)
-    return { kind: "model", name, props }
-  }
-  throw new Error(`Unsupported schema type: ${schema.type}`)
-}
-
-export function extractProps(schema: JSONSchema): Record<string, PropIR> {
-  const required = new Set(
-    Array.isArray(schema.required) ? schema.required : [],
-  )
-  const props: Record<string, PropIR> = {}
-
-  for (const [key, def] of Object.entries(schema.properties || {})) {
-    props[key] = {
-      type: convertType(def),
-      required: required.has(key),
-    }
-  }
-
-  return props
-}
-
 export function convertType(schema: JSONSchema): PropTypeIR {
   if (schema.oneOf) {
     const types = schema.oneOf.map(convertType)
     return { union: types }
   }
-  if (schema.allOf) {
-    return mergeAllOfObjectSchemas(schema.allOf)
+
+  if (schema.type === "object" || schema.allOf) {
+    return extractProps(schema)
   }
 
   switch (schema.type) {
@@ -102,8 +87,6 @@ export function convertType(schema: JSONSchema): PropTypeIR {
         throw new Error("Array 'items' must be a single schema object")
       }
       return [convertType(schema.items)]
-    case "object":
-      return extractProps(schema)
     default:
       throw new Error(`Unknown type: ${schema.type}`)
   }
