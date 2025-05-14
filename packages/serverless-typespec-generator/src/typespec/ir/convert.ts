@@ -1,11 +1,5 @@
 import { NotImplementedError } from "./error"
-import type {
-  JSONSchema,
-  ModelIR,
-  PropIR,
-  PropTypeIR,
-  TypeSpecIR,
-} from "./type"
+import type { JSONSchema, PropIR, PropTypeIR, TypeSpecIR } from "./type"
 
 export function jsonSchemaToTypeSpecIR(
   schema: JSONSchema,
@@ -16,7 +10,8 @@ export function jsonSchemaToTypeSpecIR(
     return { kind: "alias", name, type }
   }
   if (schema.type === "object" || schema.allOf) {
-    return jsonSchemaToModelIR(schema, name)
+    const props = extractProps(schema)
+    return { kind: "model", name, props }
   }
 
   throw new Error(`Unsupported schema type: ${schema.type}`)
@@ -44,14 +39,6 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
     }
   }
   return props
-}
-
-export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
-  if (schema.type === "object" || schema.allOf) {
-    const props = extractProps(schema)
-    return { kind: "model", name, props }
-  }
-  throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
 export function extractProps(schema: JSONSchema): Record<string, PropIR> {
