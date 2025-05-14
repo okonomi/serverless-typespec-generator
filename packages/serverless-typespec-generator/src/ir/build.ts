@@ -1,7 +1,7 @@
 import type Aws from "serverless/aws"
 import { Registry } from "./../registry"
 import type { SLS } from "./../types/serverless"
-import { extractProps, jsonSchemaToTypeSpecIR } from "./../typespec/ir/convert"
+import { convertType, extractProps } from "./../typespec/ir/convert"
 import { NotImplementedError } from "./../typespec/ir/error"
 import type {
   HttpResponseIR,
@@ -189,4 +189,20 @@ function isHttpMethod(
     method === "delete" ||
     method === "patch"
   )
+}
+
+export function jsonSchemaToTypeSpecIR(
+  schema: JSONSchema,
+  name: string,
+): TypeSpecIR {
+  if (schema.type === "array") {
+    const type = convertType(schema)
+    return { kind: "alias", name, type }
+  }
+  if (schema.type === "object" || schema.allOf) {
+    const props = extractProps(schema)
+    return { kind: "model", name, props }
+  }
+
+  throw new Error(`Unsupported schema type: ${schema.type}`)
 }

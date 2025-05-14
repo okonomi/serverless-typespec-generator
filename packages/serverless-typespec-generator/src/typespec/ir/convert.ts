@@ -1,21 +1,5 @@
 import { NotImplementedError } from "./error"
-import type { JSONSchema, PropIR, PropTypeIR, TypeSpecIR } from "./type"
-
-export function jsonSchemaToTypeSpecIR(
-  schema: JSONSchema,
-  name: string,
-): TypeSpecIR {
-  if (schema.type === "array") {
-    const type = convertType(schema)
-    return { kind: "alias", name, type }
-  }
-  if (schema.type === "object" || schema.allOf) {
-    const props = extractProps(schema)
-    return { kind: "model", name, props }
-  }
-
-  throw new Error(`Unsupported schema type: ${schema.type}`)
-}
+import type { JSONSchema, PropIR, PropTypeIR } from "./type"
 
 export function extractProps(schema: JSONSchema): Record<string, PropIR> {
   if (schema.allOf) {

@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest"
 import { formatTypeSpec } from "@typespec/compiler"
 import type Serverless from "serverless"
 import type { SLS } from "./../types/serverless"
-import type { TypeSpecIR } from "./../typespec/ir/type"
-import { buildIR } from "./build"
+import type { JSONSchema, TypeSpecIR } from "./../typespec/ir/type"
+import { buildIR, jsonSchemaToTypeSpecIR } from "./build"
 
 const context = describe
 
@@ -462,6 +462,165 @@ describe("buildIR", () => {
           },
         ])
       })
+    })
+  })
+})
+
+describe("jsonSchemaToTypeSpecIR", () => {
+  it("should convert a simple JSON schema to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        age: { type: "integer" },
+      },
+      required: ["id"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
+      },
+    })
+  })
+  it("should convert a JSON schema of array to IR", () => {
+    const schema: JSONSchema = {
+      type: "array",
+      items: { type: "string" },
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Tags")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "alias",
+      name: "Tags",
+      type: ["string"],
+    })
+  })
+  it("should convert a JSON schema with allOf to IR", () => {
+    const schema: JSONSchema = {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        {
+          type: "object",
+          properties: {
+            age: { type: "integer" },
+          },
+          required: ["age"],
+        },
+      ],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: true },
+      },
+    })
+  })
+  it("should convert a JSON schema with allOf and required to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            age: { type: "integer" },
+          },
+        },
+        {
+          type: "object",
+          required: ["id", "age"],
+        },
+      ],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: true },
+      },
+    })
+  })
+  it("should convert a simple JSON schema to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        age: { type: "integer" },
+      },
+      required: ["id"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
+      },
+    })
+  })
+  it("should convert a JSON schema with array properties to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        tags: { type: "array", items: { type: "string" } },
+      },
+      required: ["tags"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "ArrayModel")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "ArrayModel",
+      props: {
+        tags: { type: ["string"], required: true },
+      },
+    })
+  })
+  it("should convert a JSON schema with nested object properties to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        meta: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+          },
+          required: ["name"],
+        },
+      },
+      required: ["meta"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "ObjectModel")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "ObjectModel",
+      props: {
+        meta: {
+          type: {
+            name: { type: "string", required: true },
+          },
+          required: true,
+        },
+      },
     })
   })
 })
