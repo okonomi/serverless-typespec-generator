@@ -68,6 +68,38 @@ describe("jsonSchemaToTypeSpecIR", () => {
       },
     })
   })
+  it("should convert a JSON schema with allOf and required to TypeSpec IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            age: { type: "integer" },
+          },
+        },
+        {
+          type: "object",
+          required: ["id", "age"],
+        },
+      ],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<ModelIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: true },
+      },
+    })
+  })
 })
 
 describe("jsonSchemaToModelIR", () => {

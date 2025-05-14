@@ -26,12 +26,8 @@ export function jsonSchemaToTypeSpecIR(
 }
 
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
-  if (schema.type === "object") {
-    const props = extractProps(schema)
-    return { kind: "model", name, props }
-  }
-
   if (schema.allOf) {
+    const required = new Set<string>()
     let props: Record<string, PropIR> = {}
     for (const subSchema of schema.allOf) {
       if (subSchema.type !== "object") {
@@ -39,8 +35,27 @@ export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
           `Unsupported schema type in allOf: ${subSchema.type}`,
         )
       }
+
+      if (Array.isArray(subSchema.required)) {
+        for (const key of subSchema.required) {
+          required.add(key)
+        }
+      }
+
       props = { ...props, ...extractProps(subSchema) }
     }
+
+    for (const key of required) {
+      if (key in props) {
+        props[key].required = true
+      }
+    }
+
+    return { kind: "model", name, props }
+  }
+
+  if (schema.type === "object") {
+    const props = extractProps(schema)
     return { kind: "model", name, props }
   }
 
