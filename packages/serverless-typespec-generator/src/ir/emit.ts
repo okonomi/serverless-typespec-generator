@@ -1,5 +1,5 @@
-import { emitModel, emitOperation, renderType } from "../typespec/ir/emit"
-import type { AliasIR, TypeSpecIR } from "../typespec/ir/type"
+import { emitOperation, renderType } from "../typespec/ir/emit"
+import type { AliasIR, ModelIR, TypeSpecIR } from "../typespec/ir/type"
 
 export function emitTypeSpec(irList: TypeSpecIR[]): string {
   const lines: string[] = []
@@ -37,4 +37,18 @@ export function emitIR(ir: TypeSpecIR): string {
 export function emitAlias(alias: AliasIR): string {
   const type = renderType(alias.type)
   return `alias ${alias.name} = ${type};`
+}
+
+export function emitModel(model: ModelIR): string {
+  const lines: string[] = []
+
+  lines.push(`model ${model.name} {`)
+  for (const [name, prop] of Object.entries(model.props)) {
+    const type = renderType(prop.type)
+    const optional = prop.required ? "" : "?"
+    lines.push(`${name}${optional}: ${type};`)
+  }
+  lines.push("}")
+
+  return lines.join("\n")
 }

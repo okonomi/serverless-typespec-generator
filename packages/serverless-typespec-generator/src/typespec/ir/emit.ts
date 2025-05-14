@@ -1,6 +1,5 @@
 import {
   type HttpResponseIR,
-  type ModelIR,
   type OperationIR,
   type PropTypeIR,
   isArrayType,
@@ -10,20 +9,6 @@ import {
   isRefType,
   isUnionType,
 } from "./type"
-
-export function emitModel(model: ModelIR): string {
-  const lines: string[] = []
-
-  lines.push(`model ${model.name} {`)
-  for (const [name, prop] of Object.entries(model.props)) {
-    const type = renderType(prop.type)
-    const optional = prop.required ? "" : "?"
-    lines.push(`${name}${optional}: ${type};`)
-  }
-  lines.push("}")
-
-  return lines.join("\n")
-}
 
 export function emitOperation(operation: OperationIR): string {
   const lines: string[] = []

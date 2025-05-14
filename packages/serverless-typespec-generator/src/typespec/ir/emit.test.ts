@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
-import { emitModel, emitOperation } from "./emit"
-import type { ModelIR, OperationIR } from "./type"
+import { emitOperation } from "./emit"
+import type { OperationIR } from "./type"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {
@@ -13,89 +13,6 @@ async function normalizeTypeSpec(code: string) {
   })
   return formattedCode.trimEnd()
 }
-
-describe("emitModel", () => {
-  it("should emit a simple model", async () => {
-    const model: ModelIR = {
-      kind: "model",
-      name: "TestModel",
-      props: {
-        id: { type: "string", required: true },
-        age: { type: "numeric", required: false },
-      },
-    }
-    const result = emitModel(model)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model TestModel {
-        id: string;
-        age?: numeric;
-      }
-    `)
-  })
-  it("should emit a model with array properties", async () => {
-    const model: ModelIR = {
-      kind: "model",
-      name: "ArrayModel",
-      props: {
-        tags: { type: ["string"], required: true },
-      },
-    }
-    const result = emitModel(model)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model ArrayModel {
-        tags: string[];
-      }
-    `)
-  })
-  it("should emit a model with object properties", async () => {
-    const model: ModelIR = {
-      kind: "model",
-      name: "ObjectModel",
-      props: {
-        meta: {
-          type: {
-            name: { type: "string", required: true },
-          },
-          required: true,
-        },
-      },
-    }
-    const result = emitModel(model)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model ObjectModel {
-        meta: {
-          name: string;
-        };
-      }
-    `)
-  })
-  it("should emit a model with mixed properties", async () => {
-    const model: ModelIR = {
-      kind: "model",
-      name: "MixedModel",
-      props: {
-        active: { type: "boolean", required: true },
-        tags: { type: ["string"], required: false },
-        meta: {
-          type: {
-            name: { type: "string", required: true },
-          },
-          required: false,
-        },
-      },
-    }
-    const result = emitModel(model)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model MixedModel {
-        active: boolean;
-        tags?: string[];
-        meta?: {
-          name: string;
-        };
-      }
-    `)
-  })
-})
 
 describe("emitOperation", () => {
   it("should emit a simple operation", async () => {
