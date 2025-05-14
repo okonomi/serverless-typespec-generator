@@ -63,7 +63,12 @@ export function extractProps(schema: JSONSchema): Record<string, PropIR> {
   return props
 }
 
-function convertType(schema: JSONSchema): PropTypeIR {
+export function convertType(schema: JSONSchema): PropTypeIR {
+  if (schema.oneOf) {
+    const types = schema.oneOf.map(convertType)
+    return { union: types }
+  }
+
   switch (schema.type) {
     case "string":
       return "string"
