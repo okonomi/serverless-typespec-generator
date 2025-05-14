@@ -47,7 +47,7 @@ export type PropTypeIR =
   | Record<string, PropIR>
   | PropTypeIR[]
 
-export type PrimitiveType = "numeric" | "string" | "boolean"
+export type PrimitiveType = "numeric" | "string" | "boolean" | "null"
 
 export type RefType = {
   ref: string

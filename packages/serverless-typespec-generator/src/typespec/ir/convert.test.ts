@@ -165,9 +165,9 @@ describe("convertType", () => {
   })
   it("should convert oneOf type to union of types", () => {
     const schema: JSONSchema = {
-      oneOf: [{ type: "string" }, { type: "integer" }],
+      oneOf: [{ type: "string" }, { type: "null" }],
     }
     const result = convertType(schema)
-    expect(result).toEqual<PropTypeIR>({ union: ["string", "numeric"] })
+    expect(result).toEqual<PropTypeIR>({ union: ["string", "null"] })
   })
 })

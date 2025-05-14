@@ -78,6 +78,8 @@ export function convertType(schema: JSONSchema): PropTypeIR {
       return "numeric"
     case "boolean":
       return "boolean"
+    case "null":
+      return "null"
     case "array":
       if (!schema.items || Array.isArray(schema.items)) {
         throw new Error("Array 'items' must be a single schema object")
