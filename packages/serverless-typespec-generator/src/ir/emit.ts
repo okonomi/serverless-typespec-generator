@@ -1,4 +1,4 @@
-import { emitTypeSpec as emitIR } from "../typespec/ir/emit"
+import { emitAlias, emitModel, emitOperation } from "../typespec/ir/emit"
 import type { TypeSpecIR } from "../typespec/ir/type"
 
 export function emitTypeSpec(irList: TypeSpecIR[]): string {
@@ -18,4 +18,18 @@ export function emitTypeSpec(irList: TypeSpecIR[]): string {
   }
 
   return lines.join("\n")
+}
+
+export function emitIR(ir: TypeSpecIR): string {
+  if (ir.kind === "model") {
+    return emitModel(ir)
+  }
+  if (ir.kind === "alias") {
+    return emitAlias(ir)
+  }
+  if (ir.kind === "operation") {
+    return emitOperation(ir)
+  }
+
+  throw new Error(`Unknown IR: ${ir}`)
 }

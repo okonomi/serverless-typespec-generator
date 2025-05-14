@@ -4,7 +4,6 @@ import {
   type ModelIR,
   type OperationIR,
   type PropTypeIR,
-  type TypeSpecIR,
   isArrayType,
   isHttpResponse,
   isHttpResponses,
@@ -12,20 +11,6 @@ import {
   isRefType,
   isUnionType,
 } from "./type"
-
-export function emitTypeSpec(ir: TypeSpecIR): string {
-  if (ir.kind === "model") {
-    return emitModel(ir)
-  }
-  if (ir.kind === "alias") {
-    return emitAlias(ir)
-  }
-  if (ir.kind === "operation") {
-    return emitOperation(ir)
-  }
-
-  throw new Error(`Unknown IR: ${ir}`)
-}
 
 export function emitAlias(alias: AliasIR): string {
   const type = renderType(alias.type)

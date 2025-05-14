@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest"
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
 import type { TypeSpecIR } from "./../typespec/ir/type"
-import { emitTypeSpec } from "./emit"
+import { emitIR, emitTypeSpec } from "./emit"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {
@@ -74,5 +74,57 @@ describe("emitTypeSpec", () => {
     `
 
     expect(await normalizeTypeSpec(result)).toBe(expected)
+  })
+})
+
+describe("emitIR", () => {
+  it("should emit a simple model", async () => {
+    const ir: TypeSpecIR = {
+      kind: "model",
+      name: "TestModel",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
+      },
+    }
+    const result = emitIR(ir)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      model TestModel {
+        id: string;
+        age?: numeric;
+      }
+    `)
+  })
+  it("should emit a simple operation", async () => {
+    const ir: TypeSpecIR = {
+      kind: "operation",
+      name: "createUser",
+      method: "post",
+      route: "/users",
+      requestBody: {
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
+      },
+      returnType: {
+        id: { type: "string", required: true },
+        name: { type: "string", required: true },
+        email: { type: "string", required: true },
+      },
+    }
+    const result = emitIR(ir)
+    expect(await normalizeTypeSpec(result)).toBe(dedent`
+      @route("/users")
+      @post
+      op createUser(
+        @body body: {
+          name: string;
+          email: string;
+        },
+      ): {
+        id: string;
+        name: string;
+        email: string;
+      };
+    `)
   })
 })

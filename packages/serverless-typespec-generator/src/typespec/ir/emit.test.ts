@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
-import { emitAlias, emitModel, emitOperation, emitTypeSpec } from "./emit"
+import { emitAlias, emitModel, emitOperation } from "./emit"
 import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
 
 async function normalizeTypeSpec(code: string) {
@@ -13,58 +13,6 @@ async function normalizeTypeSpec(code: string) {
   })
   return formattedCode.trimEnd()
 }
-
-describe("emitTypeSpec", () => {
-  it("should emit a simple model", async () => {
-    const ir: TypeSpecIR = {
-      kind: "model",
-      name: "TestModel",
-      props: {
-        id: { type: "string", required: true },
-        age: { type: "numeric", required: false },
-      },
-    }
-    const result = emitTypeSpec(ir)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model TestModel {
-        id: string;
-        age?: numeric;
-      }
-    `)
-  })
-  it("should emit a simple operation", async () => {
-    const ir: TypeSpecIR = {
-      kind: "operation",
-      name: "createUser",
-      method: "post",
-      route: "/users",
-      requestBody: {
-        name: { type: "string", required: true },
-        email: { type: "string", required: true },
-      },
-      returnType: {
-        id: { type: "string", required: true },
-        name: { type: "string", required: true },
-        email: { type: "string", required: true },
-      },
-    }
-    const result = emitTypeSpec(ir)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users")
-      @post
-      op createUser(
-        @body body: {
-          name: string;
-          email: string;
-        },
-      ): {
-        id: string;
-        name: string;
-        email: string;
-      };
-    `)
-  })
-})
 
 describe("emitAlias", () => {
   it("should emit a alias for an array", async () => {
