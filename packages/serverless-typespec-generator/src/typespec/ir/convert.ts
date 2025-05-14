@@ -12,10 +12,7 @@ export function jsonSchemaToTypeSpecIR(
   name: string,
 ): TypeSpecIR {
   if (schema.type === "array") {
-    if (!schema.items || Array.isArray(schema.items)) {
-      throw new Error("Array 'items' must be a single schema object")
-    }
-    const type = [convertType(schema.items)]
+    const type = convertType(schema)
     return { kind: "alias", name, type }
   }
   if (schema.type === "object" || schema.allOf) {
