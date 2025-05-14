@@ -25,40 +25,39 @@ export function jsonSchemaToTypeSpecIR(
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
+function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
+  const required = new Set<string>()
+  let props: Record<string, PropIR> = {}
+  for (const subSchema of allOf) {
+    if (subSchema.type !== "object") {
+      throw new NotImplementedError(
+        `Unsupported schema type in allOf: ${subSchema.type}`,
+      )
+    }
+    if (Array.isArray(subSchema.required)) {
+      for (const key of subSchema.required) {
+        required.add(key)
+      }
+    }
+    props = { ...props, ...extractProps(subSchema) }
+  }
+  for (const key of required) {
+    if (key in props) {
+      props[key].required = true
+    }
+  }
+  return props
+}
+
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   if (schema.allOf) {
-    const required = new Set<string>()
-    let props: Record<string, PropIR> = {}
-    for (const subSchema of schema.allOf) {
-      if (subSchema.type !== "object") {
-        throw new NotImplementedError(
-          `Unsupported schema type in allOf: ${subSchema.type}`,
-        )
-      }
-
-      if (Array.isArray(subSchema.required)) {
-        for (const key of subSchema.required) {
-          required.add(key)
-        }
-      }
-
-      props = { ...props, ...extractProps(subSchema) }
-    }
-
-    for (const key of required) {
-      if (key in props) {
-        props[key].required = true
-      }
-    }
-
+    const props = mergeAllOfObjectSchemas(schema.allOf)
     return { kind: "model", name, props }
   }
-
   if (schema.type === "object") {
     const props = extractProps(schema)
     return { kind: "model", name, props }
   }
-
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
@@ -84,31 +83,7 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     return { union: types }
   }
   if (schema.allOf) {
-    const required = new Set<string>()
-    let props: Record<string, PropIR> = {}
-    for (const subSchema of schema.allOf) {
-      if (subSchema.type !== "object") {
-        throw new NotImplementedError(
-          `Unsupported schema type in allOf: ${subSchema.type}`,
-        )
-      }
-
-      if (Array.isArray(subSchema.required)) {
-        for (const key of subSchema.required) {
-          required.add(key)
-        }
-      }
-
-      props = { ...props, ...extractProps(subSchema) }
-    }
-
-    for (const key of required) {
-      if (key in props) {
-        props[key].required = true
-      }
-    }
-
-    return props
+    return mergeAllOfObjectSchemas(schema.allOf)
   }
 
   switch (schema.type) {
