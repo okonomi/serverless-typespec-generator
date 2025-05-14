@@ -2,8 +2,8 @@ import { describe, expect, it } from "vitest"
 
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
-import { renderDefinitions } from "./typespec"
-import type { TypeSpecIR } from "./typespec/ir/type"
+import type { TypeSpecIR } from "./../typespec/ir/type"
+import { emitTypeSpec } from "./emit"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {
@@ -14,7 +14,7 @@ async function normalizeTypeSpec(code: string) {
   return formattedCode.trimEnd()
 }
 
-describe("renderDefinitions", () => {
+describe("emitTypeSpec", () => {
   it("should generate TypeSpec definitions for given operations and models", async () => {
     const irList: TypeSpecIR[] = [
       {
@@ -46,7 +46,7 @@ describe("renderDefinitions", () => {
         },
       },
     ]
-    const result = renderDefinitions(irList)
+    const result = emitTypeSpec(irList)
 
     const expected = dedent`
       import "@typespec/http";

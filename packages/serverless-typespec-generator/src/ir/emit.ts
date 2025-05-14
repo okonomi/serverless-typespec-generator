@@ -1,7 +1,7 @@
-import { emitTypeSpec } from "./typespec/ir/emit"
-import type { TypeSpecIR } from "./typespec/ir/type"
+import { emitTypeSpec as emitIR } from "../typespec/ir/emit"
+import type { TypeSpecIR } from "../typespec/ir/type"
 
-export function renderDefinitions(irList: TypeSpecIR[]): string {
+export function emitTypeSpec(irList: TypeSpecIR[]): string {
   const lines: string[] = []
   lines.push('import "@typespec/http";')
   lines.push("")
@@ -13,7 +13,7 @@ export function renderDefinitions(irList: TypeSpecIR[]): string {
   lines.push("")
 
   for (const ir of irList) {
-    lines.push(emitTypeSpec(ir))
+    lines.push(emitIR(ir))
     lines.push("")
   }
 
