@@ -55,6 +55,10 @@ describe("isPrimitiveType", () => {
     const result = isPrimitiveType({ ref: "Test" })
     expect(result).toBe(false)
   })
+  it("should return true for a null type", () => {
+    const result = isPrimitiveType("null")
+    expect(result).toBe(true)
+  })
 })
 
 describe("ifRefType", () => {

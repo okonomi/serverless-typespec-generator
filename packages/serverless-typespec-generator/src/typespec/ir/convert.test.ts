@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest"
 
-import { jsonSchemaToModelIR, jsonSchemaToTypeSpecIR } from "./convert"
-import type { JSONSchema, ModelIR } from "./type"
+import {
+  convertType,
+  jsonSchemaToModelIR,
+  jsonSchemaToTypeSpecIR,
+} from "./convert"
+import type { JSONSchema, ModelIR, PropTypeIR } from "./type"
 
 describe("jsonSchemaToTypeSpecIR", () => {
   it("should convert a simple JSON schema to TypeSpec IR", () => {
@@ -33,6 +37,35 @@ describe("jsonSchemaToTypeSpecIR", () => {
       kind: "alias",
       name: "Tags",
       type: ["string"],
+    })
+  })
+  it("should convert a JSON schema with allOf to TypeSpec IR", () => {
+    const schema: JSONSchema = {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+          required: ["id"],
+        },
+        {
+          type: "object",
+          properties: {
+            age: { type: "integer" },
+          },
+          required: ["age"],
+        },
+      ],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<ModelIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: true },
+      },
     })
   })
 })
@@ -101,5 +134,40 @@ describe("jsonSchemaToModelIR", () => {
         },
       },
     })
+  })
+})
+
+describe("convertType", () => {
+  it("should convert string type to string", () => {
+    const schema: JSONSchema = { type: "string" }
+    const result = convertType(schema)
+    expect(result).toBe("string")
+  })
+  it("should convert integer type to numeric", () => {
+    const schema: JSONSchema = { type: "integer" }
+    const result = convertType(schema)
+    expect(result).toBe("numeric")
+  })
+  it("should convert number type to numeric", () => {
+    const schema: JSONSchema = { type: "number" }
+    const result = convertType(schema)
+    expect(result).toBe("numeric")
+  })
+  it("should convert boolean type to boolean", () => {
+    const schema: JSONSchema = { type: "boolean" }
+    const result = convertType(schema)
+    expect(result).toBe("boolean")
+  })
+  it("should convert array type to array of string", () => {
+    const schema: JSONSchema = { type: "array", items: { type: "string" } }
+    const result = convertType(schema)
+    expect(result).toEqual(["string"])
+  })
+  it("should convert oneOf type to union of types", () => {
+    const schema: JSONSchema = {
+      oneOf: [{ type: "string" }, { type: "null" }],
+    }
+    const result = convertType(schema)
+    expect(result).toEqual<PropTypeIR>({ union: ["string", "null"] })
   })
 })

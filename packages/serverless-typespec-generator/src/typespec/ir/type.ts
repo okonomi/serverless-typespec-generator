@@ -47,7 +47,7 @@ export type PropTypeIR =
   | Record<string, PropIR>
   | PropTypeIR[]
 
-export type PrimitiveType = "numeric" | "string" | "boolean"
+export type PrimitiveType = "numeric" | "string" | "boolean" | "null"
 
 export type RefType = {
   ref: string
@@ -82,7 +82,12 @@ export function isPropType(type: unknown): type is PropTypeIR {
 }
 
 export function isPrimitiveType(type: unknown): type is PrimitiveType {
-  return type === "numeric" || type === "string" || type === "boolean"
+  return (
+    type === "numeric" ||
+    type === "string" ||
+    type === "boolean" ||
+    type === "null"
+  )
 }
 
 export function isRefType(type: unknown): type is RefType {

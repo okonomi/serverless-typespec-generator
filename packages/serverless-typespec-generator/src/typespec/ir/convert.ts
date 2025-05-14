@@ -18,11 +18,8 @@ export function jsonSchemaToTypeSpecIR(
     const type = [convertType(schema.items)]
     return { kind: "alias", name, type }
   }
-  if (schema.type === "object") {
+  if (schema.type === "object" || schema.allOf) {
     return jsonSchemaToModelIR(schema, name)
-  }
-  if (schema.allOf) {
-    throw new NotImplementedError("allOf is not supported yet.")
   }
 
   throw new Error(`Unsupported schema type: ${schema.type}`)
@@ -31,6 +28,19 @@ export function jsonSchemaToTypeSpecIR(
 export function jsonSchemaToModelIR(schema: JSONSchema, name: string): ModelIR {
   if (schema.type === "object") {
     const props = extractProps(schema)
+    return { kind: "model", name, props }
+  }
+
+  if (schema.allOf) {
+    let props: Record<string, PropIR> = {}
+    for (const subSchema of schema.allOf) {
+      if (subSchema.type !== "object") {
+        throw new NotImplementedError(
+          `Unsupported schema type in allOf: ${subSchema.type}`,
+        )
+      }
+      props = { ...props, ...extractProps(subSchema) }
+    }
     return { kind: "model", name, props }
   }
 
@@ -53,7 +63,12 @@ export function extractProps(schema: JSONSchema): Record<string, PropIR> {
   return props
 }
 
-function convertType(schema: JSONSchema): PropTypeIR {
+export function convertType(schema: JSONSchema): PropTypeIR {
+  if (schema.oneOf) {
+    const types = schema.oneOf.map(convertType)
+    return { union: types }
+  }
+
   switch (schema.type) {
     case "string":
       return "string"
@@ -63,6 +78,8 @@ function convertType(schema: JSONSchema): PropTypeIR {
       return "numeric"
     case "boolean":
       return "boolean"
+    case "null":
+      return "null"
     case "array":
       if (!schema.items || Array.isArray(schema.items)) {
         throw new Error("Array 'items' must be a single schema object")

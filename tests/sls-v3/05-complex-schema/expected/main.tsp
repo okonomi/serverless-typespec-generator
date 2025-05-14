@@ -18,6 +18,7 @@ op getPost(@path id: string): {
       name: string;
       email: string;
     };
+    tags: string | string[];
   };
 };
 
@@ -34,5 +35,6 @@ op getPosts(): {
       name: string;
       email: string;
     };
+    tags: string | string[];
   }[];
 };

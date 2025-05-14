@@ -7,3 +7,9 @@ properties:
   content:
     type: string
   author: ${file(./05-complex-schema/models/user.yml)}
+  tags:
+    oneOf:
+      - type: string
+      - type: array
+        items:
+          type: string
