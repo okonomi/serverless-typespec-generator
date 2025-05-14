@@ -1,12 +1,16 @@
-import { renderType } from "../typespec/ir/emit"
 import {
   type AliasIR,
   type HttpResponseIR,
   type ModelIR,
   type OperationIR,
+  type PropTypeIR,
   type TypeSpecIR,
+  isArrayType,
   isHttpResponse,
   isHttpResponses,
+  isPrimitiveType,
+  isRefType,
+  isUnionType,
 } from "../typespec/ir/type"
 
 export function emitTypeSpec(irList: TypeSpecIR[]): string {
@@ -97,4 +101,27 @@ export function emitOperation(operation: OperationIR): string {
 function renderHttpResponse(r: HttpResponseIR): string {
   const body = renderType(r.body)
   return `{ @statusCode statusCode: ${r.statusCode}; @body body: ${body} }`
+}
+
+function renderType(type: PropTypeIR): string {
+  if (isPrimitiveType(type)) {
+    return type
+  }
+
+  if (isArrayType(type)) {
+    return `${renderType(type[0])}[]`
+  }
+
+  if (isRefType(type)) {
+    return type.ref
+  }
+
+  if (isUnionType(type)) {
+    return type.union.map(renderType).join(" | ")
+  }
+
+  const props = Object.entries(type)
+    .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
+    .join(", ")
+  return `{ ${props} }`
 }
