@@ -1,7 +1,7 @@
 import type Aws from "serverless/aws"
 import { Registry } from "./../registry"
 import type { SLS } from "./../types/serverless"
-import { convertType, extractProps } from "./../typespec/ir/convert"
+import { convertType } from "./../typespec/ir/convert"
 import { NotImplementedError } from "./../typespec/ir/error"
 import type {
   HttpResponseIR,
@@ -205,4 +205,48 @@ export function jsonSchemaToTypeSpecIR(
   }
 
   throw new Error(`Unsupported schema type: ${schema.type}`)
+}
+
+export function extractProps(schema: JSONSchema): Record<string, PropIR> {
+  if (schema.allOf) {
+    return mergeAllOfObjectSchemas(schema.allOf)
+  }
+
+  const required = new Set(
+    Array.isArray(schema.required) ? schema.required : [],
+  )
+  const props: Record<string, PropIR> = {}
+
+  for (const [key, def] of Object.entries(schema.properties || {})) {
+    props[key] = {
+      type: convertType(def),
+      required: required.has(key),
+    }
+  }
+
+  return props
+}
+
+function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
+  const required = new Set<string>()
+  let props: Record<string, PropIR> = {}
+  for (const subSchema of allOf) {
+    if (subSchema.type !== "object") {
+      throw new NotImplementedError(
+        `Unsupported schema type in allOf: ${subSchema.type}`,
+      )
+    }
+    if (Array.isArray(subSchema.required)) {
+      for (const key of subSchema.required) {
+        required.add(key)
+      }
+    }
+    props = { ...props, ...extractProps(subSchema) }
+  }
+  for (const key of required) {
+    if (key in props) {
+      props[key].required = true
+    }
+  }
+  return props
 }
