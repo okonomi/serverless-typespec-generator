@@ -9,7 +9,7 @@ import type {
   PropIR,
   PropTypeIR,
   TypeSpecIR,
-} from "./../typespec/ir/type"
+} from "./type"
 
 export function buildIR(serverless: SLS): TypeSpecIR[] {
   const operations: OperationIR[] = []

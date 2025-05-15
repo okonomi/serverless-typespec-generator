@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest"
 
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
-import type { ModelIR, OperationIR, TypeSpecIR } from "./../typespec/ir/type"
 import {
   emitAlias,
   emitIR,
@@ -10,6 +9,7 @@ import {
   emitOperation,
   emitTypeSpec,
 } from "./emit"
+import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
 
 async function normalizeTypeSpec(code: string) {
   const formattedCode = await formatTypeSpec(code, {

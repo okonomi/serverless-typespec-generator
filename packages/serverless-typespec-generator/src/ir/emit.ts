@@ -11,7 +11,7 @@ import {
   isPrimitiveType,
   isRefType,
   isUnionType,
-} from "../typespec/ir/type"
+} from "./type"
 
 export function emitTypeSpec(irList: TypeSpecIR[]): string {
   const lines: string[] = []

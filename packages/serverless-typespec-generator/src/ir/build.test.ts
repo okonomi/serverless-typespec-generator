@@ -3,8 +3,8 @@ import { describe, expect, it, vi } from "vitest"
 import { formatTypeSpec } from "@typespec/compiler"
 import type Serverless from "serverless"
 import type { SLS } from "./../types/serverless"
-import type { JSONSchema, PropTypeIR, TypeSpecIR } from "./../typespec/ir/type"
 import { buildIR, convertType, jsonSchemaToTypeSpecIR } from "./build"
+import type { JSONSchema, PropTypeIR, TypeSpecIR } from "./type"
 
 const context = describe
 
