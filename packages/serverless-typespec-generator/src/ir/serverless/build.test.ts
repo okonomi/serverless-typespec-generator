@@ -190,4 +190,31 @@ describe("buildServerlessIR", () => {
       },
     ])
   })
+  it("should handle functions with kebab-case name", () => {
+    const serverless = createServerlessMock({
+      "hello-world": {
+        name: "hello-world",
+        handler: "handler.helloWorld",
+        events: [
+          {
+            http: {
+              method: "get",
+              path: "/hello-world",
+            },
+          },
+        ],
+      },
+    })
+    const result = buildServerlessIR(serverless)
+    expect(result).toEqual<ServerlessIR[]>([
+      {
+        kind: "function",
+        name: "helloWorld",
+        event: {
+          method: "get",
+          path: "/hello-world",
+        },
+      },
+    ])
+  })
 })

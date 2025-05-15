@@ -22,7 +22,7 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
 
     irList.push({
       kind: "function",
-      name: functionName,
+      name: normalizeFunctionName(functionName),
       event: {
         method: event.http.method,
         path: normalizePath(event.http.path),
@@ -51,4 +51,14 @@ function normalizePath(path: string) {
   }
 
   return path
+}
+
+function normalizeFunctionName(name: string) {
+  return toCamelCase(name)
+}
+
+function toCamelCase(str: string) {
+  return str
+    .replace(/[-_](\w)/g, (_, c) => c.toUpperCase())
+    .replace(/^\w/, (c) => c.toLowerCase())
 }
