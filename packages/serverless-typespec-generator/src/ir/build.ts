@@ -1,7 +1,7 @@
 import type Aws from "serverless/aws"
 import { Registry } from "./../registry"
 import type { SLS } from "./../types/serverless"
-import { NotImplementedError } from "./../typespec/ir/error"
+import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
   JSONSchema,
