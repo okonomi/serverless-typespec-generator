@@ -1,7 +1,6 @@
-import { describe, expect, it } from "vitest"
-
-import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
+import { describe, expect, it } from "vitest"
+import { normalizeTypeSpec } from "../test/helper"
 import {
   emitAlias,
   emitIR,
@@ -10,15 +9,6 @@ import {
   emitTypeSpec,
 } from "./emit"
 import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
-
-async function normalizeTypeSpec(code: string) {
-  const formattedCode = await formatTypeSpec(code, {
-    indent: "  ",
-    lineWidth: 80,
-    trailingNewline: false,
-  })
-  return formattedCode.trimEnd()
-}
 
 describe("emitTypeSpec", () => {
   it("should generate TypeSpec definitions for given operations and models", async () => {

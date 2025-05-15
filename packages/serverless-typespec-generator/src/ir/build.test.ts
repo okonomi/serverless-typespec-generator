@@ -1,44 +1,11 @@
-import { describe, expect, it, vi } from "vitest"
+import { describe, expect, it } from "vitest"
 
-import { formatTypeSpec } from "@typespec/compiler"
 import type Serverless from "serverless"
-import type { SLS } from "./../types/serverless"
+import { createServerlessMock } from "../test/helper"
 import { buildIR, convertType, jsonSchemaToTypeSpecIR } from "./build"
 import type { JSONSchema, PropTypeIR, TypeSpecIR } from "./type"
 
 const context = describe
-
-async function normalizeTypeSpec(code: string) {
-  const formattedCode = await formatTypeSpec(code, {
-    indent: "  ",
-    lineWidth: 80,
-    trailingNewline: false,
-  })
-  return formattedCode.trimEnd()
-}
-
-function createServerlessMock(
-  functions: Serverless.FunctionDefinitionHandler[],
-  apiGateway?: SLS["service"]["provider"]["apiGateway"],
-): SLS {
-  return {
-    service: {
-      provider: {
-        ...(apiGateway && { apiGateway }),
-      },
-      getAllFunctions: vi.fn(() => {
-        return functions.map((fn) => fn.name)
-      }),
-      getAllEventsInFunction: vi.fn((functionName: string) => {
-        const fn = functions.find((f) => f.name === functionName)
-        if (!fn) {
-          return []
-        }
-        return fn.events
-      }),
-    },
-  } as unknown as SLS
-}
 
 describe("buildIR", () => {
   context("when parsing a serverless config", () => {
