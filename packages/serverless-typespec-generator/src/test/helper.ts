@@ -1,11 +1,11 @@
+import type { AWS } from "@serverless/typescript"
 import { formatTypeSpec } from "@typespec/compiler"
-import type Serverless from "serverless"
 import { vi } from "vitest"
 import type { SLS } from "../types/serverless"
 
 export function createServerlessMock(
-  functions: Serverless.FunctionDefinitionHandler[],
-  apiGateway?: SLS["service"]["provider"]["apiGateway"],
+  functions: NonNullable<AWS["functions"]>,
+  apiGateway?: AWS["provider"]["apiGateway"],
 ): SLS {
   return {
     service: {
@@ -13,10 +13,10 @@ export function createServerlessMock(
         ...(apiGateway && { apiGateway }),
       },
       getAllFunctions: vi.fn(() => {
-        return functions.map((fn) => fn.name)
+        return Object.values(functions).map((fn) => fn.name)
       }),
       getAllEventsInFunction: vi.fn((functionName: string) => {
-        const fn = functions.find((f) => f.name === functionName)
+        const fn = Object.values(functions).find((f) => f.name === functionName)
         if (!fn) {
           return []
         }

@@ -1,6 +1,4 @@
 import { describe, expect, it } from "vitest"
-
-import type Serverless from "serverless"
 import { createServerlessMock } from "../test/helper"
 import { buildIR, convertType, jsonSchemaToTypeSpecIR } from "./build"
 import type { JSONSchema, PropTypeIR, TypeSpecIR } from "./type"
@@ -11,8 +9,8 @@ describe("buildIR", () => {
   context("when parsing a serverless config", () => {
     context("with no models", () => {
       it("should handle valid serverless configurations", () => {
-        const serverless = createServerlessMock([
-          {
+        const serverless = createServerlessMock({
+          hello: {
             name: "hello",
             handler: "handler.hello",
             events: [
@@ -24,7 +22,7 @@ describe("buildIR", () => {
               },
             ],
           },
-        ])
+        })
         const irList = buildIR(serverless)
 
         expect(irList).toEqual<TypeSpecIR[]>([
@@ -39,8 +37,8 @@ describe("buildIR", () => {
     })
     context("with models", () => {
       it("should parse models correctly", () => {
-        const serverless = createServerlessMock([
-          {
+        const serverless = createServerlessMock({
+          hello: {
             name: "hello",
             handler: "handler.hello",
             events: [
@@ -63,7 +61,7 @@ describe("buildIR", () => {
               },
             ],
           },
-        ])
+        })
         const irList = buildIR(serverless)
 
         expect(irList).toEqual<TypeSpecIR[]>([
@@ -86,8 +84,8 @@ describe("buildIR", () => {
     })
     context("with kebab-case name functions", () => {
       it("should operation name collectly", () => {
-        const serverless = createServerlessMock([
-          {
+        const serverless = createServerlessMock({
+          "hello-world": {
             name: "hello-world",
             handler: "handler.helloWorld",
             events: [
@@ -99,7 +97,7 @@ describe("buildIR", () => {
               },
             ],
           },
-        ])
+        })
         const irList = buildIR(serverless)
         expect(irList).toEqual<TypeSpecIR[]>([
           {
@@ -113,8 +111,8 @@ describe("buildIR", () => {
     })
     context("with path parameters", () => {
       it("should parse path parameters correctly", () => {
-        const serverless = createServerlessMock([
-          {
+        const serverless = createServerlessMock({
+          getUser: {
             name: "getUser",
             handler: "handler.getUser",
             events: [
@@ -150,8 +148,8 @@ describe("buildIR", () => {
                 },
               },
             ],
-          } as unknown as Serverless.FunctionDefinitionHandler,
-        ])
+          },
+        })
         const irList = buildIR(serverless)
         expect(irList.filter((ir) => ir.kind === "operation")).toEqual<
           TypeSpecIR[]
@@ -179,8 +177,8 @@ describe("buildIR", () => {
     })
     context("with anonymous response model", () => {
       it("should parse anonymous response model correctly", () => {
-        const serverless = createServerlessMock([
-          {
+        const serverless = createServerlessMock({
+          getUser: {
             name: "getUser",
             handler: "handler.getUser",
             events: [
@@ -215,8 +213,8 @@ describe("buildIR", () => {
                 },
               },
             ],
-          } as unknown as Serverless.FunctionDefinitionHandler,
-        ])
+          },
+        })
         const irList = buildIR(serverless)
         expect(irList).toEqual<TypeSpecIR[]>([
           {
@@ -246,8 +244,8 @@ describe("buildIR", () => {
     })
     context("with array response model", () => {
       it("should parse array response model correctly", () => {
-        const serverless = createServerlessMock([
-          {
+        const serverless = createServerlessMock({
+          getUsers: {
             name: "getUsers",
             handler: "handler.getUsers",
             events: [
@@ -278,8 +276,8 @@ describe("buildIR", () => {
                 },
               },
             ],
-          } as unknown as Serverless.FunctionDefinitionHandler,
-        ])
+          },
+        })
         const irList = buildIR(serverless)
         expect(irList).toEqual<TypeSpecIR[]>([
           {
@@ -306,8 +304,8 @@ describe("buildIR", () => {
     context("with array schema", () => {
       it("should parse array api model correctly", () => {
         const serverless = createServerlessMock(
-          [
-            {
+          {
+            getUsers: {
               name: "getUsers",
               handler: "handler.getUsers",
               events: [
@@ -328,8 +326,8 @@ describe("buildIR", () => {
                   },
                 },
               ],
-            } as unknown as Serverless.FunctionDefinitionHandler,
-          ],
+            },
+          },
           {
             request: {
               schemas: {
@@ -382,39 +380,42 @@ describe("buildIR", () => {
     })
     context("with array schema with allOf", () => {
       it("should parse array api model correctly", () => {
-        const serverless = createServerlessMock([], {
-          request: {
-            schemas: {
-              tags: {
-                name: "Tags",
-                schema: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    allOf: [
-                      {
-                        type: "object",
-                        properties: {
-                          slug: { type: "string" },
+        const serverless = createServerlessMock(
+          {},
+          {
+            request: {
+              schemas: {
+                tags: {
+                  name: "Tags",
+                  schema: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      allOf: [
+                        {
+                          type: "object",
+                          properties: {
+                            slug: { type: "string" },
+                          },
                         },
-                      },
-                      {
-                        type: "object",
-                        properties: {
-                          name: { type: "string" },
+                        {
+                          type: "object",
+                          properties: {
+                            name: { type: "string" },
+                          },
                         },
-                      },
-                      {
-                        type: "object",
-                        required: ["slug", "name"],
-                      },
-                    ],
+                        {
+                          type: "object",
+                          required: ["slug", "name"],
+                        },
+                      ],
+                    },
                   },
                 },
               },
             },
           },
-        })
+        )
         const irList = buildIR(serverless)
         expect(irList).toEqual<TypeSpecIR[]>([
           {
