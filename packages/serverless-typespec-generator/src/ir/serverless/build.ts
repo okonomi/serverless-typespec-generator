@@ -25,7 +25,7 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       name: functionName,
       event: {
         method: event.http.method,
-        path: event.http.path,
+        path: normalizePath(event.http.path),
       },
     })
   }
@@ -43,4 +43,12 @@ function isHttpMethod(
     method === "delete" ||
     method === "patch"
   )
+}
+
+function normalizePath(path: string) {
+  if (!path.startsWith("/")) {
+    return `/${path}`
+  }
+
+  return path
 }

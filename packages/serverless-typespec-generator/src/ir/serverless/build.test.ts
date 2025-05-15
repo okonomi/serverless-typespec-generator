@@ -163,4 +163,31 @@ describe("buildServerlessIR", () => {
       },
     ])
   })
+  it("should handle functions with path and no slash starts", () => {
+    const serverless = createServerlessMock({
+      hello: {
+        name: "hello",
+        handler: "handler.hello",
+        events: [
+          {
+            http: {
+              method: "get",
+              path: "hello",
+            },
+          },
+        ],
+      },
+    })
+    const result = buildServerlessIR(serverless)
+    expect(result).toEqual<ServerlessIR[]>([
+      {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
+      },
+    ])
+  })
 })
