@@ -29,6 +29,10 @@ describe("buildServerlessIR", () => {
       {
         kind: "function",
         name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
       },
     ])
   })
@@ -38,6 +42,39 @@ describe("buildServerlessIR", () => {
         name: "hello",
         handler: "handler.hello",
         events: [],
+      },
+    })
+    const result = buildServerlessIR(serverless)
+    expect(result).toEqual<ServerlessIR[]>([])
+  })
+  it("should handle functions with http key only event", () => {
+    const serverless = createServerlessMock({
+      hello: {
+        name: "hello",
+        handler: "handler.hello",
+        events: [
+          {
+            http: "",
+          },
+        ],
+      },
+    })
+    const result = buildServerlessIR(serverless)
+    expect(result).toEqual<ServerlessIR[]>([])
+  })
+  it("should handle functions with http event and invalid http method", () => {
+    const serverless = createServerlessMock({
+      hello: {
+        name: "hello",
+        handler: "handler.hello",
+        events: [
+          {
+            http: {
+              method: "invalid",
+              path: "/hello",
+            },
+          },
+        ],
       },
     })
     const result = buildServerlessIR(serverless)
@@ -86,6 +123,10 @@ describe("buildServerlessIR", () => {
       {
         kind: "function",
         name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
       },
     ])
   })
@@ -115,6 +156,10 @@ describe("buildServerlessIR", () => {
       {
         kind: "function",
         name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
       },
     ])
   })
