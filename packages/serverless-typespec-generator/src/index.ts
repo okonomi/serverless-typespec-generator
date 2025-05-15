@@ -1,9 +1,10 @@
 import path from "node:path"
 import type Serverless from "serverless"
 import type Plugin from "serverless/classes/Plugin"
+import { buildIR } from "./ir/build"
+import { emitTypeSpec } from "./ir/emit"
+import type { JSONSchema } from "./ir/type"
 import type { SLS } from "./types/serverless"
-import { parseServerlessConfig, renderDefinitions } from "./typespec"
-import type { JSONSchema } from "./typespec/ir/type"
 
 export default class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
@@ -95,11 +96,8 @@ options:
   }
 
   async generateTypespec(outputDir: string) {
-    const { operations, models } = parseServerlessConfig(this.serverless)
-    const typespec = renderDefinitions([
-      ...operations,
-      ...Array.from(models.values()),
-    ])
+    const irList = buildIR(this.serverless)
+    const typespec = emitTypeSpec(irList)
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),

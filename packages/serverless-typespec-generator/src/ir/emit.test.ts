@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest"
 
 import { formatTypeSpec } from "@typespec/compiler"
 import dedent from "dedent"
-import { emitAlias, emitModel, emitOperation, emitTypeSpec } from "./emit"
+import {
+  emitAlias,
+  emitIR,
+  emitModel,
+  emitOperation,
+  emitTypeSpec,
+} from "./emit"
 import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
 
 async function normalizeTypeSpec(code: string) {
@@ -15,6 +21,69 @@ async function normalizeTypeSpec(code: string) {
 }
 
 describe("emitTypeSpec", () => {
+  it("should generate TypeSpec definitions for given operations and models", async () => {
+    const irList: TypeSpecIR[] = [
+      {
+        kind: "operation",
+        name: "createUser",
+        method: "post",
+        route: "/users",
+        requestBody: { ref: "CreateUserRequest" },
+        returnType: [
+          {
+            statusCode: 201,
+            body: { ref: "CreateUserResponse" },
+          },
+        ],
+      },
+      {
+        kind: "model",
+        name: "CreateUserRequest",
+        props: {
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+      },
+      {
+        kind: "model",
+        name: "CreateUserResponse",
+        props: {
+          id: { type: "string", required: true },
+        },
+      },
+    ]
+    const result = emitTypeSpec(irList)
+
+    const expected = dedent`
+      import "@typespec/http";
+
+      using Http;
+
+      @service(#{ title: "Generated API" })
+      namespace GeneratedApi;
+
+      @route("/users")
+      @post
+      op createUser(@body body: CreateUserRequest): {
+        @statusCode statusCode: 201;
+        @body body: CreateUserResponse;
+      };
+
+      model CreateUserRequest {
+        name: string;
+        email: string;
+      }
+
+      model CreateUserResponse {
+        id: string;
+      }
+    `
+
+    expect(await normalizeTypeSpec(result)).toBe(expected)
+  })
+})
+
+describe("emitIR", () => {
   it("should emit a simple model", async () => {
     const ir: TypeSpecIR = {
       kind: "model",
@@ -24,7 +93,7 @@ describe("emitTypeSpec", () => {
         age: { type: "numeric", required: false },
       },
     }
-    const result = emitTypeSpec(ir)
+    const result = emitIR(ir)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       model TestModel {
         id: string;
@@ -48,7 +117,7 @@ describe("emitTypeSpec", () => {
         email: { type: "string", required: true },
       },
     }
-    const result = emitTypeSpec(ir)
+    const result = emitIR(ir)
     expect(await normalizeTypeSpec(result)).toBe(dedent`
       @route("/users")
       @post

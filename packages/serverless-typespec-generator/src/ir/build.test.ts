@@ -1,11 +1,10 @@
 import { describe, expect, it, vi } from "vitest"
 
 import { formatTypeSpec } from "@typespec/compiler"
-import dedent from "dedent"
 import type Serverless from "serverless"
-import type { SLS } from "./types/serverless"
-import { parseServerlessConfig, renderDefinitions } from "./typespec"
-import type { OperationIR, TypeSpecIR } from "./typespec/ir/type"
+import type { SLS } from "./../types/serverless"
+import { buildIR, convertType, jsonSchemaToTypeSpecIR } from "./build"
+import type { JSONSchema, PropTypeIR, TypeSpecIR } from "./type"
 
 const context = describe
 
@@ -41,7 +40,7 @@ function createServerlessMock(
   } as unknown as SLS
 }
 
-describe("parseServerlessConfig", () => {
+describe("buildIR", () => {
   context("when parsing a serverless config", () => {
     context("with no models", () => {
       it("should handle valid serverless configurations", () => {
@@ -59,9 +58,9 @@ describe("parseServerlessConfig", () => {
             ],
           },
         ])
-        const { operations } = parseServerlessConfig(serverless)
+        const irList = buildIR(serverless)
 
-        expect(operations).toEqual<OperationIR[]>([
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "hello",
@@ -98,9 +97,9 @@ describe("parseServerlessConfig", () => {
             ],
           },
         ])
-        const { operations, models } = parseServerlessConfig(serverless)
+        const irList = buildIR(serverless)
 
-        expect(operations).toEqual<OperationIR[]>([
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "hello",
@@ -108,8 +107,6 @@ describe("parseServerlessConfig", () => {
             route: "/hello",
             requestBody: { ref: "HelloRequest" },
           },
-        ])
-        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
           {
             kind: "model",
             name: "HelloRequest",
@@ -136,8 +133,8 @@ describe("parseServerlessConfig", () => {
             ],
           },
         ])
-        const { operations } = parseServerlessConfig(serverless)
-        expect(operations).toEqual<OperationIR[]>([
+        const irList = buildIR(serverless)
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "helloWorld",
@@ -188,8 +185,10 @@ describe("parseServerlessConfig", () => {
             ],
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
-        const { operations } = parseServerlessConfig(serverless)
-        expect(operations).toEqual<OperationIR[]>([
+        const irList = buildIR(serverless)
+        expect(irList.filter((ir) => ir.kind === "operation")).toEqual<
+          TypeSpecIR[]
+        >([
           {
             kind: "operation",
             name: "getUser",
@@ -251,8 +250,8 @@ describe("parseServerlessConfig", () => {
             ],
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
-        const { operations, models } = parseServerlessConfig(serverless)
-        expect(operations).toEqual<OperationIR[]>([
+        const irList = buildIR(serverless)
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "getUser",
@@ -314,8 +313,8 @@ describe("parseServerlessConfig", () => {
             ],
           } as unknown as Serverless.FunctionDefinitionHandler,
         ])
-        const { operations, models } = parseServerlessConfig(serverless)
-        expect(operations).toEqual<OperationIR[]>([
+        const irList = buildIR(serverless)
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "getUsers",
@@ -386,21 +385,8 @@ describe("parseServerlessConfig", () => {
             },
           },
         )
-        const { operations, models } = parseServerlessConfig(serverless)
-        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
-          {
-            kind: "alias",
-            name: "Users",
-            type: [
-              {
-                id: { type: "string", required: true },
-                name: { type: "string", required: true },
-                email: { type: "string", required: true },
-              },
-            ],
-          },
-        ])
-        expect(operations).toEqual<OperationIR[]>([
+        const irList = buildIR(serverless)
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "getUsers",
@@ -410,6 +396,17 @@ describe("parseServerlessConfig", () => {
               {
                 statusCode: 200,
                 body: { ref: "Users" },
+              },
+            ],
+          },
+          {
+            kind: "alias",
+            name: "Users",
+            type: [
+              {
+                id: { type: "string", required: true },
+                name: { type: "string", required: true },
+                email: { type: "string", required: true },
               },
             ],
           },
@@ -451,8 +448,8 @@ describe("parseServerlessConfig", () => {
             },
           },
         })
-        const { models } = parseServerlessConfig(serverless)
-        expect(Array.from(models.values())).toEqual<TypeSpecIR[]>([
+        const irList = buildIR(serverless)
+        expect(irList).toEqual<TypeSpecIR[]>([
           {
             kind: "alias",
             name: "Tags",
@@ -469,65 +466,196 @@ describe("parseServerlessConfig", () => {
   })
 })
 
-describe("renderDefinitions", () => {
-  it("should generate TypeSpec definitions for given operations and models", async () => {
-    const irList: TypeSpecIR[] = [
-      {
-        kind: "operation",
-        name: "createUser",
-        method: "post",
-        route: "/users",
-        requestBody: { ref: "CreateUserRequest" },
-        returnType: [
-          {
-            statusCode: 201,
-            body: { ref: "CreateUserResponse" },
+describe("jsonSchemaToTypeSpecIR", () => {
+  it("should convert a simple JSON schema to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        age: { type: "integer" },
+      },
+      required: ["id"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
+      },
+    })
+  })
+  it("should convert a JSON schema of array to IR", () => {
+    const schema: JSONSchema = {
+      type: "array",
+      items: { type: "string" },
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Tags")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "alias",
+      name: "Tags",
+      type: ["string"],
+    })
+  })
+  it("should convert a JSON schema with allOf to IR", () => {
+    const schema: JSONSchema = {
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            id: { type: "string" },
           },
-        ],
+          required: ["id"],
+        },
+        {
+          type: "object",
+          properties: {
+            age: { type: "integer" },
+          },
+          required: ["age"],
+        },
+      ],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: true },
       },
-      {
-        kind: "model",
-        name: "CreateUserRequest",
-        props: {
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
+    })
+  })
+  it("should convert a JSON schema with allOf and required to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      allOf: [
+        {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+          },
+        },
+        {
+          type: "object",
+          properties: {
+            age: { type: "integer" },
+          },
+        },
+        {
+          type: "object",
+          required: ["id", "age"],
+        },
+      ],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: true },
+      },
+    })
+  })
+  it("should convert a simple JSON schema to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        id: { type: "string" },
+        age: { type: "integer" },
+      },
+      required: ["id"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "Model")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "Model",
+      props: {
+        id: { type: "string", required: true },
+        age: { type: "numeric", required: false },
+      },
+    })
+  })
+  it("should convert a JSON schema with array properties to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        tags: { type: "array", items: { type: "string" } },
+      },
+      required: ["tags"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "ArrayModel")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "ArrayModel",
+      props: {
+        tags: { type: ["string"], required: true },
+      },
+    })
+  })
+  it("should convert a JSON schema with nested object properties to IR", () => {
+    const schema: JSONSchema = {
+      type: "object",
+      properties: {
+        meta: {
+          type: "object",
+          properties: {
+            name: { type: "string" },
+          },
+          required: ["name"],
         },
       },
-      {
-        kind: "model",
-        name: "CreateUserResponse",
-        props: {
-          id: { type: "string", required: true },
+      required: ["meta"],
+    }
+    const result = jsonSchemaToTypeSpecIR(schema, "ObjectModel")
+    expect(result).toEqual<TypeSpecIR>({
+      kind: "model",
+      name: "ObjectModel",
+      props: {
+        meta: {
+          type: {
+            name: { type: "string", required: true },
+          },
+          required: true,
         },
       },
-    ]
-    const result = renderDefinitions(irList)
+    })
+  })
+})
 
-    const expected = dedent`
-      import "@typespec/http";
-
-      using Http;
-
-      @service(#{ title: "Generated API" })
-      namespace GeneratedApi;
-
-      @route("/users")
-      @post
-      op createUser(@body body: CreateUserRequest): {
-        @statusCode statusCode: 201;
-        @body body: CreateUserResponse;
-      };
-
-      model CreateUserRequest {
-        name: string;
-        email: string;
-      }
-
-      model CreateUserResponse {
-        id: string;
-      }
-    `
-
-    expect(await normalizeTypeSpec(result)).toBe(expected)
+describe("convertType", () => {
+  it("should convert string type to string", () => {
+    const schema: JSONSchema = { type: "string" }
+    const result = convertType(schema)
+    expect(result).toBe("string")
+  })
+  it("should convert integer type to numeric", () => {
+    const schema: JSONSchema = { type: "integer" }
+    const result = convertType(schema)
+    expect(result).toBe("numeric")
+  })
+  it("should convert number type to numeric", () => {
+    const schema: JSONSchema = { type: "number" }
+    const result = convertType(schema)
+    expect(result).toBe("numeric")
+  })
+  it("should convert boolean type to boolean", () => {
+    const schema: JSONSchema = { type: "boolean" }
+    const result = convertType(schema)
+    expect(result).toBe("boolean")
+  })
+  it("should convert array type to array of string", () => {
+    const schema: JSONSchema = { type: "array", items: { type: "string" } }
+    const result = convertType(schema)
+    expect(result).toEqual(["string"])
+  })
+  it("should convert oneOf type to union of types", () => {
+    const schema: JSONSchema = {
+      oneOf: [{ type: "string" }, { type: "null" }],
+    }
+    const result = convertType(schema)
+    expect(result).toEqual<PropTypeIR>({ union: ["string", "null"] })
   })
 })

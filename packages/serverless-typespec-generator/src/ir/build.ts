@@ -1,21 +1,17 @@
 import type Aws from "serverless/aws"
-import { Registry } from "./registry"
-import type { SLS } from "./types/serverless"
-import { extractProps, jsonSchemaToTypeSpecIR } from "./typespec/ir/convert"
-import { emitTypeSpec } from "./typespec/ir/emit"
-import { NotImplementedError } from "./typespec/ir/error"
+import { Registry } from "./../registry"
+import type { SLS } from "./../types/serverless"
+import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
   JSONSchema,
   OperationIR,
   PropIR,
+  PropTypeIR,
   TypeSpecIR,
-} from "./typespec/ir/type"
+} from "./type"
 
-export function parseServerlessConfig(serverless: SLS): {
-  operations: OperationIR[]
-  models: Registry<TypeSpecIR>
-} {
+export function buildIR(serverless: SLS): TypeSpecIR[] {
   const operations: OperationIR[] = []
   const models = new Registry<TypeSpecIR>()
 
@@ -174,10 +170,7 @@ export function parseServerlessConfig(serverless: SLS): {
     }
   }
 
-  return {
-    operations,
-    models,
-  }
+  return [...operations, ...Array.from(models.values())]
 }
 
 function toCamelCase(str: string): string {
@@ -198,21 +191,93 @@ function isHttpMethod(
   )
 }
 
-export function renderDefinitions(irList: TypeSpecIR[]): string {
-  const lines: string[] = []
-  lines.push('import "@typespec/http";')
-  lines.push("")
-  lines.push("using Http;")
-  lines.push("")
-
-  lines.push('@service(#{ title: "Generated API" })')
-  lines.push("namespace GeneratedApi;")
-  lines.push("")
-
-  for (const ir of irList) {
-    lines.push(emitTypeSpec(ir))
-    lines.push("")
+export function jsonSchemaToTypeSpecIR(
+  schema: JSONSchema,
+  name: string,
+): TypeSpecIR {
+  if (schema.type === "array") {
+    const type = convertType(schema)
+    return { kind: "alias", name, type }
+  }
+  if (schema.type === "object" || schema.allOf) {
+    const props = extractProps(schema)
+    return { kind: "model", name, props }
   }
 
-  return lines.join("\n")
+  throw new Error(`Unsupported schema type: ${schema.type}`)
+}
+
+export function extractProps(schema: JSONSchema): Record<string, PropIR> {
+  if (schema.allOf) {
+    return mergeAllOfObjectSchemas(schema.allOf)
+  }
+
+  const required = new Set(
+    Array.isArray(schema.required) ? schema.required : [],
+  )
+  const props: Record<string, PropIR> = {}
+
+  for (const [key, def] of Object.entries(schema.properties || {})) {
+    props[key] = {
+      type: convertType(def),
+      required: required.has(key),
+    }
+  }
+
+  return props
+}
+
+function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
+  const required = new Set<string>()
+  let props: Record<string, PropIR> = {}
+  for (const subSchema of allOf) {
+    if (subSchema.type !== "object") {
+      throw new NotImplementedError(
+        `Unsupported schema type in allOf: ${subSchema.type}`,
+      )
+    }
+    if (Array.isArray(subSchema.required)) {
+      for (const key of subSchema.required) {
+        required.add(key)
+      }
+    }
+    props = { ...props, ...extractProps(subSchema) }
+  }
+  for (const key of required) {
+    if (key in props) {
+      props[key].required = true
+    }
+  }
+  return props
+}
+
+export function convertType(schema: JSONSchema): PropTypeIR {
+  if (schema.oneOf) {
+    const types = schema.oneOf.map(convertType)
+    return { union: types }
+  }
+
+  if (schema.type === "object" || schema.allOf) {
+    return extractProps(schema)
+  }
+
+  switch (schema.type) {
+    case "string":
+      return "string"
+    case "integer":
+      return "numeric"
+    case "number":
+      return "numeric"
+    case "boolean":
+      return "boolean"
+    case "null":
+      return "null"
+    case "array":
+      if (!schema.items || Array.isArray(schema.items)) {
+        throw new Error("Array 'items' must be a single schema object")
+      }
+      return [convertType(schema.items)]
+    default:
+      throw new Error(`Unknown type: ${schema.type}`)
+  }
 }
