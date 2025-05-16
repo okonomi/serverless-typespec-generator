@@ -21,13 +21,13 @@ export type HttpEventDocumentation = {
   }[]
 }
 
-export type HttpWithDocumentation = FunctionHttpEvent & {
+export type FunctionHttpEventWithDocumentation = FunctionHttpEvent & {
   documentation?: HttpEventDocumentation
 }
 
 export type EventWithDocumentation =
   | (Omit<Extract<FunctionEvent, { http: unknown }>, "http"> & {
-      http: HttpWithDocumentation
+      http: FunctionHttpEventWithDocumentation
     })
   | Exclude<FunctionEvent, { http: unknown }>
 
