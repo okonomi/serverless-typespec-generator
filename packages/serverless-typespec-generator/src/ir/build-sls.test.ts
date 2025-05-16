@@ -1,7 +1,61 @@
 import { describe, expect, it } from "vitest"
-import { buildOperationIR } from "./build"
-import type { ServerlessFunctionIR } from "./serverless/type"
-import type { OperationIR } from "./type"
+import { buildOperationIR, buildTypeSpecIR } from "./build"
+import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
+import type { OperationIR, TypeSpecIR } from "./type"
+
+describe("buildTypeSpecIR", () => {
+  it("should build the TypeSpec IR", () => {
+    const slsIR: ServerlessIR[] = [
+      {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
+      },
+    ]
+    const result = buildTypeSpecIR(slsIR)
+    expect(result).toEqual<TypeSpecIR[]>([
+      {
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+      },
+    ])
+  })
+  it("should handle functions with request models", () => {
+    const slsIR: ServerlessIR[] = [
+      {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "post",
+          path: "/hello",
+          request: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+            },
+          },
+        },
+      },
+    ]
+    const result = buildTypeSpecIR(slsIR)
+    expect(result).toEqual<TypeSpecIR[]>([
+      {
+        kind: "operation",
+        name: "hello",
+        method: "post",
+        route: "/hello",
+        requestBody: {
+          name: { type: "string", required: false },
+        },
+      },
+    ])
+  })
+})
 
 describe("buildOperationIR", () => {
   it("should build operation IR correctly", () => {

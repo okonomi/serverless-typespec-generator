@@ -1,7 +1,7 @@
 import { Registry } from "./../registry"
 import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
-import type { ServerlessFunctionIR } from "./serverless/type"
+import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
 import type {
   HttpResponseIR,
   JSONSchema,
@@ -273,15 +273,27 @@ export function convertType(schema: JSONSchema): PropTypeIR {
   }
 }
 
-export function buildOperationIR(slsIR: ServerlessFunctionIR): OperationIR {
+export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
+  return sls.map((ir) => {
+    if (ir.kind === "function") {
+      return buildOperationIR(ir)
+    }
+
+    throw new NotImplementedError(
+      `Unsupported IR kind: ${ir.kind}. Only "function" kind is supported.`,
+    )
+  })
+}
+
+export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
   const operation: OperationIR = {
     kind: "operation",
-    name: slsIR.name,
-    method: slsIR.event.method,
-    route: slsIR.event.path,
+    name: func.name,
+    method: func.event.method,
+    route: func.event.path,
   }
 
-  const request = slsIR.event.request
+  const request = func.event.request
   if (request) {
     if (typeof request === "string") {
       operation.requestBody = { ref: request }
