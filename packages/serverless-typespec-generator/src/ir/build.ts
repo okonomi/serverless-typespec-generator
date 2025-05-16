@@ -1,6 +1,7 @@
 import { Registry } from "./../registry"
 import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
+import type { ServerlessFunctionIR } from "./serverless/type"
 import type {
   HttpResponseIR,
   JSONSchema,
@@ -269,5 +270,14 @@ export function convertType(schema: JSONSchema): PropTypeIR {
       return [convertType(schema.items)]
     default:
       throw new Error(`Unknown type: ${schema.type}`)
+  }
+}
+
+export function buildOperationIR(slsIR: ServerlessFunctionIR): OperationIR {
+  return {
+    kind: "operation",
+    name: slsIR.name,
+    method: slsIR.event.method,
+    route: slsIR.event.path,
   }
 }
