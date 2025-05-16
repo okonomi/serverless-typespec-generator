@@ -72,7 +72,10 @@ export function buildIR(serverless: Serverless): TypeSpecIR[] {
         for (const [name, required] of Object.entries(paths)) {
           parameters[name] = {
             type: "string",
-            required,
+            required:
+              typeof required === "boolean"
+                ? required
+                : (required.required ?? false),
           }
           httpParams.push(name)
         }
