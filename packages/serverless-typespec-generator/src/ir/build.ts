@@ -1,6 +1,7 @@
 import { Registry } from "./../registry"
 import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
+import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
 import type {
   HttpResponseIR,
   JSONSchema,
@@ -270,4 +271,62 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     default:
       throw new Error(`Unknown type: ${schema.type}`)
   }
+}
+
+export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
+  // pass 1: build models
+  const models = new Registry<TypeSpecIR>()
+  for (const ir of sls) {
+    if (ir.kind === "function") {
+      const request = ir.event.request
+      if (request) {
+        if (typeof request === "object") {
+          if (request.title) {
+            models.register(
+              request.title,
+              jsonSchemaToTypeSpecIR(request, request.title),
+            )
+          }
+        }
+      }
+    }
+  }
+
+  // pass 2: build operations
+  const operations = sls.map((ir) => {
+    if (ir.kind === "function") {
+      return buildOperationIR(ir)
+    }
+
+    throw new NotImplementedError(
+      `Unsupported IR kind: ${ir.kind}. Only "function" kind is supported.`,
+    )
+  })
+
+  // pass 3: merge models and operations
+  return [...operations, ...Array.from(models.values())]
+}
+
+export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
+  const operation: OperationIR = {
+    kind: "operation",
+    name: func.name,
+    method: func.event.method,
+    route: func.event.path,
+  }
+
+  const request = func.event.request
+  if (request) {
+    if (typeof request === "string") {
+      operation.requestBody = { ref: request }
+    } else {
+      if (request.title) {
+        operation.requestBody = { ref: request.title }
+      } else {
+        operation.requestBody = convertType(request)
+      }
+    }
+  }
+
+  return operation
 }
