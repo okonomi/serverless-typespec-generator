@@ -1,6 +1,5 @@
-import type Aws from "serverless/aws"
 import { Registry } from "./../registry"
-import type { SLS } from "./../types/serverless"
+import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
@@ -11,7 +10,7 @@ import type {
   TypeSpecIR,
 } from "./type"
 
-export function buildIR(serverless: SLS): TypeSpecIR[] {
+export function buildIR(serverless: Serverless): TypeSpecIR[] {
   const operations: OperationIR[] = []
   const models = new Registry<TypeSpecIR>()
 
@@ -41,21 +40,9 @@ export function buildIR(serverless: SLS): TypeSpecIR[] {
         continue
       }
 
-      const http = event.http as Aws.Http & {
-        documentation?: {
-          pathParams?: {
-            name: string
-            schema: {
-              type: "string"
-            }
-          }[]
-          methodResponses?: {
-            statusCode: number
-            responseModels?: {
-              "application/json": JSONSchema | string
-            }
-          }[]
-        }
+      const http = event.http
+      if (typeof http === "string") {
+        continue
       }
 
       const method = http.method.toLowerCase()
@@ -80,7 +67,10 @@ export function buildIR(serverless: SLS): TypeSpecIR[] {
         for (const [name, required] of Object.entries(paths)) {
           parameters[name] = {
             type: "string",
-            required,
+            required:
+              typeof required === "boolean"
+                ? required
+                : (required.required ?? false),
           }
           httpParams.push(name)
         }

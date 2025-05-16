@@ -1,4 +1,63 @@
 import type { AWS } from "@serverless/typescript"
-import type Serverless from "serverless"
+import type ServerlessOrigin from "serverless"
+import type Service from "serverless/classes/Service"
+import type { JSONSchema } from "../ir/type"
 
-export type SLS = Serverless & { service: AWS }
+type Functions = NonNullable<AWS["functions"]>
+type FunctionDefinition = Functions[string]
+type FunctionEvent = NonNullable<FunctionDefinition["events"]>[number]
+type FunctionHttpEvent = Extract<FunctionEvent, { http: unknown }>["http"]
+type FunctionHttpEventRef = Extract<FunctionHttpEvent, string>
+type FunctionHttpEventDetail = Extract<FunctionHttpEvent, object>
+
+export type HttpEventDocumentation = {
+  pathParams?: {
+    name: string
+    schema: { type: "string" }
+  }[]
+  methodResponses?: {
+    statusCode: number
+    responseModels?: {
+      "application/json": JSONSchema | string
+    }
+  }[]
+}
+
+export type FunctionHttpEventDetailWithDocumentation =
+  FunctionHttpEventDetail & {
+    documentation?: HttpEventDocumentation
+  }
+
+export type FunctionEventWithDocumentation =
+  | (Omit<Extract<FunctionEvent, { http: unknown }>, "http"> & {
+      http: FunctionHttpEventRef | FunctionHttpEventDetailWithDocumentation
+    })
+  | Exclude<FunctionEvent, { http: unknown }>
+
+export type FunctionDefinitionWithDocumentation = Omit<
+  FunctionDefinition,
+  "events"
+> & {
+  events: FunctionEventWithDocumentation[]
+}
+
+export type FunctionsWithDocumentation = {
+  [K in keyof Functions]: FunctionDefinitionWithDocumentation
+}
+
+export type ServiceWithDoc = Omit<
+  Service,
+  "provider" | "functions" | "getAllEventsInFunction"
+> & {
+  provider: Service["provider"] & AWS["provider"]
+  functions: FunctionsWithDocumentation
+  getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
+}
+
+export type Serverless = Omit<ServerlessOrigin, "service"> & {
+  service: ServiceWithDoc
+}
+
+export namespace Serverless {
+  export type Options = ServerlessOrigin.Options
+}

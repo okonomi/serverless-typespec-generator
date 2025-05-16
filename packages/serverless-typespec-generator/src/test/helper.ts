@@ -1,12 +1,15 @@
 import type { AWS } from "@serverless/typescript"
 import { formatTypeSpec } from "@typespec/compiler"
 import { vi } from "vitest"
-import type { SLS } from "../types/serverless"
+import type {
+  FunctionsWithDocumentation,
+  Serverless,
+} from "../types/serverless"
 
 export function createServerlessMock(
-  functions: NonNullable<AWS["functions"]>,
+  functions: FunctionsWithDocumentation,
   apiGateway?: AWS["provider"]["apiGateway"],
-): SLS {
+): Serverless {
   return {
     service: {
       provider: {
@@ -20,7 +23,7 @@ export function createServerlessMock(
         return fn?.events ?? []
       }),
     },
-  } as unknown as SLS
+  } as unknown as Serverless
 }
 
 export async function normalizeTypeSpec(code: string) {
