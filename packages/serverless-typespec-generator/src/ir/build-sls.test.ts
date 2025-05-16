@@ -34,6 +34,7 @@ describe("buildTypeSpecIR", () => {
           method: "post",
           path: "/hello",
           request: {
+            title: "HelloRequest",
             type: "object",
             properties: {
               name: { type: "string" },
@@ -49,7 +50,12 @@ describe("buildTypeSpecIR", () => {
         name: "hello",
         method: "post",
         route: "/hello",
-        requestBody: {
+        requestBody: { ref: "HelloRequest" },
+      },
+      {
+        kind: "model",
+        name: "HelloRequest",
+        props: {
           name: { type: "string", required: false },
         },
       },
@@ -84,7 +90,6 @@ describe("buildOperationIR", () => {
         method: "post",
         path: "/hello",
         request: {
-          title: "User",
           type: "object",
           properties: {
             name: { type: "string" },
@@ -104,6 +109,33 @@ describe("buildOperationIR", () => {
         name: { type: "string", required: true },
         email: { type: "string", required: true },
       },
+    })
+  })
+  it("should build operation IR with named request schema", () => {
+    const slsIR: ServerlessFunctionIR = {
+      kind: "function",
+      name: "hello",
+      event: {
+        method: "get",
+        path: "/hello",
+        request: {
+          title: "User",
+          type: "object",
+          properties: {
+            name: { type: "string" },
+            email: { type: "string" },
+          },
+          required: ["name", "email"],
+        },
+      },
+    }
+    const result = buildOperationIR(slsIR)
+    expect(result).toEqual<OperationIR>({
+      kind: "operation",
+      name: "hello",
+      method: "get",
+      route: "/hello",
+      requestBody: { ref: "User" },
     })
   })
 })

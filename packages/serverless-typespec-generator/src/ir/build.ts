@@ -274,7 +274,26 @@ export function convertType(schema: JSONSchema): PropTypeIR {
 }
 
 export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
-  return sls.map((ir) => {
+  // pass 1: build models
+  const models = new Registry<TypeSpecIR>()
+  for (const ir of sls) {
+    if (ir.kind === "function") {
+      const request = ir.event.request
+      if (request) {
+        if (typeof request === "object") {
+          if (request.title) {
+            models.register(
+              request.title,
+              jsonSchemaToTypeSpecIR(request, request.title),
+            )
+          }
+        }
+      }
+    }
+  }
+
+  // pass 2: build operations
+  const operations = sls.map((ir) => {
     if (ir.kind === "function") {
       return buildOperationIR(ir)
     }
@@ -283,6 +302,9 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
       `Unsupported IR kind: ${ir.kind}. Only "function" kind is supported.`,
     )
   })
+
+  // pass 3: merge models and operations
+  return [...operations, ...Array.from(models.values())]
 }
 
 export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
@@ -298,7 +320,11 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
     if (typeof request === "string") {
       operation.requestBody = { ref: request }
     } else {
-      operation.requestBody = convertType(request)
+      if (request.title) {
+        operation.requestBody = { ref: request.title }
+      } else {
+        operation.requestBody = convertType(request)
+      }
     }
   }
 
