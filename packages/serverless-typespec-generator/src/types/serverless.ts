@@ -7,6 +7,8 @@ type Functions = NonNullable<AWS["functions"]>
 type FunctionDefinition = Functions[string]
 type FunctionEvent = NonNullable<FunctionDefinition["events"]>[number]
 type FunctionHttpEvent = Extract<FunctionEvent, { http: unknown }>["http"]
+type FunctionHttpEventRef = Extract<FunctionHttpEvent, string>
+type FunctionHttpEventDetail = Extract<FunctionHttpEvent, object>
 
 export type HttpEventDocumentation = {
   pathParams?: {
@@ -21,13 +23,14 @@ export type HttpEventDocumentation = {
   }[]
 }
 
-export type FunctionHttpEventWithDocumentation = FunctionHttpEvent & {
-  documentation?: HttpEventDocumentation
-}
+export type FunctionHttpEventDetailWithDocumentation =
+  FunctionHttpEventDetail & {
+    documentation?: HttpEventDocumentation
+  }
 
-export type EventWithDocumentation =
+export type FunctionEventWithDocumentation =
   | (Omit<Extract<FunctionEvent, { http: unknown }>, "http"> & {
-      http: FunctionHttpEventWithDocumentation
+      http: FunctionHttpEventRef | FunctionHttpEventDetailWithDocumentation
     })
   | Exclude<FunctionEvent, { http: unknown }>
 
@@ -35,7 +38,7 @@ export type FunctionDefinitionWithDocumentation = Omit<
   FunctionDefinition,
   "events"
 > & {
-  events: EventWithDocumentation[]
+  events: FunctionEventWithDocumentation[]
 }
 
 export type FunctionsWithDocumentation = {

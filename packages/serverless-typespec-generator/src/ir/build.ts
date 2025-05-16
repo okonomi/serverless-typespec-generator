@@ -1,6 +1,8 @@
-import type Aws from "serverless/aws"
 import { Registry } from "./../registry"
-import type { Serverless } from "./../types/serverless"
+import type {
+  FunctionEventWithDocumentation,
+  Serverless,
+} from "./../types/serverless"
 import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
@@ -35,27 +37,17 @@ export function buildIR(serverless: Serverless): TypeSpecIR[] {
   }
 
   for (const functionName of serverless.service.getAllFunctions()) {
-    const events = serverless.service.getAllEventsInFunction(functionName)
+    const events = serverless.service.getAllEventsInFunction(
+      functionName,
+    ) as FunctionEventWithDocumentation[]
     for (const event of events) {
       if (!("http" in event)) {
         continue
       }
 
-      const http = event.http as Aws.Http & {
-        documentation?: {
-          pathParams?: {
-            name: string
-            schema: {
-              type: "string"
-            }
-          }[]
-          methodResponses?: {
-            statusCode: number
-            responseModels?: {
-              "application/json": JSONSchema | string
-            }
-          }[]
-        }
+      const http = event.http
+      if (typeof http === "string") {
+        continue
       }
 
       const method = http.method.toLowerCase()
