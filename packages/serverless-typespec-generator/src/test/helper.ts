@@ -17,10 +17,7 @@ export function createServerlessMock(
       }),
       getAllEventsInFunction: vi.fn((functionName: string) => {
         const fn = Object.values(functions).find((f) => f.name === functionName)
-        if (!fn) {
-          return []
-        }
-        return fn.events
+        return fn?.events ?? []
       }),
     },
   } as unknown as SLS
