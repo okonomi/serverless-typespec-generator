@@ -217,4 +217,94 @@ describe("buildServerlessIR", () => {
       },
     ])
   })
+  it("should handle functions with request", () => {
+    const serverless = createServerlessMock({
+      hello: {
+        name: "hello",
+        handler: "handler.hello",
+        events: [
+          {
+            http: {
+              method: "get",
+              path: "/hello",
+              request: {
+                schemas: {
+                  "application/json": {
+                    title: "User",
+                    type: "object",
+                    properties: {
+                      name: {
+                        type: "string",
+                      },
+                      email: {
+                        type: "string",
+                      },
+                    },
+                    required: ["name", "email"],
+                  },
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+    const result = buildServerlessIR(serverless)
+    expect(result).toEqual<ServerlessIR[]>([
+      {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          request: {
+            title: "User",
+            type: "object",
+            properties: {
+              name: {
+                type: "string",
+              },
+              email: {
+                type: "string",
+              },
+            },
+            required: ["name", "email"],
+          },
+        },
+      },
+    ])
+  })
+  it("should handle functions with request of reference", () => {
+    const serverless = createServerlessMock({
+      hello: {
+        name: "hello",
+        handler: "handler.hello",
+        events: [
+          {
+            http: {
+              method: "get",
+              path: "/hello",
+              request: {
+                schemas: {
+                  "application/json": "user",
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+    const result = buildServerlessIR(serverless)
+    expect(result).toEqual<ServerlessIR[]>([
+      {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          request: "user",
+        },
+      },
+    ])
+  })
 })

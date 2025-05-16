@@ -1,3 +1,5 @@
+import type { JSONSchema } from "../type"
+
 export type ServerlessIR = ServerlessFunctionIR
 
 export type ServerlessFunctionIR = {
@@ -9,4 +11,5 @@ export type ServerlessFunctionIR = {
 export type ServerlessHttpEventIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
+  request?: JSONSchema | string
 }

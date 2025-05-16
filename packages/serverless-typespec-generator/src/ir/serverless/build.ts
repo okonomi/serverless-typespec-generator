@@ -1,5 +1,5 @@
 import type { Serverless } from "../../types/serverless"
-import type { ServerlessIR } from "./type"
+import type { ServerlessFunctionIR, ServerlessIR } from "./type"
 
 export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
   const irList: ServerlessIR[] = []
@@ -15,19 +15,34 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       // TODO: logging
       continue
     }
-    if (!isHttpMethod(event.http.method)) {
+
+    const http = event.http
+
+    if (typeof http === "string") {
       // TODO: logging
       continue
     }
 
-    irList.push({
+    if (!isHttpMethod(http.method)) {
+      // TODO: logging
+      continue
+    }
+
+    const func: ServerlessFunctionIR = {
       kind: "function",
       name: normalizeFunctionName(functionName),
       event: {
-        method: event.http.method,
-        path: normalizePath(event.http.path),
+        method: http.method,
+        path: normalizePath(http.path),
       },
-    })
+    }
+
+    const requestSchema = http.request?.schemas?.["application/json"]
+    if (requestSchema) {
+      func.event.request = requestSchema
+    }
+
+    irList.push(func)
   }
 
   return irList
