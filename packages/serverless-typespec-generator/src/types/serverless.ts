@@ -45,12 +45,16 @@ export type FunctionsWithDocumentation = {
   [K in keyof Functions]: FunctionDefinitionWithDocumentation
 }
 
-export type ServiceWithDoc = Service & {
+export type ServiceWithDoc = Omit<
+  Service,
+  "provider" | "functions" | "getAllEventsInFunction"
+> & {
   provider: Service["provider"] & AWS["provider"]
   functions: FunctionsWithDocumentation
+  getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
 }
 
-export type Serverless = ServerlessOrigin & {
+export type Serverless = Omit<ServerlessOrigin, "service"> & {
   service: ServiceWithDoc
 }
 

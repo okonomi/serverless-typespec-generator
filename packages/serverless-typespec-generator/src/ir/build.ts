@@ -1,8 +1,5 @@
 import { Registry } from "./../registry"
-import type {
-  FunctionEventWithDocumentation,
-  Serverless,
-} from "./../types/serverless"
+import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
@@ -37,9 +34,7 @@ export function buildIR(serverless: Serverless): TypeSpecIR[] {
   }
 
   for (const functionName of serverless.service.getAllFunctions()) {
-    const events = serverless.service.getAllEventsInFunction(
-      functionName,
-    ) as FunctionEventWithDocumentation[]
+    const events = serverless.service.getAllEventsInFunction(functionName)
     for (const event of events) {
       if (!("http" in event)) {
         continue
