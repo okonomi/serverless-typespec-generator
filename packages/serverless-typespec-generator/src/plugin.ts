@@ -1,5 +1,4 @@
 import path from "node:path"
-import type Serverless_ from "serverless"
 import type Plugin from "serverless/classes/Plugin"
 import { buildIR } from "./ir/build"
 import { emitTypeSpec } from "./ir/emit"
@@ -10,9 +9,9 @@ export class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
   commands: Plugin.Commands
   serverless: Serverless
-  options: Serverless_.Options
+  options: Serverless.Options
 
-  constructor(serverless: Serverless, options: Serverless_.Options) {
+  constructor(serverless: Serverless, options: Serverless.Options) {
     this.serverless = serverless
     this.options = options
 

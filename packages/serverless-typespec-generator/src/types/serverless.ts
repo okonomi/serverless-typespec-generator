@@ -50,3 +50,7 @@ export type ServiceWithDoc = Service & {
 export type Serverless = ServerlessOrigin & {
   service: ServiceWithDoc
 }
+
+export namespace Serverless {
+  export type Options = ServerlessOrigin.Options
+}
