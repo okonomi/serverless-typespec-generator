@@ -1,18 +1,18 @@
 import path from "node:path"
-import type Serverless from "serverless"
+import type Serverless_ from "serverless"
 import type Plugin from "serverless/classes/Plugin"
 import { buildIR } from "./ir/build"
 import { emitTypeSpec } from "./ir/emit"
 import type { JSONSchema } from "./ir/type"
-import type { SLS } from "./types/serverless"
+import type { Serverless } from "./types/serverless"
 
 export class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
   commands: Plugin.Commands
-  serverless: SLS
-  options: Serverless.Options
+  serverless: Serverless
+  options: Serverless_.Options
 
-  constructor(serverless: SLS, options: Serverless.Options) {
+  constructor(serverless: Serverless, options: Serverless_.Options) {
     this.serverless = serverless
     this.options = options
 

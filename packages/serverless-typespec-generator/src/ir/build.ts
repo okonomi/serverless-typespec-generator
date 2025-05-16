@@ -1,6 +1,6 @@
 import type Aws from "serverless/aws"
 import { Registry } from "./../registry"
-import type { SLS } from "./../types/serverless"
+import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
@@ -11,7 +11,7 @@ import type {
   TypeSpecIR,
 } from "./type"
 
-export function buildIR(serverless: SLS): TypeSpecIR[] {
+export function buildIR(serverless: Serverless): TypeSpecIR[] {
   const operations: OperationIR[] = []
   const models = new Registry<TypeSpecIR>()
 
