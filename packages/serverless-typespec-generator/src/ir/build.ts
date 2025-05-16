@@ -274,10 +274,21 @@ export function convertType(schema: JSONSchema): PropTypeIR {
 }
 
 export function buildOperationIR(slsIR: ServerlessFunctionIR): OperationIR {
-  return {
+  const operation: OperationIR = {
     kind: "operation",
     name: slsIR.name,
     method: slsIR.event.method,
     route: slsIR.event.path,
   }
+
+  const request = slsIR.event.request
+  if (request) {
+    if (typeof request === "string") {
+      operation.requestBody = { ref: request }
+    } else {
+      operation.requestBody = convertType(request)
+    }
+  }
+
+  return operation
 }
