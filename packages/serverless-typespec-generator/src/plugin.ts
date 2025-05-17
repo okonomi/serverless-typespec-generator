@@ -1,7 +1,8 @@
 import path from "node:path"
 import type Plugin from "serverless/classes/Plugin"
-import { buildIR } from "./ir/build"
+import { buildIR, buildTypeSpecIR } from "./ir/build"
 import { emitTypeSpec } from "./ir/emit"
+import { buildServerlessIR } from "./ir/serverless/build"
 import type { JSONSchema } from "./ir/type"
 import type { Serverless } from "./types/serverless"
 
@@ -25,6 +26,11 @@ export class ServerlessTypeSpecGenerator implements Plugin {
                 usage: "Output directory for generated TypeSpec files",
                 required: true,
                 type: "string",
+              },
+              "experimental-serverless-ir": {
+                usage: "Use serverless IR",
+                required: false,
+                type: "boolean",
               },
             },
           },
@@ -77,7 +83,12 @@ export class ServerlessTypeSpecGenerator implements Plugin {
     )
 
     await this.generateTspConfig(outputDir)
-    await this.generateTypespec(outputDir)
+
+    if (this.options["experimental-serverless-ir"]) {
+      await this.generateTypeSpecWithServerlessIR(outputDir)
+    } else {
+      await this.generateTypespec(outputDir)
+    }
   }
 
   async generateTspConfig(outputDir: string) {
@@ -97,6 +108,17 @@ options:
   async generateTypespec(outputDir: string) {
     const irList = buildIR(this.serverless)
     const typespec = emitTypeSpec(irList)
+
+    await this.serverless.utils.writeFile(
+      path.join(outputDir, "main.tsp"),
+      typespec,
+    )
+  }
+
+  async generateTypeSpecWithServerlessIR(outputDir: string) {
+    const slsIrList = buildServerlessIR(this.serverless)
+    const tspIrList = buildTypeSpecIR(slsIrList)
+    const typespec = emitTypeSpec(tspIrList)
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
