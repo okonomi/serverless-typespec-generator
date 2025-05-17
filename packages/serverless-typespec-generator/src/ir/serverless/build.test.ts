@@ -7,7 +7,7 @@ const context = describe
 
 describe("buildServerlessIR", () => {
   context("should handle functions", () => {
-    it("with Serverless IR", () => {
+    it("with basic Serverless IR", () => {
       const serverless = createServerlessMock({
         hello: {
           name: "hello",
