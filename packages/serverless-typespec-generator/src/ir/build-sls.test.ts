@@ -65,6 +65,38 @@ describe("buildTypeSpecIR", () => {
       },
     ])
   })
+  it("should handle functions with path parameters", () => {
+    const slsIR: ServerlessIR[] = [
+      {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello/:name",
+          request: {
+            path: {
+              name: true,
+            },
+          },
+        },
+      },
+    ]
+    const result = buildTypeSpecIR(slsIR)
+    expect(result).toEqual<TypeSpecIR[]>([
+      {
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello/:name",
+        parameters: {
+          name: { type: "string", required: true },
+        },
+        http: {
+          params: ["name"],
+        },
+      },
+    ])
+  })
 })
 
 describe("buildOperationIR", () => {
@@ -145,6 +177,34 @@ describe("buildOperationIR", () => {
         route: "/hello",
         requestBody: { ref: "User" },
       })
+    })
+  })
+  it("should build operation IR with path parameters", () => {
+    const slsIR: ServerlessFunctionIR = {
+      kind: "function",
+      name: "hello",
+      event: {
+        method: "get",
+        path: "/hello/:name",
+        request: {
+          path: {
+            name: true,
+          },
+        },
+      },
+    }
+    const result = buildOperationIR(slsIR)
+    expect(result).toEqual<OperationIR>({
+      kind: "operation",
+      name: "hello",
+      method: "get",
+      route: "/hello/:name",
+      parameters: {
+        name: { type: "string", required: true },
+      },
+      http: {
+        params: ["name"],
+      },
     })
   })
 })

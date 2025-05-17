@@ -330,6 +330,19 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
         }
       }
     }
+    const pathParams = request.path
+    if (pathParams) {
+      operation.parameters = {}
+      for (const [key, required] of Object.entries(pathParams)) {
+        operation.parameters[key] = {
+          type: "string",
+          required,
+        }
+      }
+      operation.http = {
+        params: Object.keys(operation.parameters),
+      }
+    }
   }
 
   return operation
