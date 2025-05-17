@@ -3,6 +3,8 @@ import { buildOperationIR, buildTypeSpecIR } from "./build"
 import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
 import type { OperationIR, TypeSpecIR } from "./type"
 
+const context = describe
+
 describe("buildTypeSpecIR", () => {
   it("should build the TypeSpec IR", () => {
     const slsIR: ServerlessIR[] = [
@@ -64,78 +66,79 @@ describe("buildTypeSpecIR", () => {
 })
 
 describe("buildOperationIR", () => {
-  it("should build operation IR correctly", () => {
-    const slsIR: ServerlessFunctionIR = {
-      kind: "function",
-      name: "hello",
-      event: {
+  context("should build Operation IR", () => {
+    it("correctly", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
         method: "get",
-        path: "/hello",
-      },
-    }
-
-    const result = buildOperationIR(slsIR)
-    expect(result).toEqual<OperationIR>({
-      kind: "operation",
-      name: "hello",
-      method: "get",
-      route: "/hello",
+        route: "/hello",
+      })
     })
-  })
-  it("should build operation IR with request schema", () => {
-    const slsIR: ServerlessFunctionIR = {
-      kind: "function",
-      name: "hello",
-      event: {
+    it("with request schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "post",
+          path: "/hello",
+          request: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
         method: "post",
-        path: "/hello",
-        request: {
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            email: { type: "string" },
-          },
-          required: ["name", "email"],
+        route: "/hello",
+        requestBody: {
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
         },
-      },
-    }
-    const result = buildOperationIR(slsIR)
-    expect(result).toEqual<OperationIR>({
-      kind: "operation",
-      name: "hello",
-      method: "post",
-      route: "/hello",
-      requestBody: {
-        name: { type: "string", required: true },
-        email: { type: "string", required: true },
-      },
+      })
     })
-  })
-  it("should build operation IR with named request schema", () => {
-    const slsIR: ServerlessFunctionIR = {
-      kind: "function",
-      name: "hello",
-      event: {
-        method: "get",
-        path: "/hello",
-        request: {
-          title: "User",
-          type: "object",
-          properties: {
-            name: { type: "string" },
-            email: { type: "string" },
+    it("with named request schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          request: {
+            title: "User",
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
           },
-          required: ["name", "email"],
         },
-      },
-    }
-    const result = buildOperationIR(slsIR)
-    expect(result).toEqual<OperationIR>({
-      kind: "operation",
-      name: "hello",
-      method: "get",
-      route: "/hello",
-      requestBody: { ref: "User" },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        requestBody: { ref: "User" },
+      })
     })
   })
 })
