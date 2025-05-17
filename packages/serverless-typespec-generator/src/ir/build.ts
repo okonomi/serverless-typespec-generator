@@ -280,11 +280,12 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
     if (ir.kind === "function") {
       const request = ir.event.request
       if (request) {
-        if (typeof request === "object") {
-          if (request.title) {
+        const body = request.body
+        if (typeof body === "object") {
+          if (body.title) {
             models.register(
-              request.title,
-              jsonSchemaToTypeSpecIR(request, request.title),
+              body.title,
+              jsonSchemaToTypeSpecIR(body, body.title),
             )
           }
         }
@@ -317,13 +318,16 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
 
   const request = func.event.request
   if (request) {
-    if (typeof request === "string") {
-      operation.requestBody = { ref: request }
-    } else {
-      if (request.title) {
-        operation.requestBody = { ref: request.title }
+    const body = request.body
+    if (body) {
+      if (typeof body === "string") {
+        operation.requestBody = { ref: body }
       } else {
-        operation.requestBody = convertType(request)
+        if (body.title) {
+          operation.requestBody = { ref: body.title }
+        } else {
+          operation.requestBody = convertType(body)
+        }
       }
     }
   }

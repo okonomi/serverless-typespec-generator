@@ -36,10 +36,12 @@ describe("buildTypeSpecIR", () => {
           method: "post",
           path: "/hello",
           request: {
-            title: "HelloRequest",
-            type: "object",
-            properties: {
-              name: { type: "string" },
+            body: {
+              title: "HelloRequest",
+              type: "object",
+              properties: {
+                name: { type: "string" },
+              },
             },
           },
         },
@@ -92,12 +94,14 @@ describe("buildOperationIR", () => {
           method: "post",
           path: "/hello",
           request: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              email: { type: "string" },
+            body: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+              },
+              required: ["name", "email"],
             },
-            required: ["name", "email"],
           },
         },
       }
@@ -121,13 +125,15 @@ describe("buildOperationIR", () => {
           method: "get",
           path: "/hello",
           request: {
-            title: "User",
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              email: { type: "string" },
+            body: {
+              title: "User",
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+              },
+              required: ["name", "email"],
             },
-            required: ["name", "email"],
           },
         },
       }
