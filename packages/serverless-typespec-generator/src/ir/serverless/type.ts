@@ -12,8 +12,10 @@ export type ServerlessHttpEventIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
   request?: ServerlessHttpRequestIR
-  response?: ServerlessHttpResponseIR
+  response?: ServerlessHttpResponseOrRef | ServerlessHttpResponseOrRef[]
 }
+
+export type ServerlessHttpResponseOrRef = ServerlessHttpResponseIR | string
 
 export type ServerlessHttpRequestIR = {
   body?: JSONSchema | string
@@ -25,5 +27,5 @@ export type ServerlessHttpRequestIR = {
 
 export type ServerlessHttpResponseIR = {
   statusCode: number
-  body?: JSONSchema | string
+  body: JSONSchema | string
 }
