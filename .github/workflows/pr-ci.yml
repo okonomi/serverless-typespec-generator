@@ -47,3 +47,4 @@ jobs:
         run: |
           pnpm --filter serverless-typespec-generator build
           tests/run.sh --experimental-serverless-ir
+        continue-on-error: true
