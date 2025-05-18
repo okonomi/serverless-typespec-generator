@@ -316,7 +316,20 @@ describe("buildServerlessIR", () => {
     })
     it("with api gateway request model", () => {
       const serverless = createServerlessMock(
-        {},
+        {
+          hello: {
+            name: "hello",
+            handler: "handler.hello",
+            events: [
+              {
+                http: {
+                  method: "get",
+                  path: "/hello",
+                },
+              },
+            ],
+          },
+        },
         {
           request: {
             schemas: {
@@ -348,6 +361,14 @@ describe("buildServerlessIR", () => {
               email: { type: "string" },
             },
             required: ["name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
           },
         },
       ])
