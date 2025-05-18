@@ -21,6 +21,7 @@ else
   ymls=( *.yml )
 fi
 
+FAILED_TESTS=()
 for yml in "${ymls[@]}"; do
   name="${yml%.yml}"
   echo "Testing $yml ..."
@@ -30,5 +31,16 @@ for yml in "${ymls[@]}"; do
     echo "success"
   else
     echo "fail"
+    FAILED_TESTS+=("$yml")
   fi
 done
+
+if [ ${#FAILED_TESTS[@]} -gt 0 ]; then
+  echo "Some tests failed."
+  echo "Failed tests:"
+  for failed in "${FAILED_TESTS[@]}"; do
+    echo "  $failed"
+  done
+  exit 1
+fi
+echo "All tests passed."
