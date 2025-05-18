@@ -83,7 +83,7 @@ describe("buildTypeSpecIR", () => {
         },
       ]
       const result = buildTypeSpecIR(slsIR)
-      expect(result).toEqual<TypeSpecIR[]>([
+      expect(result).toStrictEqual<TypeSpecIR[]>([
         {
           kind: "operation",
           name: "hello",
@@ -94,6 +94,57 @@ describe("buildTypeSpecIR", () => {
           },
           http: {
             params: ["name"],
+          },
+        },
+      ])
+    })
+    it("with anonymous response model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "getUser",
+          event: {
+            method: "get",
+            path: "/users/{id}",
+            request: {
+              path: {
+                id: true,
+              },
+            },
+            response: {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  name: { type: "string" },
+                  email: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "getUser",
+          method: "get",
+          route: "/users/{id}",
+          parameters: {
+            id: { type: "string", required: true },
+          },
+          returnType: {
+            statusCode: 200,
+            body: {
+              id: { type: "string", required: false },
+              name: { type: "string", required: false },
+              email: { type: "string", required: false },
+            },
+          },
+          http: {
+            params: ["id"],
           },
         },
       ])
@@ -196,7 +247,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR)
-      expect(result).toEqual<OperationIR>({
+      expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -207,6 +258,215 @@ describe("buildOperationIR", () => {
         http: {
           params: ["name"],
         },
+      })
+    })
+    it("with response schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          response: {
+            statusCode: 200,
+            body: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+              },
+              required: ["name"],
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toStrictEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: {
+          statusCode: 200,
+          body: {
+            name: { type: "string", required: true },
+          },
+        },
+      })
+    })
+    it("with named response schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          response: {
+            statusCode: 200,
+            body: {
+              title: "HelloResponse",
+              type: "object",
+              properties: {
+                name: { type: "string" },
+              },
+              required: ["name"],
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toStrictEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: {
+          statusCode: 200,
+          body: { ref: "HelloResponse" },
+        },
+      })
+    })
+    it("with reference response", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          response: "HelloResponse",
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toStrictEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: { ref: "HelloResponse" },
+      })
+    })
+    it("with multiple response schemas", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          response: [
+            {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
+              },
+            },
+            {
+              statusCode: 404,
+              body: {
+                type: "object",
+                properties: {
+                  message: { type: "string" },
+                },
+                required: ["message"],
+              },
+            },
+          ],
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toStrictEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: [
+          {
+            statusCode: 200,
+            body: {
+              name: { type: "string", required: true },
+            },
+          },
+          {
+            statusCode: 404,
+            body: {
+              message: { type: "string", required: true },
+            },
+          },
+        ],
+      })
+    })
+    it("with multiple reference responses", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          response: ["HelloResponse", "NotFoundResponse"],
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toStrictEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: {
+          union: [{ ref: "HelloResponse" }, { ref: "NotFoundResponse" }],
+        },
+      })
+    })
+    it("with multiple named responses", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          response: [
+            {
+              statusCode: 200,
+              body: {
+                title: "HelloResponse",
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
+              },
+            },
+            {
+              statusCode: 404,
+              body: {
+                title: "NotFoundResponse",
+                type: "object",
+                properties: {
+                  message: { type: "string" },
+                },
+                required: ["message"],
+              },
+            },
+          ],
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toStrictEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: [
+          {
+            statusCode: 200,
+            body: { ref: "HelloResponse" },
+          },
+          {
+            statusCode: 404,
+            body: { ref: "NotFoundResponse" },
+          },
+        ],
       })
     })
   })

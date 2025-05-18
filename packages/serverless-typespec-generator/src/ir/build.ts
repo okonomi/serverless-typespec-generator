@@ -345,5 +345,88 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
     }
   }
 
+  const response = func.event.response
+  if (response) {
+    operation.returnType = {}
+    if (typeof response === "string") {
+      operation.returnType = { ref: response }
+    } else if (Array.isArray(response)) {
+      if (response.every((res) => typeof res === "string")) {
+        operation.returnType = {
+          union: response.map((res) => ({ ref: res })),
+        }
+      } else {
+        operation.returnType = response.map((res) => {
+          if (typeof res === "string") {
+            return {
+              statusCode: 200,
+              body: { ref: res },
+            }
+          }
+          if (typeof res.body === "string") {
+            return {
+              statusCode: res.statusCode,
+              body: { ref: res.body },
+            }
+          }
+          if (res.body.title) {
+            return {
+              statusCode: res.statusCode,
+              body: { ref: res.body.title },
+            }
+          }
+          return {
+            statusCode: res.statusCode,
+            body: convertType(res.body),
+          }
+        })
+      }
+    } else {
+      if (typeof response.body === "string") {
+        operation.returnType = {
+          statusCode: response.statusCode,
+          body: { ref: response.body },
+        }
+      } else if (response.body.title) {
+        operation.returnType = {
+          statusCode: response.statusCode,
+          body: { ref: response.body.title },
+        }
+      } else {
+        operation.returnType = {
+          statusCode: response.statusCode,
+          body: convertType(response.body),
+        }
+      }
+    }
+
+    // if (Array.isArray(response)) {
+    //   // operation.returnType = response.map((res) =>
+    //   //   typeof res === "string"
+    //   //     ? { ref: res }
+    //   //     : {
+    //   //         statusCode: res.statusCode,
+    //   //         body: convertType(res.body),
+    //   //       },
+    //   // )
+    // } else {
+    //   if (typeof response === "string") {
+    //     operation.returnType = { ref: response }
+    //   } else {
+    //   if (response.title) {
+    //     operation.returnType = { ref: response.title }
+    //   } else {
+    //     operation.returnType = convertType(response)
+    //   }
+    //   operation.returnType = {
+    //     statusCode: response.statusCode,
+    //     body:
+    //       typeof response.body === "string"
+    //         ? { ref: response.body }
+    //         : convertType(response.body),
+    //   }
+    // }
+  }
+
   return operation
 }
