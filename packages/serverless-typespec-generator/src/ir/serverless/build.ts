@@ -72,6 +72,20 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
         }
       }
     }
+    const responses = http.documentation?.methodResponses
+    if (responses) {
+      func.event.response = []
+      for (const res of responses) {
+        const statusCode = res.statusCode
+        const model = res.responseModels?.["application/json"]
+        if (model) {
+          func.event.response.push({
+            statusCode,
+            body: model,
+          })
+        }
+      }
+    }
 
     irList.push(func)
   }
