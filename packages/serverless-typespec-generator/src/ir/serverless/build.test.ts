@@ -373,5 +373,44 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with path parameters", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "get",
+                path: "/hello/:name",
+                request: {
+                  parameters: {
+                    paths: {
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello/:name",
+            request: {
+              path: {
+                name: true,
+              },
+            },
+          },
+        },
+      ])
+    })
   })
 })
