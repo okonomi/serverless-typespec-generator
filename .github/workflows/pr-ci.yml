@@ -40,4 +40,5 @@ jobs:
 
       - name: Integration test
         run: |
+          pnpm --filter serverless-typespec-generator build
           tests/run.sh
