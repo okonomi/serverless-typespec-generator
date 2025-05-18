@@ -98,6 +98,59 @@ describe("buildTypeSpecIR", () => {
         },
       ])
     })
+    it("with anonymous response model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "getUser",
+          event: {
+            method: "get",
+            path: "/users/{id}",
+            request: {
+              path: {
+                id: true,
+              },
+            },
+            response: {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  id: { type: "string" },
+                  name: { type: "string" },
+                  email: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "getUser",
+          method: "get",
+          route: "/users/{id}",
+          parameters: {
+            id: { type: "string", required: true },
+          },
+          returnType: [
+            {
+              statusCode: 200,
+              body: {
+                id: { type: "string", required: false },
+                name: { type: "string", required: false },
+                email: { type: "string", required: false },
+              },
+            },
+          ],
+          http: {
+            params: ["id"],
+          },
+        },
+      ])
+    })
   })
 })
 

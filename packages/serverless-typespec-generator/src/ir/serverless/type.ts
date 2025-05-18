@@ -12,6 +12,7 @@ export type ServerlessHttpEventIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
   request?: ServerlessHttpRequestIR
+  response?: ServerlessHttpResponseIR
 }
 
 export type ServerlessHttpRequestIR = {
@@ -20,4 +21,9 @@ export type ServerlessHttpRequestIR = {
   // query?: Record<string, boolean>
   // headers?: Record<string, boolean>
   // cookies?: Record<string, boolean>
+}
+
+export type ServerlessHttpResponseIR = {
+  statusCode: number
+  body?: JSONSchema | string
 }
