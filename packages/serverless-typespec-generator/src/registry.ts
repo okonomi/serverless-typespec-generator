@@ -1,5 +1,4 @@
 export class AlreadyRegisteredError extends Error {}
-export class NotRegisteredError extends Error {}
 
 export class Registry<T> {
   private store: Map<string, T>
