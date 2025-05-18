@@ -149,6 +149,51 @@ describe("buildTypeSpecIR", () => {
         },
       ])
     })
+    it("with array response model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "getUsers",
+          event: {
+            method: "get",
+            path: "/users",
+            response: {
+              statusCode: 200,
+              body: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                },
+              },
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "getUsers",
+          method: "get",
+          route: "/users",
+          returnType: {
+            statusCode: 200,
+            body: [
+              {
+                id: { type: "string", required: false },
+                name: { type: "string", required: false },
+                email: { type: "string", required: false },
+              },
+            ],
+          },
+        },
+      ])
+    })
   })
 })
 
