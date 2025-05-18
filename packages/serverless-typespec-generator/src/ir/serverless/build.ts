@@ -1,8 +1,25 @@
 import type { Serverless } from "../../types/serverless"
-import type { ServerlessFunctionIR, ServerlessIR } from "./type"
+import type {
+  ServerlessFunctionIR,
+  ServerlessIR,
+  ServerlessModelIR,
+} from "./type"
 
 export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
   const irList: ServerlessIR[] = []
+
+  const models = serverless.service.provider.apiGateway?.request?.schemas
+  if (models) {
+    for (const [key, m] of Object.entries(models)) {
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key,
+        ...(m.name ? { name: m.name } : {}),
+        schema: m.schema,
+      }
+      irList.push(model)
+    }
+  }
 
   for (const functionName of serverless.service.getAllFunctions()) {
     const events = serverless.service.getAllEventsInFunction(functionName)

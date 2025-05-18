@@ -314,5 +314,64 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with api gateway request model", () => {
+      const serverless = createServerlessMock(
+        {
+          hello: {
+            name: "hello",
+            handler: "handler.hello",
+            events: [
+              {
+                http: {
+                  method: "get",
+                  path: "/hello",
+                },
+              },
+            ],
+          },
+        },
+        {
+          request: {
+            schemas: {
+              user: {
+                name: "User",
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["name", "email"],
+                },
+              },
+            },
+          },
+        },
+      )
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "model",
+          key: "user",
+          name: "User",
+          schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+          },
+        },
+      ])
+    })
   })
 })
