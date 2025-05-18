@@ -412,5 +412,244 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with path parameters (documentation)", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "get",
+                path: "/hello/:name",
+                documentation: {
+                  pathParams: [
+                    {
+                      name: "name",
+                      schema: { type: "string" },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello/:name",
+            request: {
+              path: {
+                name: true,
+              },
+            },
+          },
+        },
+      ])
+    })
+    it("with anonymous response model", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "get",
+                path: "/hello",
+                documentation: {
+                  methodResponses: [
+                    {
+                      statusCode: 200,
+                      responseModels: {
+                        "application/json": {
+                          type: "object",
+                          properties: {
+                            name: { type: "string" },
+                            email: { type: "string" },
+                          },
+                          required: ["name", "email"],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            response: [
+              {
+                statusCode: 200,
+                body: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["name", "email"],
+                },
+              },
+            ],
+          },
+        },
+      ])
+    })
+    it("with reference response model", () => {
+      const serverless = createServerlessMock(
+        {
+          hello: {
+            name: "hello",
+            handler: "handler.hello",
+            events: [
+              {
+                http: {
+                  method: "get",
+                  path: "/hello",
+                  documentation: {
+                    methodResponses: [
+                      {
+                        statusCode: 200,
+                        responseModels: {
+                          "application/json": "user",
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+        {
+          request: {
+            schemas: {
+              user: {
+                name: "User",
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["name", "email"],
+                },
+              },
+            },
+          },
+        },
+      )
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "model",
+          key: "user",
+          name: "User",
+          schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            response: [
+              {
+                statusCode: 200,
+                body: "user",
+              },
+            ],
+          },
+        },
+      ])
+    })
+    it("with named response model", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "get",
+                path: "/hello",
+                documentation: {
+                  methodResponses: [
+                    {
+                      statusCode: 200,
+                      responseModels: {
+                        "application/json": {
+                          title: "User",
+                          type: "object",
+                          properties: {
+                            id: { type: "string" },
+                            name: { type: "string" },
+                            email: { type: "string" },
+                          },
+                          required: ["id", "name", "email"],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "model",
+          key: "User",
+          name: "User",
+          schema: {
+            title: "User",
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["id", "name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            response: [
+              {
+                statusCode: 200,
+                body: "User",
+              },
+            ],
+          },
+        },
+      ])
+    })
   })
 })
