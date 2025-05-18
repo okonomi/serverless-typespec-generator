@@ -11,5 +11,13 @@ export type ServerlessFunctionIR = {
 export type ServerlessHttpEventIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
-  request?: JSONSchema | string
+  request?: ServerlessHttpRequestIR
+}
+
+export type ServerlessHttpRequestIR = {
+  body?: JSONSchema | string
+  path?: Record<string, boolean>
+  // query?: Record<string, boolean>
+  // headers?: Record<string, boolean>
+  // cookies?: Record<string, boolean>
 }

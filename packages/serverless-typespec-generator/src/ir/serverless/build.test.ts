@@ -7,7 +7,7 @@ const context = describe
 
 describe("buildServerlessIR", () => {
   context("should handle functions", () => {
-    it("with Serverless IR", () => {
+    it("with basic Serverless IR", () => {
       const serverless = createServerlessMock({
         hello: {
           name: "hello",
@@ -261,17 +261,19 @@ describe("buildServerlessIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              title: "User",
-              type: "object",
-              properties: {
-                name: {
-                  type: "string",
+              body: {
+                title: "User",
+                type: "object",
+                properties: {
+                  name: {
+                    type: "string",
+                  },
+                  email: {
+                    type: "string",
+                  },
                 },
-                email: {
-                  type: "string",
-                },
+                required: ["name", "email"],
               },
-              required: ["name", "email"],
             },
           },
         },
@@ -305,7 +307,9 @@ describe("buildServerlessIR", () => {
           event: {
             method: "get",
             path: "/hello",
-            request: "user",
+            request: {
+              body: "user",
+            },
           },
         },
       ])

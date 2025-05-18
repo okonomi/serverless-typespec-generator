@@ -6,68 +6,104 @@ import type { OperationIR, TypeSpecIR } from "./type"
 const context = describe
 
 describe("buildTypeSpecIR", () => {
-  it("should build the TypeSpec IR", () => {
-    const slsIR: ServerlessIR[] = [
-      {
-        kind: "function",
-        name: "hello",
-        event: {
-          method: "get",
-          path: "/hello",
+  context("should handle functions", () => {
+    it("with basic TypeSpec IR", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+          },
         },
-      },
-    ]
-    const result = buildTypeSpecIR(slsIR)
-    expect(result).toStrictEqual<TypeSpecIR[]>([
-      {
-        kind: "operation",
-        name: "hello",
-        method: "get",
-        route: "/hello",
-      },
-    ])
-  })
-  it("should handle functions with request models", () => {
-    const slsIR: ServerlessIR[] = [
-      {
-        kind: "function",
-        name: "hello",
-        event: {
-          method: "post",
-          path: "/hello",
-          request: {
-            title: "HelloRequest",
-            type: "object",
-            properties: {
-              name: { type: "string" },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "get",
+          route: "/hello",
+        },
+      ])
+    })
+    it("with request models", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "post",
+            path: "/hello",
+            request: {
+              body: {
+                title: "HelloRequest",
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+              },
             },
           },
         },
-      },
-    ]
-    const result = buildTypeSpecIR(slsIR)
-    expect(result).toStrictEqual<TypeSpecIR[]>([
-      {
-        kind: "operation",
-        name: "hello",
-        method: "post",
-        route: "/hello",
-        requestBody: { ref: "HelloRequest" },
-      },
-      {
-        kind: "model",
-        name: "HelloRequest",
-        props: {
-          name: { type: "string", required: false },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "post",
+          route: "/hello",
+          requestBody: { ref: "HelloRequest" },
         },
-      },
-    ])
+        {
+          kind: "model",
+          name: "HelloRequest",
+          props: {
+            name: { type: "string", required: false },
+          },
+        },
+      ])
+    })
+    it("with path parameters", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello/:name",
+            request: {
+              path: {
+                name: true,
+              },
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "get",
+          route: "/hello/:name",
+          parameters: {
+            name: { type: "string", required: true },
+          },
+          http: {
+            params: ["name"],
+          },
+        },
+      ])
+    })
   })
 })
 
 describe("buildOperationIR", () => {
   context("should build Operation IR", () => {
-    it("correctly", () => {
+    it("with basic operation", () => {
       const slsIR: ServerlessFunctionIR = {
         kind: "function",
         name: "hello",
@@ -76,6 +112,7 @@ describe("buildOperationIR", () => {
           path: "/hello",
         },
       }
+
       const result = buildOperationIR(slsIR)
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
@@ -92,12 +129,14 @@ describe("buildOperationIR", () => {
           method: "post",
           path: "/hello",
           request: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              email: { type: "string" },
+            body: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+              },
+              required: ["name", "email"],
             },
-            required: ["name", "email"],
           },
         },
       }
@@ -121,13 +160,15 @@ describe("buildOperationIR", () => {
           method: "get",
           path: "/hello",
           request: {
-            title: "User",
-            type: "object",
-            properties: {
-              name: { type: "string" },
-              email: { type: "string" },
+            body: {
+              title: "User",
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+              },
+              required: ["name", "email"],
             },
-            required: ["name", "email"],
           },
         },
       }
@@ -138,6 +179,34 @@ describe("buildOperationIR", () => {
         method: "get",
         route: "/hello",
         requestBody: { ref: "User" },
+      })
+    })
+    it("with path parameters", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello/:name",
+          request: {
+            path: {
+              name: true,
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR)
+      expect(result).toEqual<OperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello/:name",
+        parameters: {
+          name: { type: "string", required: true },
+        },
+        http: {
+          params: ["name"],
+        },
       })
     })
   })
