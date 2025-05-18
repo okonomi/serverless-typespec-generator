@@ -584,5 +584,72 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with named response model", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "get",
+                path: "/hello",
+                documentation: {
+                  methodResponses: [
+                    {
+                      statusCode: 200,
+                      responseModels: {
+                        "application/json": {
+                          title: "User",
+                          type: "object",
+                          properties: {
+                            id: { type: "string" },
+                            name: { type: "string" },
+                            email: { type: "string" },
+                          },
+                          required: ["id", "name", "email"],
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "model",
+          key: "User",
+          name: "User",
+          schema: {
+            title: "User",
+            type: "object",
+            properties: {
+              id: { type: "string" },
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["id", "name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            response: [
+              {
+                statusCode: 200,
+                body: "User",
+              },
+            ],
+          },
+        },
+      ])
+    })
   })
 })

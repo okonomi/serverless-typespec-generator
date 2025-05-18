@@ -89,10 +89,30 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
         const statusCode = res.statusCode
         const model = res.responseModels?.["application/json"]
         if (model) {
-          func.event.response.push({
-            statusCode,
-            body: model,
-          })
+          if (typeof model === "string") {
+            func.event.response.push({
+              statusCode,
+              body: model,
+            })
+          } else {
+            if (model.title) {
+              func.event.response.push({
+                statusCode,
+                body: model.title,
+              })
+              irList.push({
+                kind: "model",
+                key: model.title,
+                name: model.title,
+                schema: model,
+              })
+            } else {
+              func.event.response.push({
+                statusCode,
+                body: model,
+              })
+            }
+          }
         }
       }
     }
