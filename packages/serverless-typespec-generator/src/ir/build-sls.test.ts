@@ -112,17 +112,19 @@ describe("buildTypeSpecIR", () => {
                 id: true,
               },
             },
-            response: {
-              statusCode: 200,
-              body: {
-                type: "object",
-                properties: {
-                  id: { type: "string" },
-                  name: { type: "string" },
-                  email: { type: "string" },
+            responses: [
+              {
+                statusCode: 200,
+                body: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
                 },
               },
-            },
+            ],
           },
         },
       ]
@@ -136,14 +138,16 @@ describe("buildTypeSpecIR", () => {
           parameters: {
             id: { type: "string", required: true },
           },
-          returnType: {
-            statusCode: 200,
-            body: {
-              id: { type: "string", required: false },
-              name: { type: "string", required: false },
-              email: { type: "string", required: false },
+          returnType: [
+            {
+              statusCode: 200,
+              body: {
+                id: { type: "string", required: false },
+                name: { type: "string", required: false },
+                email: { type: "string", required: false },
+              },
             },
-          },
+          ],
           http: {
             params: ["id"],
           },
@@ -158,20 +162,22 @@ describe("buildTypeSpecIR", () => {
           event: {
             method: "get",
             path: "/users",
-            response: {
-              statusCode: 200,
-              body: {
-                type: "array",
-                items: {
-                  type: "object",
-                  properties: {
-                    id: { type: "string" },
-                    name: { type: "string" },
-                    email: { type: "string" },
+            responses: [
+              {
+                statusCode: 200,
+                body: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      name: { type: "string" },
+                      email: { type: "string" },
+                    },
                   },
                 },
               },
-            },
+            ],
           },
         },
       ]
@@ -182,16 +188,18 @@ describe("buildTypeSpecIR", () => {
           name: "getUsers",
           method: "get",
           route: "/users",
-          returnType: {
-            statusCode: 200,
-            body: [
-              {
-                id: { type: "string", required: false },
-                name: { type: "string", required: false },
-                email: { type: "string", required: false },
-              },
-            ],
-          },
+          returnType: [
+            {
+              statusCode: 200,
+              body: [
+                {
+                  id: { type: "string", required: false },
+                  name: { type: "string", required: false },
+                  email: { type: "string", required: false },
+                },
+              ],
+            },
+          ],
         },
       ])
     })
@@ -203,7 +211,7 @@ describe("buildTypeSpecIR", () => {
           event: {
             method: "get",
             path: "/users",
-            response: [
+            responses: [
               {
                 statusCode: 200,
                 body: {
@@ -404,16 +412,18 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: {
-            statusCode: 200,
-            body: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
+          responses: [
+            {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
               },
-              required: ["name"],
             },
-          },
+          ],
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
@@ -422,12 +432,14 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        returnType: {
-          statusCode: 200,
-          body: {
-            name: { type: "string", required: true },
+        returnType: [
+          {
+            statusCode: 200,
+            body: {
+              name: { type: "string", required: true },
+            },
           },
-        },
+        ],
       })
     })
     it("with named response schema", () => {
@@ -437,17 +449,19 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: {
-            statusCode: 200,
-            body: {
-              title: "HelloResponse",
-              type: "object",
-              properties: {
-                name: { type: "string" },
+          responses: [
+            {
+              statusCode: 200,
+              body: {
+                title: "HelloResponse",
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
               },
-              required: ["name"],
             },
-          },
+          ],
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
@@ -456,10 +470,12 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        returnType: {
-          statusCode: 200,
-          body: { ref: "HelloResponse" },
-        },
+        returnType: [
+          {
+            statusCode: 200,
+            body: { ref: "HelloResponse" },
+          },
+        ],
       })
     })
     it("with reference response", () => {
@@ -469,7 +485,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: "HelloResponse",
+          responses: ["HelloResponse"],
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
@@ -478,7 +494,7 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        returnType: { ref: "HelloResponse" },
+        returnType: { union: [{ ref: "HelloResponse" }] },
       })
     })
     it("with multiple response schemas", () => {
@@ -488,7 +504,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: [
+          responses: [
             {
               statusCode: 200,
               body: {
@@ -541,7 +557,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: ["HelloResponse", "NotFoundResponse"],
+          responses: ["HelloResponse", "NotFoundResponse"],
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
@@ -562,7 +578,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: [
+          responses: [
             {
               statusCode: 200,
               body: {

@@ -367,14 +367,16 @@ describe("emitOperation", () => {
         name: "getUser",
         method: "get",
         route: "/users/{id}",
-        returnType: {
-          statusCode: 200,
-          body: {
-            id: { type: "string", required: true },
-            name: { type: "string", required: true },
-            email: { type: "string", required: true },
+        returnType: [
+          {
+            statusCode: 200,
+            body: {
+              id: { type: "string", required: true },
+              name: { type: "string", required: true },
+              email: { type: "string", required: true },
+            },
           },
-        },
+        ],
       }
       const result = emitOperation(operation)
       expect(await normalizeTypeSpec(result)).toBe(dedent`
@@ -396,16 +398,18 @@ describe("emitOperation", () => {
         name: "getUsers",
         method: "get",
         route: "/users",
-        returnType: {
-          statusCode: 200,
-          body: [
-            {
-              id: { type: "string", required: true },
-              name: { type: "string", required: true },
-              email: { type: "string", required: true },
-            },
-          ],
-        },
+        returnType: [
+          {
+            statusCode: 200,
+            body: [
+              {
+                id: { type: "string", required: true },
+                name: { type: "string", required: true },
+                email: { type: "string", required: true },
+              },
+            ],
+          },
+        ],
       }
       const result = emitOperation(operation)
       expect(await normalizeTypeSpec(result)).toBe(dedent`

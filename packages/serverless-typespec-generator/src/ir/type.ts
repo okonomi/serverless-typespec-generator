@@ -23,7 +23,7 @@ export type OperationIR = {
   route: string
   parameters?: Record<string, PropIR>
   requestBody?: PropTypeIR
-  returnType?: PropTypeIR | HttpResponseIR | HttpResponseIR[]
+  returnType?: PropTypeIR | HttpResponseIR[]
 
   http?: {
     params?: string[]
