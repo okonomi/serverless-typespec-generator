@@ -19,7 +19,7 @@ export type ServerlessHttpEventIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
   request?: ServerlessHttpRequestIR
-  responses?: ServerlessHttpResponseOrRef | ServerlessHttpResponseOrRef[]
+  responses?: ServerlessHttpResponseOrRef[]
 }
 
 export type ServerlessHttpResponseOrRef = ServerlessHttpResponseIR | string

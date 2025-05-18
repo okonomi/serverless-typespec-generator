@@ -349,61 +349,39 @@ export function buildOperationIR(
     }
   }
 
-  const response = func.event.responses
-  if (response) {
-    operation.returnType = {}
-    if (typeof response === "string") {
-      operation.returnType = { ref: response }
-    } else if (Array.isArray(response)) {
-      if (response.every((res) => typeof res === "string")) {
-        operation.returnType = {
-          union: response.map((res) => ({ ref: models.get(res)?.name ?? res })),
-        }
-      } else {
-        operation.returnType = response.map((res) => {
-          if (typeof res === "string") {
-            return {
-              statusCode: 200,
-              body: { ref: models.get(res)?.name ?? res },
-            }
-          }
-          if (typeof res.body === "string") {
-            return {
-              statusCode: res.statusCode,
-              body: { ref: models.get(res.body)?.name ?? res.body },
-            }
-          }
-          if (res.body.title) {
-            return {
-              statusCode: res.statusCode,
-              body: { ref: models.get(res.body.title)?.name ?? res.body.title },
-            }
-          }
-          return {
-            statusCode: res.statusCode,
-            body: convertType(res.body),
-          }
-        })
+  const responses = func.event.responses
+  if (responses) {
+    if (responses.every((res) => typeof res === "string")) {
+      operation.returnType = {
+        union: responses.map((res) => ({
+          ref: models.get(res)?.name ?? res,
+        })),
       }
     } else {
-      if (typeof response.body === "string") {
-        operation.returnType = {
-          statusCode: response.statusCode,
-          body: { ref: models.get(response.body)?.name ?? response.body },
+      operation.returnType = responses.map((res) => {
+        if (typeof res === "string") {
+          return {
+            statusCode: 200,
+            body: { ref: models.get(res)?.name ?? res },
+          }
         }
-      } else if (response.body.title) {
-        operation.returnType = {
-          statusCode: response.statusCode,
-          body: {
-            ref: models.get(response.body.title)?.name ?? response.body.title,
-          },
+        if (typeof res.body === "string") {
+          return {
+            statusCode: res.statusCode,
+            body: { ref: models.get(res.body)?.name ?? res.body },
+          }
         }
-      } else {
-        operation.returnType = {
-          statusCode: response.statusCode,
-          body: convertType(response.body),
+        if (res.body.title) {
+          return {
+            statusCode: res.statusCode,
+            body: { ref: models.get(res.body.title)?.name ?? res.body.title },
+          }
         }
-      }
+        return {
+          statusCode: res.statusCode,
+          body: convertType(res.body),
+        }
+      })
     }
 
     // if (Array.isArray(response)) {
