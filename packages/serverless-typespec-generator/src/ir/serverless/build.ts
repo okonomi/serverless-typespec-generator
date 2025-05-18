@@ -54,10 +54,22 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       },
     }
 
-    const requestSchema = http.request?.schemas?.["application/json"]
-    if (requestSchema) {
-      func.event.request = {
-        body: requestSchema,
+    const request = http.request
+    if (request) {
+      func.event.request = {}
+
+      const requestSchema = request.schemas?.["application/json"]
+      if (requestSchema) {
+        func.event.request.body = requestSchema
+      }
+
+      const requestPaths = request.parameters?.paths
+      if (requestPaths) {
+        func.event.request.path = {}
+        for (const [key, value] of Object.entries(requestPaths)) {
+          func.event.request.path[key] =
+            typeof value === "object" ? (value.required ?? false) : true
+        }
       }
     }
 
