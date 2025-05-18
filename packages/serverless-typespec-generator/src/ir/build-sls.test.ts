@@ -112,7 +112,7 @@ describe("buildTypeSpecIR", () => {
                 id: true,
               },
             },
-            response: {
+            responses: {
               statusCode: 200,
               body: {
                 type: "object",
@@ -158,7 +158,7 @@ describe("buildTypeSpecIR", () => {
           event: {
             method: "get",
             path: "/users",
-            response: {
+            responses: {
               statusCode: 200,
               body: {
                 type: "array",
@@ -203,7 +203,7 @@ describe("buildTypeSpecIR", () => {
           event: {
             method: "get",
             path: "/users",
-            response: [
+            responses: [
               {
                 statusCode: 200,
                 body: {
@@ -404,7 +404,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: {
+          responses: {
             statusCode: 200,
             body: {
               type: "object",
@@ -437,7 +437,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: {
+          responses: {
             statusCode: 200,
             body: {
               title: "HelloResponse",
@@ -469,7 +469,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: "HelloResponse",
+          responses: "HelloResponse",
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
@@ -488,7 +488,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: [
+          responses: [
             {
               statusCode: 200,
               body: {
@@ -541,7 +541,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: ["HelloResponse", "NotFoundResponse"],
+          responses: ["HelloResponse", "NotFoundResponse"],
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
@@ -562,7 +562,7 @@ describe("buildOperationIR", () => {
         event: {
           method: "get",
           path: "/hello",
-          response: [
+          responses: [
             {
               statusCode: 200,
               body: {

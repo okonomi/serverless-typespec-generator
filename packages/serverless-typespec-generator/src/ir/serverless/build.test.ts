@@ -492,7 +492,7 @@ describe("buildServerlessIR", () => {
           event: {
             method: "get",
             path: "/hello",
-            response: [
+            responses: [
               {
                 statusCode: 200,
                 body: {
@@ -574,7 +574,7 @@ describe("buildServerlessIR", () => {
           event: {
             method: "get",
             path: "/hello",
-            response: [
+            responses: [
               {
                 statusCode: 200,
                 body: "user",
@@ -641,7 +641,7 @@ describe("buildServerlessIR", () => {
           event: {
             method: "get",
             path: "/hello",
-            response: [
+            responses: [
               {
                 statusCode: 200,
                 body: "User",

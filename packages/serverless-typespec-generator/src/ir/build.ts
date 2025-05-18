@@ -349,7 +349,7 @@ export function buildOperationIR(
     }
   }
 
-  const response = func.event.response
+  const response = func.event.responses
   if (response) {
     operation.returnType = {}
     if (typeof response === "string") {
