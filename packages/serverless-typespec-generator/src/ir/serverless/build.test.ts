@@ -314,5 +314,43 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with api gateway request model", () => {
+      const serverless = createServerlessMock(
+        {},
+        {
+          request: {
+            schemas: {
+              user: {
+                name: "User",
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["name", "email"],
+                },
+              },
+            },
+          },
+        },
+      )
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "model",
+          key: "user",
+          name: "User",
+          schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+      ])
+    })
   })
 })

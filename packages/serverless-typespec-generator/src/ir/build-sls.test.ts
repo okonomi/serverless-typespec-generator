@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest"
+import { Registry } from "../registry"
 import { buildOperationIR, buildTypeSpecIR } from "./build"
 import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
 import type { OperationIR, TypeSpecIR } from "./type"
@@ -239,6 +240,52 @@ describe("buildTypeSpecIR", () => {
         },
       ])
     })
+    it("with api gateway request model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "model",
+          key: "user",
+          name: "User",
+          schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            request: {
+              body: "user",
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "get",
+          route: "/hello",
+          requestBody: { ref: "User" },
+        },
+        {
+          kind: "model",
+          name: "User",
+          props: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+        },
+      ])
+    })
   })
 })
 
@@ -254,7 +301,7 @@ describe("buildOperationIR", () => {
         },
       }
 
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -281,7 +328,7 @@ describe("buildOperationIR", () => {
           },
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -313,7 +360,7 @@ describe("buildOperationIR", () => {
           },
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -336,7 +383,7 @@ describe("buildOperationIR", () => {
           },
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -369,7 +416,7 @@ describe("buildOperationIR", () => {
           },
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -403,7 +450,7 @@ describe("buildOperationIR", () => {
           },
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -425,7 +472,7 @@ describe("buildOperationIR", () => {
           response: "HelloResponse",
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -465,7 +512,7 @@ describe("buildOperationIR", () => {
           ],
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -497,7 +544,7 @@ describe("buildOperationIR", () => {
           response: ["HelloResponse", "NotFoundResponse"],
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
@@ -541,7 +588,7 @@ describe("buildOperationIR", () => {
           ],
         },
       }
-      const result = buildOperationIR(slsIR)
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
       expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",

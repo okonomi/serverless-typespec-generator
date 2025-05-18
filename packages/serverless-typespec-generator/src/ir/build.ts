@@ -277,7 +277,12 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
   // pass 1: build models
   const models = new Registry<TypeSpecIR>()
   for (const ir of sls) {
-    if (ir.kind === "function") {
+    if (ir.kind === "model") {
+      models.register(
+        ir.key,
+        jsonSchemaToTypeSpecIR(ir.schema, ir.name ?? ir.schema.title ?? ir.key),
+      )
+    } else if (ir.kind === "function") {
       const request = ir.event.request
       if (request) {
         const body = request.body
@@ -294,21 +299,18 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
   }
 
   // pass 2: build operations
-  const operations = sls.map((ir) => {
-    if (ir.kind === "function") {
-      return buildOperationIR(ir)
-    }
-
-    throw new NotImplementedError(
-      `Unsupported IR kind: ${ir.kind}. Only "function" kind is supported.`,
-    )
-  })
+  const operations = sls
+    .filter((ir) => ir.kind === "function")
+    .map((ir) => buildOperationIR(ir, models))
 
   // pass 3: merge models and operations
   return [...operations, ...Array.from(models.values())]
 }
 
-export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
+export function buildOperationIR(
+  func: ServerlessFunctionIR,
+  models: Registry<TypeSpecIR>,
+): OperationIR {
   const operation: OperationIR = {
     kind: "operation",
     name: func.name,
@@ -321,10 +323,12 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
     const body = request.body
     if (body) {
       if (typeof body === "string") {
-        operation.requestBody = { ref: body }
+        operation.requestBody = { ref: models.get(body)?.name ?? body }
       } else {
         if (body.title) {
-          operation.requestBody = { ref: body.title }
+          operation.requestBody = {
+            ref: models.get(body.title)?.name ?? body.title,
+          }
         } else {
           operation.requestBody = convertType(body)
         }
@@ -353,26 +357,26 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
     } else if (Array.isArray(response)) {
       if (response.every((res) => typeof res === "string")) {
         operation.returnType = {
-          union: response.map((res) => ({ ref: res })),
+          union: response.map((res) => ({ ref: models.get(res)?.name ?? res })),
         }
       } else {
         operation.returnType = response.map((res) => {
           if (typeof res === "string") {
             return {
               statusCode: 200,
-              body: { ref: res },
+              body: { ref: models.get(res)?.name ?? res },
             }
           }
           if (typeof res.body === "string") {
             return {
               statusCode: res.statusCode,
-              body: { ref: res.body },
+              body: { ref: models.get(res.body)?.name ?? res.body },
             }
           }
           if (res.body.title) {
             return {
               statusCode: res.statusCode,
-              body: { ref: res.body.title },
+              body: { ref: models.get(res.body.title)?.name ?? res.body.title },
             }
           }
           return {
@@ -385,12 +389,14 @@ export function buildOperationIR(func: ServerlessFunctionIR): OperationIR {
       if (typeof response.body === "string") {
         operation.returnType = {
           statusCode: response.statusCode,
-          body: { ref: response.body },
+          body: { ref: models.get(response.body)?.name ?? response.body },
         }
       } else if (response.body.title) {
         operation.returnType = {
           statusCode: response.statusCode,
-          body: { ref: response.body.title },
+          body: {
+            ref: models.get(response.body.title)?.name ?? response.body.title,
+          },
         }
       } else {
         operation.returnType = {

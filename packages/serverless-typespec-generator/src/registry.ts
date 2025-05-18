@@ -1,3 +1,6 @@
+export class AlreadyRegisteredError extends Error {}
+export class NotRegisteredError extends Error {}
+
 export class Registry<T> {
   private store: Map<string, T>
 
@@ -7,7 +10,9 @@ export class Registry<T> {
 
   register(key: string, value: T): void {
     if (this.store.has(key)) {
-      throw new Error(`Registry already contains key "${String(key)}"`)
+      throw new AlreadyRegisteredError(
+        `Registry already contains key "${String(key)}"`,
+      )
     }
 
     this.store.set(key, value)

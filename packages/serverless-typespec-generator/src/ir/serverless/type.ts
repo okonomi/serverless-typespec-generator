@@ -1,6 +1,13 @@
 import type { JSONSchema } from "../type"
 
-export type ServerlessIR = ServerlessFunctionIR
+export type ServerlessIR = ServerlessModelIR | ServerlessFunctionIR
+
+export type ServerlessModelIR = {
+  kind: "model"
+  key: string
+  name?: string
+  schema: JSONSchema
+}
 
 export type ServerlessFunctionIR = {
   kind: "function"
