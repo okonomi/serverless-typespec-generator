@@ -37,3 +37,7 @@ jobs:
  
       - name: Test
         run: pnpm test
+
+      - name: Integration test
+        run: |
+          tests/run.sh
