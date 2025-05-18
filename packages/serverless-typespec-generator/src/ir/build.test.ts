@@ -25,7 +25,7 @@ describe("buildIR", () => {
         })
         const irList = buildIR(serverless)
 
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "hello",
@@ -64,7 +64,7 @@ describe("buildIR", () => {
         })
         const irList = buildIR(serverless)
 
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "hello",
@@ -99,7 +99,7 @@ describe("buildIR", () => {
           },
         })
         const irList = buildIR(serverless)
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "helloWorld",
@@ -151,7 +151,7 @@ describe("buildIR", () => {
           },
         })
         const irList = buildIR(serverless)
-        expect(irList.filter((ir) => ir.kind === "operation")).toEqual<
+        expect(irList.filter((ir) => ir.kind === "operation")).toStrictEqual<
           TypeSpecIR[]
         >([
           {
@@ -216,7 +216,7 @@ describe("buildIR", () => {
           },
         })
         const irList = buildIR(serverless)
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "getUser",
@@ -279,7 +279,7 @@ describe("buildIR", () => {
           },
         })
         const irList = buildIR(serverless)
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "getUsers",
@@ -351,7 +351,7 @@ describe("buildIR", () => {
           },
         )
         const irList = buildIR(serverless)
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "operation",
             name: "getUsers",
@@ -417,7 +417,7 @@ describe("buildIR", () => {
           },
         )
         const irList = buildIR(serverless)
-        expect(irList).toEqual<TypeSpecIR[]>([
+        expect(irList).toStrictEqual<TypeSpecIR[]>([
           {
             kind: "alias",
             name: "Tags",
@@ -446,7 +446,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         required: ["id"],
       }
       const result = jsonSchemaToTypeSpecIR(schema, "Model")
-      expect(result).toEqual<TypeSpecIR>({
+      expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
         props: {
@@ -461,7 +461,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         items: { type: "string" },
       }
       const result = jsonSchemaToTypeSpecIR(schema, "Tags")
-      expect(result).toEqual<TypeSpecIR>({
+      expect(result).toStrictEqual<TypeSpecIR>({
         kind: "alias",
         name: "Tags",
         type: ["string"],
@@ -487,7 +487,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         ],
       }
       const result = jsonSchemaToTypeSpecIR(schema, "Model")
-      expect(result).toEqual<TypeSpecIR>({
+      expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
         props: {
@@ -519,7 +519,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         ],
       }
       const result = jsonSchemaToTypeSpecIR(schema, "Model")
-      expect(result).toEqual<TypeSpecIR>({
+      expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
         props: {
@@ -537,7 +537,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         required: ["tags"],
       }
       const result = jsonSchemaToTypeSpecIR(schema, "ArrayModel")
-      expect(result).toEqual<TypeSpecIR>({
+      expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "ArrayModel",
         props: {
@@ -560,7 +560,7 @@ describe("jsonSchemaToTypeSpecIR", () => {
         required: ["meta"],
       }
       const result = jsonSchemaToTypeSpecIR(schema, "ObjectModel")
-      expect(result).toEqual<TypeSpecIR>({
+      expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "ObjectModel",
         props: {
@@ -600,13 +600,13 @@ describe("convertType", () => {
   it("should convert array type to array of string", () => {
     const schema: JSONSchema = { type: "array", items: { type: "string" } }
     const result = convertType(schema)
-    expect(result).toEqual(["string"])
+    expect(result).toStrictEqual(["string"])
   })
   it("should convert oneOf type to union of types", () => {
     const schema: JSONSchema = {
       oneOf: [{ type: "string" }, { type: "null" }],
     }
     const result = convertType(schema)
-    expect(result).toEqual<PropTypeIR>({ union: ["string", "null"] })
+    expect(result).toStrictEqual<PropTypeIR>({ union: ["string", "null"] })
   })
 })

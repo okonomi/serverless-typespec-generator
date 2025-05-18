@@ -13,7 +13,7 @@ describe("Registry", () => {
   describe("register", () => {
     it("registers a value", () => {
       registry.register("foo", { value: 1 })
-      expect(registry.get("foo")).toEqual({ value: 1 })
+      expect(registry.get("foo")).toStrictEqual({ value: 1 })
     })
     it("throws if registering duplicate key", () => {
       registry.register("foo", { value: 3 })
@@ -26,7 +26,7 @@ describe("Registry", () => {
   describe("get", () => {
     it("returns the registered value", () => {
       registry.register("foo", { value: 1 })
-      expect(registry.get("foo")).toEqual({ value: 1 })
+      expect(registry.get("foo")).toStrictEqual({ value: 1 })
     })
     it("returns undefined for non-existent key", () => {
       expect(registry.get("bar")).toBeUndefined()
@@ -55,7 +55,7 @@ describe("Registry", () => {
       expect(values).toHaveLength(3)
     })
     it("returns an empty iterator if nothing is registered", () => {
-      expect(Array.from(registry.values())).toEqual([])
+      expect(Array.from(registry.values())).toStrictEqual([])
     })
   })
 })

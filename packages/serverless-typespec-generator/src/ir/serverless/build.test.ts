@@ -28,7 +28,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "hello",
@@ -48,7 +48,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([])
+      expect(result).toStrictEqual<ServerlessIR[]>([])
     })
     it("with http key only event", () => {
       const serverless = createServerlessMock({
@@ -63,7 +63,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([])
+      expect(result).toStrictEqual<ServerlessIR[]>([])
     })
     it("with http event and invalid http method", () => {
       const serverless = createServerlessMock({
@@ -81,7 +81,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([])
+      expect(result).toStrictEqual<ServerlessIR[]>([])
     })
     it("with s3 events", () => {
       const serverless = createServerlessMock({
@@ -99,7 +99,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([])
+      expect(result).toStrictEqual<ServerlessIR[]>([])
     })
     it("with multiple events", () => {
       const serverless = createServerlessMock({
@@ -122,7 +122,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "hello",
@@ -155,7 +155,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "hello",
@@ -182,7 +182,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "hello",
@@ -209,7 +209,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "helloWorld",
@@ -253,7 +253,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "hello",
@@ -298,7 +298,7 @@ describe("buildServerlessIR", () => {
         },
       })
       const result = buildServerlessIR(serverless)
-      expect(result).toEqual<ServerlessIR[]>([
+      expect(result).toStrictEqual<ServerlessIR[]>([
         {
           kind: "function",
           name: "hello",

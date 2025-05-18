@@ -18,7 +18,7 @@ describe("buildTypeSpecIR", () => {
       },
     ]
     const result = buildTypeSpecIR(slsIR)
-    expect(result).toEqual<TypeSpecIR[]>([
+    expect(result).toStrictEqual<TypeSpecIR[]>([
       {
         kind: "operation",
         name: "hello",
@@ -46,7 +46,7 @@ describe("buildTypeSpecIR", () => {
       },
     ]
     const result = buildTypeSpecIR(slsIR)
-    expect(result).toEqual<TypeSpecIR[]>([
+    expect(result).toStrictEqual<TypeSpecIR[]>([
       {
         kind: "operation",
         name: "hello",
@@ -77,7 +77,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR)
-      expect(result).toEqual<OperationIR>({
+      expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -102,7 +102,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR)
-      expect(result).toEqual<OperationIR>({
+      expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
         method: "post",
@@ -132,7 +132,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR)
-      expect(result).toEqual<OperationIR>({
+      expect(result).toStrictEqual<OperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
