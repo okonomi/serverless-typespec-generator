@@ -19,10 +19,8 @@ export type ServerlessHttpEventIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
   request?: ServerlessHttpRequestIR
-  responses?: ServerlessHttpResponseOrRef[]
+  responses?: (ServerlessHttpResponseIR | string)[]
 }
-
-export type ServerlessHttpResponseOrRef = ServerlessHttpResponseIR | string
 
 export type ServerlessHttpRequestIR = {
   body?: JSONSchema | string
