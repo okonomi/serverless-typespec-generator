@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { createServerlessMock } from "../test/helper"
+import { createServerlessMock } from "../../test/helper"
 import { buildIR, convertType, jsonSchemaToTypeSpecIR } from "./build"
 import type { JSONSchema, PropTypeIR, TypeSpecIR } from "./type"
 

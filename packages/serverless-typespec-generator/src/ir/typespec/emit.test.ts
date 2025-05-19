@@ -1,6 +1,6 @@
 import dedent from "dedent"
 import { describe, expect, it } from "vitest"
-import { normalizeTypeSpec } from "../test/helper"
+import { normalizeTypeSpec } from "../../test/helper"
 import {
   emitAlias,
   emitIR,

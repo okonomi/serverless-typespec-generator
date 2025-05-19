@@ -1,9 +1,9 @@
 import path from "node:path"
 import type Plugin from "serverless/classes/Plugin"
-import { buildIR, buildTypeSpecIR } from "./ir/build"
-import { emitTypeSpec } from "./ir/emit"
 import { buildServerlessIR } from "./ir/serverless/build"
-import type { JSONSchema } from "./ir/type"
+import { buildIR, buildTypeSpecIR } from "./ir/typespec/build"
+import { emitTypeSpec } from "./ir/typespec/emit"
+import type { JSONSchema } from "./ir/typespec/type"
 import type { Serverless } from "./types/serverless"
 
 export class ServerlessTypeSpecGenerator implements Plugin {

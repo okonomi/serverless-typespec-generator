@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { Registry } from "../registry"
+import { Registry } from "../../registry"
+import type { ServerlessFunctionIR, ServerlessIR } from "./../serverless/type"
 import { buildOperationIR, buildTypeSpecIR } from "./build"
-import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
 import type { OperationIR, TypeSpecIR } from "./type"
 
 const context = describe

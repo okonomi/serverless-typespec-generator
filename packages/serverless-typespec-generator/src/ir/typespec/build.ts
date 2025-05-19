@@ -1,11 +1,11 @@
-import { Registry } from "./../registry"
-import type { Serverless } from "./../types/serverless"
-import { NotImplementedError } from "./error"
+import { Registry } from "./../../registry"
+import type { Serverless } from "./../../types/serverless"
 import type {
   ServerlessFunctionIR,
   ServerlessIR,
   ServerlessModelIR,
-} from "./serverless/type"
+} from "./../serverless/type"
+import { NotImplementedError } from "./error"
 import type {
   AliasIR,
   HttpResponseIR,
