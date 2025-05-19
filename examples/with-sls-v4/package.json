@@ -9,11 +9,11 @@
   "keywords": [],
   "author": "",
   "license": "MIT",
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.11.0",
   "dependencies": {
     "serverless-typespec-generator": "workspace:*"
   },
   "devDependencies": {
-    "serverless": "^4.14.1"
+    "serverless": "^4.14.3"
   }
 }

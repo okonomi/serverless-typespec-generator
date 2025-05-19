@@ -1,9 +1,9 @@
 {
   "name": "sls-v3",
   "private": true,
-  "packageManager": "pnpm@10.10.0",
+  "packageManager": "pnpm@10.11.0",
   "devDependencies": {
-    "@typespec/http": "^1.0.0",
+    "@typespec/http": "^1.0.1",
     "@typespec/openapi3": "^1.0.0",
     "serverless": "^3.40.0",
     "serverless-typespec-generator": "workspace:*"
