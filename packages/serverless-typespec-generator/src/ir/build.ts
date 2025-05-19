@@ -327,11 +327,7 @@ export function buildOperationIR(
       if (typeof body === "string") {
         operation.requestBody = { ref: modelRef(body) }
       } else {
-        if (body.title) {
-          operation.requestBody = { ref: modelRef(body.title) }
-        } else {
-          operation.requestBody = convertType(body)
-        }
+        operation.requestBody = convertType(body)
       }
     }
     const pathParams = request.path

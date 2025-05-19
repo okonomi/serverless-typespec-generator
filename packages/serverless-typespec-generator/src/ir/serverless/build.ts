@@ -60,7 +60,19 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
 
       const requestSchema = request.schemas?.["application/json"]
       if (requestSchema) {
-        func.event.request.body = requestSchema
+        if (typeof requestSchema === "string") {
+          func.event.request.body = requestSchema
+        } else if (requestSchema.title) {
+          func.event.request.body = requestSchema.title
+          irList.push({
+            kind: "model",
+            key: requestSchema.title as string,
+            name: requestSchema.title as string,
+            schema: requestSchema,
+          })
+        } else {
+          func.event.request.body = requestSchema
+        }
       }
 
       const requestPaths = request.parameters?.paths
