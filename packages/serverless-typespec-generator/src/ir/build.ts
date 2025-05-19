@@ -1,7 +1,11 @@
 import { Registry } from "./../registry"
 import type { Serverless } from "./../types/serverless"
 import { NotImplementedError } from "./error"
-import type { ServerlessFunctionIR, ServerlessIR } from "./serverless/type"
+import type {
+  ServerlessFunctionIR,
+  ServerlessIR,
+  ServerlessModelIR,
+} from "./serverless/type"
 import type {
   HttpResponseIR,
   JSONSchema,
@@ -274,26 +278,34 @@ export function convertType(schema: JSONSchema): PropTypeIR {
 }
 
 export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
+  const modelRegistry = new Registry<TypeSpecIR>()
+
   // pass 1: build models
-  const models = new Registry<TypeSpecIR>()
-  for (const ir of sls) {
-    if (ir.kind === "model") {
-      models.register(ir.key, jsonSchemaToTypeSpecIR(ir.schema, ir.name))
-    }
-  }
+  const models = sls
+    .filter((ir) => ir.kind === "model")
+    .map((ir) => buildModelIR(ir, modelRegistry))
 
   // pass 2: build operations
   const operations = sls
     .filter((ir) => ir.kind === "function")
-    .map((ir) => buildOperationIR(ir, models))
+    .map((ir) => buildOperationIR(ir, modelRegistry))
 
   // pass 3: merge models and operations
-  return [...operations, ...Array.from(models.values())]
+  return [...operations, ...models]
+}
+
+export function buildModelIR(
+  model: ServerlessModelIR,
+  modelRegistry: Registry<TypeSpecIR>,
+): TypeSpecIR {
+  const m = jsonSchemaToTypeSpecIR(model.schema, model.name)
+  modelRegistry.register(model.key, m)
+  return m
 }
 
 export function buildOperationIR(
   func: ServerlessFunctionIR,
-  models: Registry<TypeSpecIR>,
+  modelRegistry: Registry<TypeSpecIR>,
 ): OperationIR {
   const operation: OperationIR = {
     kind: "operation",
@@ -307,11 +319,11 @@ export function buildOperationIR(
     const body = request.body
     if (body) {
       if (typeof body === "string") {
-        operation.requestBody = { ref: models.get(body)?.name ?? body }
+        operation.requestBody = { ref: modelRegistry.get(body)?.name ?? body }
       } else {
         if (body.title) {
           operation.requestBody = {
-            ref: models.get(body.title)?.name ?? body.title,
+            ref: modelRegistry.get(body.title)?.name ?? body.title,
           }
         } else {
           operation.requestBody = convertType(body)
@@ -338,7 +350,7 @@ export function buildOperationIR(
     if (responses.every((res) => typeof res === "string")) {
       operation.returnType = {
         union: responses.map((res) => ({
-          ref: models.get(res)?.name ?? res,
+          ref: modelRegistry.get(res)?.name ?? res,
         })),
       }
     } else {
@@ -346,19 +358,21 @@ export function buildOperationIR(
         if (typeof res === "string") {
           return {
             statusCode: 200,
-            body: { ref: models.get(res)?.name ?? res },
+            body: { ref: modelRegistry.get(res)?.name ?? res },
           }
         }
         if (typeof res.body === "string") {
           return {
             statusCode: res.statusCode,
-            body: { ref: models.get(res.body)?.name ?? res.body },
+            body: { ref: modelRegistry.get(res.body)?.name ?? res.body },
           }
         }
         if (res.body.title) {
           return {
             statusCode: res.statusCode,
-            body: { ref: models.get(res.body.title)?.name ?? res.body.title },
+            body: {
+              ref: modelRegistry.get(res.body.title)?.name ?? res.body.title,
+            },
           }
         }
         return {
