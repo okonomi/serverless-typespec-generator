@@ -3,7 +3,7 @@ import type Plugin from "serverless/classes/Plugin"
 import { buildServerlessIR } from "./ir/serverless/build"
 import { buildIR, buildTypeSpecIR } from "./ir/typespec/build"
 import { emitTypeSpec } from "./ir/typespec/emit"
-import type { JSONSchema } from "./ir/typespec/type"
+import type { JSONSchema } from "./types/json-schema"
 import type { Serverless } from "./types/serverless"
 
 export class ServerlessTypeSpecGenerator implements Plugin {

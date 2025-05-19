@@ -1,3 +1,4 @@
+import type { JSONSchema } from "../../types/json-schema"
 import { Registry } from "./../../registry"
 import type { Serverless } from "./../../types/serverless"
 import type {
@@ -8,7 +9,6 @@ import type {
 import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,
-  JSONSchema,
   PropIR,
   PropTypeIR,
   TypeSpecAliasIR,
