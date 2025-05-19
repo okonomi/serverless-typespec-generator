@@ -255,25 +255,27 @@ describe("buildServerlessIR", () => {
       const result = buildServerlessIR(serverless)
       expect(result).toStrictEqual<ServerlessIR[]>([
         {
+          kind: "model",
+          key: "User",
+          name: "User",
+          schema: {
+            title: "User",
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+        {
           kind: "function",
           name: "hello",
           event: {
             method: "get",
             path: "/hello",
             request: {
-              body: {
-                title: "User",
-                type: "object",
-                properties: {
-                  name: {
-                    type: "string",
-                  },
-                  email: {
-                    type: "string",
-                  },
-                },
-                required: ["name", "email"],
-              },
+              body: "User",
             },
           },
         },

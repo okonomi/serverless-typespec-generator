@@ -350,15 +350,7 @@ describe("buildOperationIR", () => {
           method: "get",
           path: "/hello",
           request: {
-            body: {
-              title: "User",
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                email: { type: "string" },
-              },
-              required: ["name", "email"],
-            },
+            body: "User",
           },
         },
       }
@@ -432,42 +424,6 @@ describe("buildOperationIR", () => {
             body: {
               name: { type: "string", required: true },
             },
-          },
-        ],
-      })
-    })
-    it("with named response schema", () => {
-      const slsIR: ServerlessFunctionIR = {
-        kind: "function",
-        name: "hello",
-        event: {
-          method: "get",
-          path: "/hello",
-          responses: [
-            {
-              statusCode: 200,
-              body: {
-                title: "HelloResponse",
-                type: "object",
-                properties: {
-                  name: { type: "string" },
-                },
-                required: ["name"],
-              },
-            },
-          ],
-        },
-      }
-      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
-        kind: "operation",
-        name: "hello",
-        method: "get",
-        route: "/hello",
-        returnType: [
-          {
-            statusCode: 200,
-            body: { ref: "HelloResponse" },
           },
         ],
       })
@@ -565,7 +521,7 @@ describe("buildOperationIR", () => {
         },
       })
     })
-    it("with multiple named responses", () => {
+    it("with multiple complex responses", () => {
       const slsIR: ServerlessFunctionIR = {
         kind: "function",
         name: "hello",
@@ -576,7 +532,6 @@ describe("buildOperationIR", () => {
             {
               statusCode: 200,
               body: {
-                title: "HelloResponse",
                 type: "object",
                 properties: {
                   name: { type: "string" },
@@ -586,14 +541,7 @@ describe("buildOperationIR", () => {
             },
             {
               statusCode: 404,
-              body: {
-                title: "NotFoundResponse",
-                type: "object",
-                properties: {
-                  message: { type: "string" },
-                },
-                required: ["message"],
-              },
+              body: "NotFoundResponse",
             },
           ],
         },
@@ -607,7 +555,9 @@ describe("buildOperationIR", () => {
         returnType: [
           {
             statusCode: 200,
-            body: { ref: "HelloResponse" },
+            body: {
+              name: { type: "string", required: true },
+            },
           },
           {
             statusCode: 404,

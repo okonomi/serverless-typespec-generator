@@ -355,7 +355,7 @@ export function buildOperationIR(
       operation.returnType = responses.map((res) => {
         if (typeof res === "string") {
           return {
-            statusCode: 200,
+            statusCode: 200, // TODO: handle status code
             body: { ref: modelRef(res) },
           }
         }
@@ -363,12 +363,6 @@ export function buildOperationIR(
           return {
             statusCode: res.statusCode,
             body: { ref: modelRef(res.body) },
-          }
-        }
-        if (res.body.title) {
-          return {
-            statusCode: res.statusCode,
-            body: { ref: modelRef(res.body.title) },
           }
         }
         return {
