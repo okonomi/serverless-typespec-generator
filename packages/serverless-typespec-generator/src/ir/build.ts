@@ -309,6 +309,10 @@ export function buildOperationIR(
   func: ServerlessFunctionIR,
   modelRegistry: Registry<TypeSpecIR>,
 ): OperationIR {
+  const modelRef = (key: string): string => {
+    return modelRegistry.get(key)?.name ?? key
+  }
+
   const operation: OperationIR = {
     kind: "operation",
     name: func.name,
@@ -321,12 +325,10 @@ export function buildOperationIR(
     const body = request.body
     if (body) {
       if (typeof body === "string") {
-        operation.requestBody = { ref: modelRegistry.get(body)?.name ?? body }
+        operation.requestBody = { ref: modelRef(body) }
       } else {
         if (body.title) {
-          operation.requestBody = {
-            ref: modelRegistry.get(body.title)?.name ?? body.title,
-          }
+          operation.requestBody = { ref: modelRef(body.title) }
         } else {
           operation.requestBody = convertType(body)
         }
@@ -351,30 +353,26 @@ export function buildOperationIR(
   if (responses) {
     if (responses.every((res) => typeof res === "string")) {
       operation.returnType = {
-        union: responses.map((res) => ({
-          ref: modelRegistry.get(res)?.name ?? res,
-        })),
+        union: responses.map((res) => ({ ref: modelRef(res) })),
       }
     } else {
       operation.returnType = responses.map((res) => {
         if (typeof res === "string") {
           return {
             statusCode: 200,
-            body: { ref: modelRegistry.get(res)?.name ?? res },
+            body: { ref: modelRef(res) },
           }
         }
         if (typeof res.body === "string") {
           return {
             statusCode: res.statusCode,
-            body: { ref: modelRegistry.get(res.body)?.name ?? res.body },
+            body: { ref: modelRef(res.body) },
           }
         }
         if (res.body.title) {
           return {
             statusCode: res.statusCode,
-            body: {
-              ref: modelRegistry.get(res.body.title)?.name ?? res.body.title,
-            },
+            body: { ref: modelRef(res.body.title) },
           }
         }
         return {
