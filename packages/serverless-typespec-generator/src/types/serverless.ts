@@ -45,11 +45,33 @@ export type FunctionsWithDocumentation = {
   [K in keyof Functions]: FunctionDefinitionWithDocumentation
 }
 
+type ServerlessServiceProvider = Service["provider"] & AWS["provider"]
+type ServerlessApiGateway = NonNullable<ServerlessServiceProvider["apiGateway"]>
+type ServerlessApiGatewayRequest = NonNullable<ServerlessApiGateway["request"]>
+
+type ServerlessServiceProviderWithSchemas = Omit<
+  ServerlessServiceProvider,
+  "apiGateway"
+> & {
+  apiGateway?: Omit<ServerlessApiGateway, "request"> & {
+    request?: Omit<ServerlessApiGatewayRequest, "schemas"> & {
+      schemas?: Record<
+        string,
+        {
+          schema: JSONSchema
+          name?: string
+          description?: string
+        }
+      >
+    }
+  }
+}
+
 export type ServiceWithDoc = Omit<
   Service,
   "provider" | "functions" | "getAllEventsInFunction"
 > & {
-  provider: Service["provider"] & AWS["provider"]
+  provider: ServerlessServiceProviderWithSchemas
   functions: FunctionsWithDocumentation
   getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
 }

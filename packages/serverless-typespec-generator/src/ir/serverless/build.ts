@@ -14,7 +14,7 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       const model: ServerlessModelIR = {
         kind: "model",
         key,
-        name: m.name ?? (m.schema.title as string) ?? key,
+        name: m.name ?? m.schema.title ?? key,
         schema: m.schema,
       }
       irList.push(model)
