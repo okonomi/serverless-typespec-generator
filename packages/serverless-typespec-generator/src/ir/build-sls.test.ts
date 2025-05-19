@@ -39,7 +39,6 @@ describe("buildTypeSpecIR", () => {
             path: "/hello",
             request: {
               body: {
-                title: "HelloRequest",
                 type: "object",
                 properties: {
                   name: { type: "string" },
@@ -56,12 +55,7 @@ describe("buildTypeSpecIR", () => {
           name: "hello",
           method: "post",
           route: "/hello",
-          requestBody: { ref: "HelloRequest" },
-        },
-        {
-          kind: "model",
-          name: "HelloRequest",
-          props: {
+          requestBody: {
             name: { type: "string", required: false },
           },
         },

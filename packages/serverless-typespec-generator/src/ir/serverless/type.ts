@@ -5,7 +5,7 @@ export type ServerlessIR = ServerlessModelIR | ServerlessFunctionIR
 export type ServerlessModelIR = {
   kind: "model"
   key: string
-  name?: string
+  name: string
   schema: JSONSchema
 }
 

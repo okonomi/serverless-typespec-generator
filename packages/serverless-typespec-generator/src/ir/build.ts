@@ -278,23 +278,7 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
   const models = new Registry<TypeSpecIR>()
   for (const ir of sls) {
     if (ir.kind === "model") {
-      models.register(
-        ir.key,
-        jsonSchemaToTypeSpecIR(ir.schema, ir.name ?? ir.schema.title ?? ir.key),
-      )
-    } else if (ir.kind === "function") {
-      const request = ir.event.request
-      if (request) {
-        const body = request.body
-        if (typeof body === "object") {
-          if (body.title) {
-            models.register(
-              body.title,
-              jsonSchemaToTypeSpecIR(body, body.title),
-            )
-          }
-        }
-      }
+      models.register(ir.key, jsonSchemaToTypeSpecIR(ir.schema, ir.name))
     }
   }
 
