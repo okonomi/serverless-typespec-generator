@@ -383,33 +383,6 @@ export function buildOperationIR(
         }
       })
     }
-
-    // if (Array.isArray(response)) {
-    //   // operation.returnType = response.map((res) =>
-    //   //   typeof res === "string"
-    //   //     ? { ref: res }
-    //   //     : {
-    //   //         statusCode: res.statusCode,
-    //   //         body: convertType(res.body),
-    //   //       },
-    //   // )
-    // } else {
-    //   if (typeof response === "string") {
-    //     operation.returnType = { ref: response }
-    //   } else {
-    //   if (response.title) {
-    //     operation.returnType = { ref: response.title }
-    //   } else {
-    //     operation.returnType = convertType(response)
-    //   }
-    //   operation.returnType = {
-    //     statusCode: response.statusCode,
-    //     body:
-    //       typeof response.body === "string"
-    //         ? { ref: response.body }
-    //         : convertType(response.body),
-    //   }
-    // }
   }
 
   return operation
