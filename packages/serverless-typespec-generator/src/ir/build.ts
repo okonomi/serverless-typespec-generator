@@ -7,8 +7,10 @@ import type {
   ServerlessModelIR,
 } from "./serverless/type"
 import type {
+  AliasIR,
   HttpResponseIR,
   JSONSchema,
+  ModelIR,
   OperationIR,
   PropIR,
   PropTypeIR,
@@ -189,7 +191,7 @@ function isHttpMethod(
 export function jsonSchemaToTypeSpecIR(
   schema: JSONSchema,
   name: string,
-): TypeSpecIR {
+): AliasIR | ModelIR {
   if (schema.type === "array") {
     const type = convertType(schema)
     return { kind: "alias", name, type }
@@ -297,7 +299,7 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
 export function buildModelIR(
   model: ServerlessModelIR,
   modelRegistry: Registry<TypeSpecIR>,
-): TypeSpecIR {
+): ModelIR | AliasIR {
   const m = jsonSchemaToTypeSpecIR(model.schema, model.name)
   modelRegistry.register(model.key, m)
   return m
