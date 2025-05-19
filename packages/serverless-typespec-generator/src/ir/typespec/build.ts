@@ -24,14 +24,14 @@ export function buildIR(serverless: Serverless): TypeSpecIR[] {
   const apiGatewaySchemas =
     serverless.service.provider.apiGateway?.request?.schemas
   if (apiGatewaySchemas) {
-    for (const [name, schema] of Object.entries(apiGatewaySchemas)) {
+    for (const [key, schema] of Object.entries(apiGatewaySchemas)) {
       try {
-        const model = jsonSchemaToTypeSpecIR(schema.schema, schema.name ?? "")
-        models.register(name, model)
+        const model = jsonSchemaToTypeSpecIR(schema.schema, schema.name ?? key)
+        models.register(key, model)
       } catch (e: unknown) {
         if (e instanceof NotImplementedError) {
           console.warn(
-            `Skipping schema "${name}" due to unsupported type: ${e.message}`,
+            `Skipping schema "${key}" due to unsupported type: ${e.message}`,
           )
         } else {
           throw e
