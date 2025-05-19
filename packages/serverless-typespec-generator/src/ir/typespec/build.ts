@@ -7,18 +7,18 @@ import type {
 } from "./../serverless/type"
 import { NotImplementedError } from "./error"
 import type {
-  AliasIR,
   HttpResponseIR,
   JSONSchema,
-  ModelIR,
-  OperationIR,
   PropIR,
   PropTypeIR,
+  TypeSpecAliasIR,
   TypeSpecIR,
+  TypeSpecModelIR,
+  TypeSpecOperationIR,
 } from "./type"
 
 export function buildIR(serverless: Serverless): TypeSpecIR[] {
-  const operations: OperationIR[] = []
+  const operations: TypeSpecOperationIR[] = []
   const models = new Registry<TypeSpecIR>()
 
   const apiGatewaySchemas =
@@ -190,7 +190,7 @@ function isHttpMethod(
 export function jsonSchemaToTypeSpecIR(
   schema: JSONSchema,
   name: string,
-): AliasIR | ModelIR {
+): TypeSpecAliasIR | TypeSpecModelIR {
   if (schema.type === "array") {
     const type = convertType(schema)
     return { kind: "alias", name, type }
@@ -298,7 +298,7 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
 export function buildModelIR(
   model: ServerlessModelIR,
   modelRegistry: Registry<TypeSpecIR>,
-): ModelIR | AliasIR {
+): TypeSpecModelIR | TypeSpecAliasIR {
   const m = jsonSchemaToTypeSpecIR(model.schema, model.name)
   modelRegistry.register(model.key, m)
   return m
@@ -307,12 +307,12 @@ export function buildModelIR(
 export function buildOperationIR(
   func: ServerlessFunctionIR,
   modelRegistry: Registry<TypeSpecIR>,
-): OperationIR {
+): TypeSpecOperationIR {
   const modelRef = (key: string): string => {
     return modelRegistry.get(key)?.name ?? key
   }
 
-  const operation: OperationIR = {
+  const operation: TypeSpecOperationIR = {
     kind: "operation",
     name: func.name,
     method: func.event.method,

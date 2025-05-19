@@ -8,7 +8,7 @@ import {
   emitOperation,
   emitTypeSpec,
 } from "./emit"
-import type { ModelIR, OperationIR, TypeSpecIR } from "./type"
+import type { TypeSpecIR, TypeSpecModelIR, TypeSpecOperationIR } from "./type"
 
 const context = describe
 
@@ -146,7 +146,7 @@ describe("emitAlias", () => {
 describe("emitModel", () => {
   context("should emit a model", () => {
     it("with simple model", async () => {
-      const model: ModelIR = {
+      const model: TypeSpecModelIR = {
         kind: "model",
         name: "TestModel",
         props: {
@@ -163,7 +163,7 @@ describe("emitModel", () => {
     `)
     })
     it("with array properties", async () => {
-      const model: ModelIR = {
+      const model: TypeSpecModelIR = {
         kind: "model",
         name: "ArrayModel",
         props: {
@@ -178,7 +178,7 @@ describe("emitModel", () => {
     `)
     })
     it("with object properties", async () => {
-      const model: ModelIR = {
+      const model: TypeSpecModelIR = {
         kind: "model",
         name: "ObjectModel",
         props: {
@@ -200,7 +200,7 @@ describe("emitModel", () => {
     `)
     })
     it("with mixed properties", async () => {
-      const model: ModelIR = {
+      const model: TypeSpecModelIR = {
         kind: "model",
         name: "MixedModel",
         props: {
@@ -231,7 +231,7 @@ describe("emitModel", () => {
 describe("emitOperation", () => {
   context("should emit an operation", () => {
     it("with simple operation", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "createUser",
         method: "post",
@@ -263,7 +263,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with no request body", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUser",
         method: "get",
@@ -286,7 +286,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with array response", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUsers",
         method: "get",
@@ -311,7 +311,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with external model", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUser",
         method: "get",
@@ -328,7 +328,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with union model", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUser",
         method: "get",
@@ -362,7 +362,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with http response", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUser",
         method: "get",
@@ -393,7 +393,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with http response with array", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUsers",
         method: "get",
@@ -426,7 +426,7 @@ describe("emitOperation", () => {
     `)
     })
     it("with path parameters", async () => {
-      const operation: OperationIR = {
+      const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "getUser",
         method: "get",

@@ -2,21 +2,21 @@ import type { JSONSchema4 } from "json-schema"
 
 export type JSONSchema = JSONSchema4
 
-export type TypeSpecIR = AliasIR | ModelIR | OperationIR
+export type TypeSpecIR = TypeSpecAliasIR | TypeSpecModelIR | TypeSpecOperationIR
 
-export type AliasIR = {
+export type TypeSpecAliasIR = {
   kind: "alias"
   name: string
   type: PropTypeIR
 }
 
-export type ModelIR = {
+export type TypeSpecModelIR = {
   kind: "model"
   name: string
   props: Record<string, PropIR>
 }
 
-export type OperationIR = {
+export type TypeSpecOperationIR = {
   kind: "operation"
   name: string
   method: "get" | "post" | "put" | "delete" | "patch"

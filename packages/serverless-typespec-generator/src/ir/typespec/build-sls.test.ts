@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest"
 import { Registry } from "../../registry"
 import type { ServerlessFunctionIR, ServerlessIR } from "./../serverless/type"
 import { buildOperationIR, buildTypeSpecIR } from "./build"
-import type { OperationIR, TypeSpecIR } from "./type"
+import type { TypeSpecIR, TypeSpecOperationIR } from "./type"
 
 const context = describe
 
@@ -304,7 +304,7 @@ describe("buildOperationIR", () => {
       }
 
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -331,7 +331,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "post",
@@ -355,7 +355,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -378,7 +378,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -413,7 +413,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -439,7 +439,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -479,7 +479,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -511,7 +511,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",
@@ -547,7 +547,7 @@ describe("buildOperationIR", () => {
         },
       }
       const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
-      expect(result).toStrictEqual<OperationIR>({
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
         kind: "operation",
         name: "hello",
         method: "get",

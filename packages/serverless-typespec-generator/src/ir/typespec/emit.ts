@@ -1,10 +1,10 @@
 import {
-  type AliasIR,
   type HttpResponseIR,
-  type ModelIR,
-  type OperationIR,
   type PropTypeIR,
+  type TypeSpecAliasIR,
   type TypeSpecIR,
+  type TypeSpecModelIR,
+  type TypeSpecOperationIR,
   isArrayType,
   isHttpResponse,
   isHttpResponses,
@@ -46,12 +46,12 @@ export function emitIR(ir: TypeSpecIR): string {
   throw new Error(`Unknown IR: ${ir}`)
 }
 
-export function emitAlias(alias: AliasIR): string {
+export function emitAlias(alias: TypeSpecAliasIR): string {
   const type = renderType(alias.type)
   return `alias ${alias.name} = ${type};`
 }
 
-export function emitModel(model: ModelIR): string {
+export function emitModel(model: TypeSpecModelIR): string {
   const lines: string[] = []
 
   lines.push(`model ${model.name} {`)
@@ -65,7 +65,7 @@ export function emitModel(model: ModelIR): string {
   return lines.join("\n")
 }
 
-export function emitOperation(operation: OperationIR): string {
+export function emitOperation(operation: TypeSpecOperationIR): string {
   const lines: string[] = []
 
   const parameters: string[] = []
