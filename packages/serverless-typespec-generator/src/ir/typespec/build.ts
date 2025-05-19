@@ -86,16 +86,15 @@ export function buildIR(serverless: Serverless): TypeSpecIR[] {
       let body = undefined
       const contentTypeSchema = http.request?.schemas?.["application/json"]
       if (contentTypeSchema) {
-        if (typeof contentTypeSchema === "object") {
-          const schema = contentTypeSchema as JSONSchema
-          const name = schema.title ?? "" // TODO: generate a unique name
-          models.register(name, jsonSchemaToTypeSpecIR(schema, name))
-          body = name
-        } else if (typeof contentTypeSchema === "string") {
+        if (typeof contentTypeSchema === "string") {
           const model = models.get(contentTypeSchema)
           if (model) {
             body = model.name
           }
+        } else {
+          const name = contentTypeSchema.title ?? "" // TODO: generate a unique name
+          models.register(name, jsonSchemaToTypeSpecIR(contentTypeSchema, name))
+          body = name
         }
       }
 

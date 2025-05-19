@@ -9,6 +9,14 @@ type FunctionEvent = NonNullable<FunctionDefinition["events"]>[number]
 type FunctionHttpEvent = Extract<FunctionEvent, { http: unknown }>["http"]
 type FunctionHttpEventRef = Extract<FunctionHttpEvent, string>
 type FunctionHttpEventDetail = Extract<FunctionHttpEvent, object>
+type FunctionHttpEventRequest = NonNullable<FunctionHttpEventDetail["request"]>
+
+type FunctionHttpEventRequestWithSchema = Omit<
+  FunctionHttpEventRequest,
+  "schemas"
+> & {
+  schemas?: Record<string, JSONSchema | string>
+}
 
 export type HttpEventDocumentation = {
   pathParams?: {
@@ -23,10 +31,14 @@ export type HttpEventDocumentation = {
   }[]
 }
 
-export type FunctionHttpEventDetailWithDocumentation =
-  FunctionHttpEventDetail & {
-    documentation?: HttpEventDocumentation
-  }
+export type FunctionHttpEventDetailWithDocumentation = Omit<
+  FunctionHttpEventDetail,
+  "request"
+> & {
+  request?: FunctionHttpEventRequestWithSchema
+} & {
+  documentation?: HttpEventDocumentation
+}
 
 export type FunctionEventWithDocumentation =
   | (Omit<Extract<FunctionEvent, { http: unknown }>, "http"> & {
