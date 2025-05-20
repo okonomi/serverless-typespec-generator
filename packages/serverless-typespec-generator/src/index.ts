@@ -1,3 +1,3 @@
-import { ServerlessTypeSpecGenerator } from "./plugin"
+import { ServerlessTypeSpecGenerator } from "~/plugin"
 
 export default ServerlessTypeSpecGenerator

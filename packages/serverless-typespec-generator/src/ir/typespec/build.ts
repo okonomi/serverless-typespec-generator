@@ -1,11 +1,11 @@
-import type { JSONSchema } from "../../types/json-schema"
-import { Registry } from "./../../registry"
-import type { Serverless } from "./../../types/serverless"
 import type {
   ServerlessFunctionIR,
   ServerlessIR,
   ServerlessModelIR,
-} from "./../serverless/type"
+} from "~/ir/serverless/type"
+import { Registry } from "~/registry"
+import type { JSONSchema } from "~/types/json-schema"
+import type { Serverless } from "~/types/serverless"
 import { NotImplementedError } from "./error"
 import type {
   HttpResponseIR,

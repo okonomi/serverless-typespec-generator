@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { Registry } from "../../registry"
-import type { ServerlessFunctionIR, ServerlessIR } from "./../serverless/type"
+import type { ServerlessFunctionIR, ServerlessIR } from "~/ir/serverless/type"
+import { Registry } from "~/registry"
 import { buildOperationIR, buildTypeSpecIR } from "./build"
 import type { TypeSpecIR, TypeSpecOperationIR } from "./type"
 

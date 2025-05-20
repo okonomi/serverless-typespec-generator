@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { createServerlessMock } from "../../test/helper"
+import { createServerlessMock } from "~/test/helper"
 import { buildServerlessIR } from "./build"
 import type { ServerlessIR } from "./type"
 
