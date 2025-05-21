@@ -1,10 +1,16 @@
 import { describe, expectTypeOf, it } from "vitest"
+import type { ReplaceByPath } from "./util"
 
 describe("ReplaceByPath", () => {
   it("sample test", () => {
     type Test = {
       a: number
+      b: string
     }
-    expectTypeOf({ a: 1 }).toEqualTypeOf<Test>()
+    type Result = ReplaceByPath<Test, "a", string>
+    expectTypeOf<Result>().toEqualTypeOf<{
+      a: string
+      b: string
+    }>()
   })
 })
