@@ -2,6 +2,7 @@ import type { AWS } from "@serverless/typescript"
 import type ServerlessOrigin from "serverless"
 import type Service from "serverless/classes/Service"
 import type { JSONSchema } from "~/types/json-schema"
+import type { ReplaceByPath } from "./util"
 
 type Functions = NonNullable<AWS["functions"]>
 type FunctionDefinition = Functions[string]
@@ -58,26 +59,18 @@ export type FunctionsWithDocumentation = {
 }
 
 type ServerlessServiceProvider = Service["provider"] & AWS["provider"]
-type ServerlessApiGateway = NonNullable<ServerlessServiceProvider["apiGateway"]>
-type ServerlessApiGatewayRequest = NonNullable<ServerlessApiGateway["request"]>
-
-type ServerlessServiceProviderWithSchemas = Omit<
+type ServerlessServiceProviderWithSchemas = ReplaceByPath<
   ServerlessServiceProvider,
-  "apiGateway"
-> & {
-  apiGateway?: Omit<ServerlessApiGateway, "request"> & {
-    request?: Omit<ServerlessApiGatewayRequest, "schemas"> & {
-      schemas?: Record<
-        string,
-        {
-          schema: JSONSchema
-          name?: string
-          description?: string
-        }
-      >
+  ["apiGateway", "request", "schemas"],
+  Record<
+    string,
+    {
+      schema: JSONSchema
+      name?: string
+      description?: string
     }
-  }
-}
+  >
+>
 
 export type ServiceWithDoc = Omit<
   Service,
