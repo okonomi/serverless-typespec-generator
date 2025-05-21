@@ -2,15 +2,32 @@ import { describe, expectTypeOf, it } from "vitest"
 import type { ReplaceByPath } from "./util"
 
 describe("ReplaceByPath", () => {
-  it("sample test", () => {
+  it("should replace type of property", () => {
     type Test = {
       a: number
       b: string
     }
-    type Result = ReplaceByPath<Test, "a", string>
+    type Result = ReplaceByPath<Test, ["a"], string>
     expectTypeOf<Result>().toEqualTypeOf<{
       a: string
       b: string
+    }>()
+  })
+  it("should replace type of nested property", () => {
+    type Test = {
+      a: {
+        b: number
+        c: string
+      }
+      d: string
+    }
+    type Result = ReplaceByPath<Test, ["a", "b"], string>
+    expectTypeOf<Result>().toEqualTypeOf<{
+      a: {
+        b: string
+        c: string
+      }
+      d: string
     }>()
   })
 })
