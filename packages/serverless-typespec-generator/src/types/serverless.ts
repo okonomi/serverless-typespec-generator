@@ -2,6 +2,7 @@ import type { AWS } from "@serverless/typescript"
 import type ServerlessOrigin from "serverless"
 import type Service from "serverless/classes/Service"
 import type { JSONSchema } from "~/types/json-schema"
+import type { Replace, ReplaceByPath } from "./util"
 
 type Functions = NonNullable<AWS["functions"]>
 type FunctionDefinition = Functions[string]
@@ -11,12 +12,11 @@ type FunctionHttpEventRef = Extract<FunctionHttpEvent, string>
 type FunctionHttpEventDetail = Extract<FunctionHttpEvent, object>
 type FunctionHttpEventRequest = NonNullable<FunctionHttpEventDetail["request"]>
 
-type FunctionHttpEventRequestWithSchema = Omit<
+type FunctionHttpEventRequestWithSchema = Replace<
   FunctionHttpEventRequest,
-  "schemas"
-> & {
-  schemas?: Record<string, JSONSchema | string>
-}
+  "schemas",
+  Record<string, JSONSchema | string>
+>
 
 export type HttpEventDocumentation = {
   pathParams?: {
@@ -31,53 +31,45 @@ export type HttpEventDocumentation = {
   }[]
 }
 
-export type FunctionHttpEventDetailWithDocumentation = Omit<
+export type FunctionHttpEventDetailWithDocumentation = Replace<
   FunctionHttpEventDetail,
-  "request"
+  "request",
+  FunctionHttpEventRequestWithSchema
 > & {
-  request?: FunctionHttpEventRequestWithSchema
-} & {
   documentation?: HttpEventDocumentation
 }
 
 export type FunctionEventWithDocumentation =
-  | (Omit<Extract<FunctionEvent, { http: unknown }>, "http"> & {
-      http: FunctionHttpEventRef | FunctionHttpEventDetailWithDocumentation
-    })
+  | Replace<
+      Extract<FunctionEvent, { http: unknown }>,
+      "http",
+      FunctionHttpEventRef | FunctionHttpEventDetailWithDocumentation
+    >
   | Exclude<FunctionEvent, { http: unknown }>
 
-export type FunctionDefinitionWithDocumentation = Omit<
+export type FunctionDefinitionWithDocumentation = Replace<
   FunctionDefinition,
-  "events"
-> & {
-  events: FunctionEventWithDocumentation[]
-}
+  "events",
+  FunctionEventWithDocumentation[]
+>
 
 export type FunctionsWithDocumentation = {
   [K in keyof Functions]: FunctionDefinitionWithDocumentation
 }
 
 type ServerlessServiceProvider = Service["provider"] & AWS["provider"]
-type ServerlessApiGateway = NonNullable<ServerlessServiceProvider["apiGateway"]>
-type ServerlessApiGatewayRequest = NonNullable<ServerlessApiGateway["request"]>
-
-type ServerlessServiceProviderWithSchemas = Omit<
+type ServerlessServiceProviderWithSchemas = ReplaceByPath<
   ServerlessServiceProvider,
-  "apiGateway"
-> & {
-  apiGateway?: Omit<ServerlessApiGateway, "request"> & {
-    request?: Omit<ServerlessApiGatewayRequest, "schemas"> & {
-      schemas?: Record<
-        string,
-        {
-          schema: JSONSchema
-          name?: string
-          description?: string
-        }
-      >
+  ["apiGateway", "request", "schemas"],
+  Record<
+    string,
+    {
+      schema: JSONSchema
+      name?: string
+      description?: string
     }
-  }
-}
+  >
+>
 
 export type ServiceWithDoc = Omit<
   Service,
@@ -88,9 +80,7 @@ export type ServiceWithDoc = Omit<
   getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
 }
 
-export type Serverless = Omit<ServerlessOrigin, "service"> & {
-  service: ServiceWithDoc
-}
+export type Serverless = Replace<ServerlessOrigin, "service", ServiceWithDoc>
 
 export type TypeSpecGeneratorOptions = ServerlessOrigin.Options & {
   "output-dir": string
