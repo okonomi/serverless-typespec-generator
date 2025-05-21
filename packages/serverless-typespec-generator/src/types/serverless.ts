@@ -40,17 +40,18 @@ export type FunctionHttpEventDetailWithDocumentation = Replace<
 }
 
 export type FunctionEventWithDocumentation =
-  | (Omit<Extract<FunctionEvent, { http: unknown }>, "http"> & {
-      http: FunctionHttpEventRef | FunctionHttpEventDetailWithDocumentation
-    })
+  | Replace<
+      Extract<FunctionEvent, { http: unknown }>,
+      "http",
+      FunctionHttpEventRef | FunctionHttpEventDetailWithDocumentation
+    >
   | Exclude<FunctionEvent, { http: unknown }>
 
-export type FunctionDefinitionWithDocumentation = Omit<
+export type FunctionDefinitionWithDocumentation = Replace<
   FunctionDefinition,
-  "events"
-> & {
-  events: FunctionEventWithDocumentation[]
-}
+  "events",
+  FunctionEventWithDocumentation[]
+>
 
 export type FunctionsWithDocumentation = {
   [K in keyof Functions]: FunctionDefinitionWithDocumentation
