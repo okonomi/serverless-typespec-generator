@@ -2,7 +2,7 @@ import type { AWS } from "@serverless/typescript"
 import type ServerlessOrigin from "serverless"
 import type Service from "serverless/classes/Service"
 import type { JSONSchema } from "~/types/json-schema"
-import type { ReplaceByPath } from "./util"
+import type { Replace, ReplaceByPath } from "./util"
 
 type Functions = NonNullable<AWS["functions"]>
 type FunctionDefinition = Functions[string]
@@ -12,12 +12,11 @@ type FunctionHttpEventRef = Extract<FunctionHttpEvent, string>
 type FunctionHttpEventDetail = Extract<FunctionHttpEvent, object>
 type FunctionHttpEventRequest = NonNullable<FunctionHttpEventDetail["request"]>
 
-type FunctionHttpEventRequestWithSchema = Omit<
+type FunctionHttpEventRequestWithSchema = Replace<
   FunctionHttpEventRequest,
-  "schemas"
-> & {
-  schemas?: Record<string, JSONSchema | string>
-}
+  "schemas",
+  Record<string, JSONSchema | string>
+>
 
 export type HttpEventDocumentation = {
   pathParams?: {
@@ -32,12 +31,11 @@ export type HttpEventDocumentation = {
   }[]
 }
 
-export type FunctionHttpEventDetailWithDocumentation = Omit<
+export type FunctionHttpEventDetailWithDocumentation = Replace<
   FunctionHttpEventDetail,
-  "request"
+  "request",
+  FunctionHttpEventRequestWithSchema
 > & {
-  request?: FunctionHttpEventRequestWithSchema
-} & {
   documentation?: HttpEventDocumentation
 }
 
@@ -81,9 +79,7 @@ export type ServiceWithDoc = Omit<
   getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
 }
 
-export type Serverless = Omit<ServerlessOrigin, "service"> & {
-  service: ServiceWithDoc
-}
+export type Serverless = Replace<ServerlessOrigin, "service", ServiceWithDoc>
 
 export type TypeSpecGeneratorOptions = ServerlessOrigin.Options & {
   "output-dir": string

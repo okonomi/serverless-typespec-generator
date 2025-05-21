@@ -1,3 +1,9 @@
+export type Replace<T, PROP, NEW> = PROP extends keyof T
+  ? {
+      [P in keyof T]: P extends PROP ? NEW : T[P]
+    }
+  : T
+
 export type ReplaceByPath<T, PATH, NEW> = PATH extends [
   infer HEAD,
   ...infer TAIL,
