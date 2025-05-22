@@ -46,7 +46,7 @@ describe("ReplaceByPath", () => {
   })
   it("should replace type of nested property with optional", () => {
     type Test = {
-      a: {
+      a?: {
         b?: number
         c: string
       }
@@ -54,7 +54,7 @@ describe("ReplaceByPath", () => {
     }
     type Result = ReplaceByPath<Test, ["a", "b"], string>
     expectTypeOf<Result>().toEqualTypeOf<{
-      a: {
+      a?: {
         b?: string
         c: string
       }

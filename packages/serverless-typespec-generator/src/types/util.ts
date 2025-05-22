@@ -14,7 +14,13 @@ export type ReplaceByPath<
         [P in keyof T]: P extends HEAD
           ? TAIL extends []
             ? NEW
-            : ReplaceByPath<T[P], Extract<TAIL, readonly PropertyKey[]>, NEW>
+            : [T[P]] extends [undefined]
+              ? undefined
+              : ReplaceByPath<
+                  NonNullable<T[P]>,
+                  Extract<TAIL, readonly PropertyKey[]>,
+                  NEW
+                >
           : T[P]
       }
     : T
