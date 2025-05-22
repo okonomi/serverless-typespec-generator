@@ -2,7 +2,7 @@ import type { AWS } from "@serverless/typescript"
 import type ServerlessOrigin from "serverless"
 import type Service from "serverless/classes/Service"
 import type { JSONSchema } from "~/types/json-schema"
-import type { Replace, ReplaceByPath } from "./util"
+import type { Replace, ReplaceByPath } from "~/types/util"
 
 type Functions = NonNullable<AWS["functions"]>
 type FunctionDefinition = Functions[string]

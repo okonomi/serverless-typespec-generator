@@ -1,4 +1,4 @@
-import type { JSONSchema } from "../../types/json-schema"
+import type { JSONSchema } from "~/types/json-schema"
 
 export type ServerlessIR = ServerlessModelIR | ServerlessFunctionIR
 

@@ -1,4 +1,4 @@
-import type { Serverless } from "../../types/serverless"
+import type { Serverless } from "~/types/serverless"
 import type {
   ServerlessFunctionIR,
   ServerlessIR,
