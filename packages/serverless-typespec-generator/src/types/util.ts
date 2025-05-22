@@ -12,11 +12,9 @@ export type ReplaceByPath<
   ? HEAD extends keyof T
     ? {
         [P in keyof T]: P extends HEAD
-          ? TAIL extends readonly PropertyKey[]
-            ? TAIL extends readonly []
-              ? NEW
-              : ReplaceByPath<T[P], TAIL, NEW>
-            : never
+          ? TAIL extends []
+            ? NEW
+            : ReplaceByPath<T[P], Extract<TAIL, readonly PropertyKey[]>, NEW>
           : T[P]
       }
     : T
