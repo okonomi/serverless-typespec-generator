@@ -94,6 +94,11 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
   if (operation.summary) {
     lines.push(`@summary("${operation.summary}")`)
   }
+  if (operation.description) {
+    lines.push('@doc("""')
+    lines.push(operation.description)
+    lines.push('""")')
+  }
   lines.push(`@route("${operation.route}")`)
   lines.push(`@${operation.method}`)
   lines.push(`op ${operation.name}(${parameters.join(", ")}): ${returnType};`)

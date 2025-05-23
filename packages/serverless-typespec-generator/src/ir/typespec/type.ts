@@ -16,6 +16,7 @@ export type TypeSpecOperationIR = {
   kind: "operation"
   name: string
   summary?: string
+  description?: string
   method: "get" | "post" | "put" | "delete" | "patch"
   route: string
   parameters?: Record<string, PropIR>
