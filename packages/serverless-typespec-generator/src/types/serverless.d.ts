@@ -19,6 +19,7 @@ type FunctionHttpEventRequestWithSchema = Replace<
 >
 
 export type HttpEventDocumentation = {
+  summary?: string
   pathParams?: {
     name: string
     schema: { type: "string" }
