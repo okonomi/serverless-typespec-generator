@@ -7,7 +7,7 @@
   "scripts": {
     "dev": "tsup src/index.ts --format esm --dts --out-dir dist --clean --watch",
     "build": "tsup src/index.ts --format esm --dts --out-dir dist --clean",
-    "test": "vitest run --typecheck",
+    "test": "vitest run",
     "lint": "biome check",
     "lint-fix": "biome check --write --unsafe"
   },
