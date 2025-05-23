@@ -684,7 +684,7 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
-    it("with documentation", () => {
+    it("with description", () => {
       const serverless = createServerlessMock({
         hello: {
           name: "hello",
