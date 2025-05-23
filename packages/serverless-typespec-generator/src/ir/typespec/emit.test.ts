@@ -446,7 +446,7 @@ describe("emitOperation", () => {
       op getUser(@path id: string): User;
     `)
     })
-    it("with simple summary", async () => {
+    it("with summary", async () => {
       const operation: TypeSpecOperationIR = {
         kind: "operation",
         name: "hello",
