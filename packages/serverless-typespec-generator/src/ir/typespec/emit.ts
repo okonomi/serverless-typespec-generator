@@ -133,8 +133,18 @@ function renderType(type: PropTypeIR): string {
     return type.union.map(renderType).join(" | ")
   }
 
-  const props = Object.entries(type)
-    .map(([name, prop]) => `${name}: ${renderType(prop.type)}`)
-    .join(", ")
-  return `{ ${props} }`
+  const lines: string[] = []
+  lines.push("{")
+  for (const [name, prop] of Object.entries(type)) {
+    const type = renderType(prop.type)
+    const optional = prop.required ? "" : "?"
+    if (prop.description) {
+      lines.push('@doc("""')
+      lines.push(prop.description)
+      lines.push('""")')
+    }
+    lines.push(`${name}${optional}: ${type};`)
+  }
+  lines.push("}")
+  return lines.join("\n")
 }

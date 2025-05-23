@@ -130,16 +130,48 @@ describe("emitIR", () => {
 })
 
 describe("emitAlias", () => {
-  it("should emit a alias for an array", async () => {
-    const ir: TypeSpecIR = {
-      kind: "alias",
-      name: "Tags",
-      type: ["string"],
-    }
-    const result = emitAlias(ir)
-    expect(await normalizeTypeSpec(result)).toBe(dedent`
+  context("should emit an alias", () => {
+    it("for an array", async () => {
+      const ir: TypeSpecIR = {
+        kind: "alias",
+        name: "Tags",
+        type: ["string"],
+      }
+      const result = emitAlias(ir)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
       alias Tags = string[];
     `)
+    })
+    it("with model and field's description", async () => {
+      const ir: TypeSpecIR = {
+        kind: "alias",
+        name: "Users",
+        type: [
+          {
+            id: { type: "string", required: true, description: "User ID" },
+            email: {
+              type: "string",
+              required: true,
+              description: "User email",
+            },
+          },
+        ],
+      }
+      const result = emitAlias(ir)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        alias Users = {
+          @doc("""
+            User ID
+            """)
+          id: string;
+
+          @doc("""
+            User email
+            """)
+          email: string;
+        }[];
+      `)
+    })
   })
 })
 
