@@ -42,9 +42,3 @@ jobs:
         run: |
           pnpm --filter serverless-typespec-generator build
           tests/run.sh
-
-      - name: Integration test (with experimental Serverless IR)
-        run: |
-          pnpm --filter serverless-typespec-generator build
-          tests/run.sh --experimental-serverless-ir
-        continue-on-error: true

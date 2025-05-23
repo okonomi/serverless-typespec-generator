@@ -1,439 +1,16 @@
 import { describe, expect, it } from "vitest"
-import { createServerlessMock } from "~/test/helper"
+import type { ServerlessFunctionIR, ServerlessIR } from "~/ir/serverless/type"
+import { Registry } from "~/registry"
 import type { JSONSchema } from "~/types/json-schema"
-import { buildIR, convertType, jsonSchemaToTypeSpecIR } from "./build"
-import type { PropTypeIR, TypeSpecIR } from "./type"
+import {
+  buildOperationIR,
+  buildTypeSpecIR,
+  convertType,
+  jsonSchemaToTypeSpecIR,
+} from "./build"
+import type { PropTypeIR, TypeSpecIR, TypeSpecOperationIR } from "./type"
 
 const context = describe
-
-describe("buildIR", () => {
-  context("when parsing a serverless config", () => {
-    context("with no models", () => {
-      it("should handle valid serverless configurations", () => {
-        const serverless = createServerlessMock({
-          hello: {
-            name: "hello",
-            handler: "handler.hello",
-            events: [
-              {
-                http: {
-                  method: "get",
-                  path: "/hello",
-                },
-              },
-            ],
-          },
-        })
-        const irList = buildIR(serverless)
-
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "operation",
-            name: "hello",
-            method: "get",
-            route: "/hello",
-          },
-        ])
-      })
-    })
-    context("with models", () => {
-      it("should parse models correctly", () => {
-        const serverless = createServerlessMock({
-          hello: {
-            name: "hello",
-            handler: "handler.hello",
-            events: [
-              {
-                http: {
-                  method: "post",
-                  path: "/hello",
-                  request: {
-                    schemas: {
-                      "application/json": {
-                        title: "HelloRequest",
-                        type: "object",
-                        properties: {
-                          name: { type: "string" },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            ],
-          },
-        })
-        const irList = buildIR(serverless)
-
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "operation",
-            name: "hello",
-            method: "post",
-            route: "/hello",
-            requestBody: { ref: "HelloRequest" },
-          },
-          {
-            kind: "model",
-            name: "HelloRequest",
-            props: {
-              name: { type: "string", required: false },
-            },
-          },
-        ])
-      })
-    })
-    context("with kebab-case name functions", () => {
-      it("should operation name collectly", () => {
-        const serverless = createServerlessMock({
-          "hello-world": {
-            name: "hello-world",
-            handler: "handler.helloWorld",
-            events: [
-              {
-                http: {
-                  method: "get",
-                  path: "/hello-world",
-                },
-              },
-            ],
-          },
-        })
-        const irList = buildIR(serverless)
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "operation",
-            name: "helloWorld",
-            method: "get",
-            route: "/hello-world",
-          },
-        ])
-      })
-    })
-    context("with path parameters", () => {
-      it("should parse path parameters correctly", () => {
-        const serverless = createServerlessMock({
-          getUser: {
-            name: "getUser",
-            handler: "handler.getUser",
-            events: [
-              {
-                http: {
-                  method: "get",
-                  path: "/users/{id}",
-                  request: {
-                    parameters: {
-                      paths: {
-                        id: true,
-                      },
-                    },
-                  },
-                  documentation: {
-                    methodResponses: [
-                      {
-                        statusCode: 200,
-                        responseModels: {
-                          "application/json": {
-                            title: "User",
-                            type: "object",
-                            properties: {
-                              id: { type: "string" },
-                              name: { type: "string" },
-                              email: { type: "string" },
-                            },
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-        })
-        const irList = buildIR(serverless)
-        expect(irList.filter((ir) => ir.kind === "operation")).toStrictEqual<
-          TypeSpecIR[]
-        >([
-          {
-            kind: "operation",
-            name: "getUser",
-            method: "get",
-            route: "/users/{id}",
-            parameters: {
-              id: { type: "string", required: true },
-            },
-            returnType: [
-              {
-                statusCode: 200,
-                body: { ref: "User" },
-              },
-            ],
-            http: {
-              params: ["id"],
-            },
-          },
-        ])
-      })
-    })
-    context("with anonymous response model", () => {
-      it("should parse anonymous response model correctly", () => {
-        const serverless = createServerlessMock({
-          getUser: {
-            name: "getUser",
-            handler: "handler.getUser",
-            events: [
-              {
-                http: {
-                  method: "get",
-                  path: "/users/{id}",
-                  request: {
-                    parameters: {
-                      paths: {
-                        id: true,
-                      },
-                    },
-                  },
-                  documentation: {
-                    methodResponses: [
-                      {
-                        statusCode: 200,
-                        responseModels: {
-                          "application/json": {
-                            type: "object",
-                            properties: {
-                              id: { type: "string" },
-                              name: { type: "string" },
-                              email: { type: "string" },
-                            },
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-        })
-        const irList = buildIR(serverless)
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "operation",
-            name: "getUser",
-            method: "get",
-            route: "/users/{id}",
-            parameters: {
-              id: { type: "string", required: true },
-            },
-            returnType: [
-              {
-                statusCode: 200,
-                body: {
-                  id: { type: "string", required: false },
-                  name: { type: "string", required: false },
-                  email: { type: "string", required: false },
-                },
-              },
-            ],
-            http: {
-              params: ["id"],
-            },
-          },
-        ])
-      })
-    })
-    context("with array response model", () => {
-      it("should parse array response model correctly", () => {
-        const serverless = createServerlessMock({
-          getUsers: {
-            name: "getUsers",
-            handler: "handler.getUsers",
-            events: [
-              {
-                http: {
-                  method: "get",
-                  path: "/users",
-                  documentation: {
-                    methodResponses: [
-                      {
-                        statusCode: 200,
-                        responseModels: {
-                          "application/json": {
-                            type: "array",
-                            items: {
-                              type: "object",
-                              properties: {
-                                id: { type: "string" },
-                                name: { type: "string" },
-                                email: { type: "string" },
-                              },
-                            },
-                          },
-                        },
-                      },
-                    ],
-                  },
-                },
-              },
-            ],
-          },
-        })
-        const irList = buildIR(serverless)
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "operation",
-            name: "getUsers",
-            method: "get",
-            route: "/users",
-            returnType: [
-              {
-                statusCode: 200,
-                body: [
-                  {
-                    id: { type: "string", required: false },
-                    name: { type: "string", required: false },
-                    email: { type: "string", required: false },
-                  },
-                ],
-              },
-            ],
-          },
-        ])
-      })
-    })
-    context("with array schema", () => {
-      it("should parse array api model correctly", () => {
-        const serverless = createServerlessMock(
-          {
-            getUsers: {
-              name: "getUsers",
-              handler: "handler.getUsers",
-              events: [
-                {
-                  http: {
-                    method: "get",
-                    path: "/users",
-                    documentation: {
-                      methodResponses: [
-                        {
-                          statusCode: 200,
-                          responseModels: {
-                            "application/json": "users",
-                          },
-                        },
-                      ],
-                    },
-                  },
-                },
-              ],
-            },
-          },
-          {
-            request: {
-              schemas: {
-                users: {
-                  name: "Users",
-                  schema: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        id: { type: "string" },
-                        name: { type: "string" },
-                        email: { type: "string" },
-                      },
-                      required: ["id", "name", "email"],
-                    },
-                  },
-                },
-              },
-            },
-          },
-        )
-        const irList = buildIR(serverless)
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "operation",
-            name: "getUsers",
-            method: "get",
-            route: "/users",
-            returnType: [
-              {
-                statusCode: 200,
-                body: { ref: "Users" },
-              },
-            ],
-          },
-          {
-            kind: "alias",
-            name: "Users",
-            type: [
-              {
-                id: { type: "string", required: true },
-                name: { type: "string", required: true },
-                email: { type: "string", required: true },
-              },
-            ],
-          },
-        ])
-      })
-    })
-    context("with array schema with allOf", () => {
-      it("should parse array api model correctly", () => {
-        const serverless = createServerlessMock(
-          {},
-          {
-            request: {
-              schemas: {
-                tags: {
-                  name: "Tags",
-                  schema: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      allOf: [
-                        {
-                          type: "object",
-                          properties: {
-                            slug: { type: "string" },
-                          },
-                        },
-                        {
-                          type: "object",
-                          properties: {
-                            name: { type: "string" },
-                          },
-                        },
-                        {
-                          type: "object",
-                          required: ["slug", "name"],
-                        },
-                      ],
-                    },
-                  },
-                },
-              },
-            },
-          },
-        )
-        const irList = buildIR(serverless)
-        expect(irList).toStrictEqual<TypeSpecIR[]>([
-          {
-            kind: "alias",
-            name: "Tags",
-            type: [
-              {
-                slug: { type: "string", required: true },
-                name: { type: "string", required: true },
-              },
-            ],
-          },
-        ])
-      })
-    })
-  })
-})
 
 describe("jsonSchemaToTypeSpecIR", () => {
   context("should convert JSON Schema", () => {
@@ -609,5 +186,568 @@ describe("convertType", () => {
     }
     const result = convertType(schema)
     expect(result).toStrictEqual<PropTypeIR>({ union: ["string", "null"] })
+  })
+})
+
+describe("buildTypeSpecIR", () => {
+  context("should handle functions", () => {
+    it("with basic TypeSpec IR", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "get",
+          route: "/hello",
+        },
+      ])
+    })
+    it("with request models", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "post",
+            path: "/hello",
+            request: {
+              body: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "post",
+          route: "/hello",
+          requestBody: {
+            name: { type: "string", required: false },
+          },
+        },
+      ])
+    })
+    it("with path parameters", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello/:name",
+            request: {
+              path: {
+                name: true,
+              },
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "get",
+          route: "/hello/:name",
+          parameters: {
+            name: { type: "string", required: true },
+          },
+          http: {
+            params: ["name"],
+          },
+        },
+      ])
+    })
+    it("with anonymous response model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "getUser",
+          event: {
+            method: "get",
+            path: "/users/{id}",
+            request: {
+              path: {
+                id: true,
+              },
+            },
+            responses: [
+              {
+                statusCode: 200,
+                body: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "getUser",
+          method: "get",
+          route: "/users/{id}",
+          parameters: {
+            id: { type: "string", required: true },
+          },
+          returnType: [
+            {
+              statusCode: 200,
+              body: {
+                id: { type: "string", required: false },
+                name: { type: "string", required: false },
+                email: { type: "string", required: false },
+              },
+            },
+          ],
+          http: {
+            params: ["id"],
+          },
+        },
+      ])
+    })
+    it("with array response model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "getUsers",
+          event: {
+            method: "get",
+            path: "/users",
+            responses: [
+              {
+                statusCode: 200,
+                body: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    properties: {
+                      id: { type: "string" },
+                      name: { type: "string" },
+                      email: { type: "string" },
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "getUsers",
+          method: "get",
+          route: "/users",
+          returnType: [
+            {
+              statusCode: 200,
+              body: [
+                {
+                  id: { type: "string", required: false },
+                  name: { type: "string", required: false },
+                  email: { type: "string", required: false },
+                },
+              ],
+            },
+          ],
+        },
+      ])
+    })
+    it("with array schema", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "function",
+          name: "getUsers",
+          event: {
+            method: "get",
+            path: "/users",
+            responses: [
+              {
+                statusCode: 200,
+                body: {
+                  type: "object",
+                  properties: {
+                    id: { type: "string" },
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["id", "name", "email"],
+                },
+              },
+            ],
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "getUsers",
+          method: "get",
+          route: "/users",
+          returnType: [
+            {
+              statusCode: 200,
+              body: {
+                id: { type: "string", required: true },
+                name: { type: "string", required: true },
+                email: { type: "string", required: true },
+              },
+            },
+          ],
+        },
+      ])
+    })
+    it("with api gateway request model", () => {
+      const slsIR: ServerlessIR[] = [
+        {
+          kind: "model",
+          key: "user",
+          name: "User",
+          schema: {
+            type: "object",
+            properties: {
+              name: { type: "string" },
+              email: { type: "string" },
+            },
+            required: ["name", "email"],
+          },
+        },
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            request: {
+              body: "user",
+            },
+          },
+        },
+      ]
+      const result = buildTypeSpecIR(slsIR)
+      expect(result).toStrictEqual<TypeSpecIR[]>([
+        {
+          kind: "operation",
+          name: "hello",
+          method: "get",
+          route: "/hello",
+          requestBody: { ref: "User" },
+        },
+        {
+          kind: "model",
+          name: "User",
+          props: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+        },
+      ])
+    })
+  })
+})
+
+describe("buildOperationIR", () => {
+  context("should build Operation IR", () => {
+    it("with basic operation", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+        },
+      }
+
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+      })
+    })
+    it("with request schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "post",
+          path: "/hello",
+          request: {
+            body: {
+              type: "object",
+              properties: {
+                name: { type: "string" },
+                email: { type: "string" },
+              },
+              required: ["name", "email"],
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "post",
+        route: "/hello",
+        requestBody: {
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+      })
+    })
+    it("with named request schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          request: {
+            body: "User",
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        requestBody: { ref: "User" },
+      })
+    })
+    it("with path parameters", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello/:name",
+          request: {
+            path: {
+              name: true,
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello/:name",
+        parameters: {
+          name: { type: "string", required: true },
+        },
+        http: {
+          params: ["name"],
+        },
+      })
+    })
+    it("with response schema", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          responses: [
+            {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
+              },
+            },
+          ],
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: [
+          {
+            statusCode: 200,
+            body: {
+              name: { type: "string", required: true },
+            },
+          },
+        ],
+      })
+    })
+    it("with reference response", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          responses: ["HelloResponse"],
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: { union: [{ ref: "HelloResponse" }] },
+      })
+    })
+    it("with multiple response schemas", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          responses: [
+            {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
+              },
+            },
+            {
+              statusCode: 404,
+              body: {
+                type: "object",
+                properties: {
+                  message: { type: "string" },
+                },
+                required: ["message"],
+              },
+            },
+          ],
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: [
+          {
+            statusCode: 200,
+            body: {
+              name: { type: "string", required: true },
+            },
+          },
+          {
+            statusCode: 404,
+            body: {
+              message: { type: "string", required: true },
+            },
+          },
+        ],
+      })
+    })
+    it("with multiple reference responses", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          responses: ["HelloResponse", "NotFoundResponse"],
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: {
+          union: [{ ref: "HelloResponse" }, { ref: "NotFoundResponse" }],
+        },
+      })
+    })
+    it("with multiple complex responses", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          responses: [
+            {
+              statusCode: 200,
+              body: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+                required: ["name"],
+              },
+            },
+            {
+              statusCode: 404,
+              body: "NotFoundResponse",
+            },
+          ],
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "get",
+        route: "/hello",
+        returnType: [
+          {
+            statusCode: 200,
+            body: {
+              name: { type: "string", required: true },
+            },
+          },
+          {
+            statusCode: 404,
+            body: { ref: "NotFoundResponse" },
+          },
+        ],
+      })
+    })
   })
 })

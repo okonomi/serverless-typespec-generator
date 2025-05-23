@@ -84,7 +84,6 @@ export type Serverless = Replace<ServerlessOrigin, "service", ServiceWithDoc>
 
 export type TypeSpecGeneratorOptions = ServerlessOrigin.Options & {
   "output-dir": string
-  "experimental-serverless-ir"?: boolean
 }
 
 export namespace Serverless {
