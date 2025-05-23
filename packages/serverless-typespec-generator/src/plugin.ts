@@ -27,11 +27,6 @@ export class ServerlessTypeSpecGenerator implements Plugin {
                 required: true,
                 type: "string",
               },
-              "experimental-serverless-ir": {
-                usage: "Use serverless IR",
-                required: false,
-                type: "boolean",
-              },
             },
           },
         },
