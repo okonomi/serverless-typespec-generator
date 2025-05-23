@@ -32,3 +32,7 @@ functions:
                   - email
           documentation:
             summary: Create user
+            description: |-
+              Create a user with the given name and email.
+
+              This is a multi-line description.
