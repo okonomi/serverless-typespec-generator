@@ -8,7 +8,7 @@ namespace GeneratedApi;
 @summary("Create user")
 @doc("""
   Create a user with the given name and email.
-
+  
   This is a multi-line description.
   """)
 @route("/users")
