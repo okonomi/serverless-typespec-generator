@@ -749,5 +749,24 @@ describe("buildOperationIR", () => {
         ],
       })
     })
+    it("with summary", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "get",
+          path: "/hello",
+          summary: "Say hello",
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        summary: "Say hello",
+        method: "get",
+        route: "/hello",
+      })
+    })
   })
 })

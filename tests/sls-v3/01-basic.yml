@@ -30,3 +30,5 @@ functions:
                 required:
                   - name
                   - email
+          documentation:
+            summary: Create user

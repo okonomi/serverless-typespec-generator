@@ -446,5 +446,26 @@ describe("emitOperation", () => {
       op getUser(@path id: string): User;
     `)
     })
+    it("with simple summary", async () => {
+      const operation: TypeSpecOperationIR = {
+        kind: "operation",
+        name: "hello",
+        summary: "Say hello",
+        method: "get",
+        route: "/hello",
+        returnType: {
+          message: { type: "string", required: true },
+        },
+      }
+      const result = emitOperation(operation)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        @summary("Say hello")
+        @route("/hello")
+        @get
+        op hello(): {
+          message: string;
+        };
+      `)
+    })
   })
 })

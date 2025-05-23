@@ -91,6 +91,9 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
     returnType = renderType(operation.returnType)
   }
 
+  if (operation.summary) {
+    lines.push(`@summary("${operation.summary}")`)
+  }
   lines.push(`@route("${operation.route}")`)
   lines.push(`@${operation.method}`)
   lines.push(`op ${operation.name}(${parameters.join(", ")}): ${returnType};`)

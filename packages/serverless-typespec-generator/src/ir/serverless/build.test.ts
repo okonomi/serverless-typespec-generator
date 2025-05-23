@@ -653,5 +653,36 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with summary", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "get",
+                path: "/hello",
+                documentation: {
+                  summary: "Say hello",
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "get",
+            path: "/hello",
+            summary: "Say hello",
+          },
+        },
+      ])
+    })
   })
 })

@@ -147,6 +147,10 @@ export function buildOperationIR(
     route: func.event.path,
   }
 
+  if (func.event.summary) {
+    operation.summary = func.event.summary
+  }
+
   const request = func.event.request
   if (request) {
     const body = request.body
