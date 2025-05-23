@@ -225,6 +225,38 @@ describe("emitModel", () => {
       }
     `)
     })
+    it("with field's description", async () => {
+      const model: TypeSpecModelIR = {
+        kind: "model",
+        name: "TestModel",
+        props: {
+          id: {
+            type: "string",
+            required: true,
+            description: "User ID",
+          },
+          age: {
+            type: "numeric",
+            required: false,
+            description: "User age",
+          },
+        },
+      }
+      const result = emitModel(model)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      model TestModel {
+        @doc("""
+          User ID
+          """)
+        id: string;
+
+        @doc("""
+          User age
+          """)
+        age?: numeric;
+      }
+    `)
+    })
   })
 })
 
