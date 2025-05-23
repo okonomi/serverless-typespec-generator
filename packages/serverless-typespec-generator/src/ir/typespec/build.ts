@@ -151,6 +151,10 @@ export function buildOperationIR(
     operation.summary = func.event.summary
   }
 
+  if (func.event.description) {
+    operation.description = func.event.description
+  }
+
   const request = func.event.request
   if (request) {
     const body = request.body
