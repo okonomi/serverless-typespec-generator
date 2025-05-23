@@ -16,6 +16,13 @@ namespace GeneratedApi;
 op createUser(@body body: User): void;
 
 model User {
+  @doc("""
+    User's name.
+    """)
   name: string;
+
+  @doc("""
+    User's email address.
+    """)
   email: string;
 }

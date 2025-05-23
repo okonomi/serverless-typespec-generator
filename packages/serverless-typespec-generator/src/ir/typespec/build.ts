@@ -46,6 +46,9 @@ export function extractProps(schema: JSONSchema): Record<string, PropIR> {
       type: convertType(def),
       required: required.has(key),
     }
+    if (def.description) {
+      props[key].description = def.description
+    }
   }
 
   return props

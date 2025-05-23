@@ -58,6 +58,11 @@ export function emitModel(model: TypeSpecModelIR): string {
   for (const [name, prop] of Object.entries(model.props)) {
     const type = renderType(prop.type)
     const optional = prop.required ? "" : "?"
+    if (prop.description) {
+      lines.push('@doc("""')
+      lines.push(prop.description)
+      lines.push('""")')
+    }
     lines.push(`${name}${optional}: ${type};`)
   }
   lines.push("}")

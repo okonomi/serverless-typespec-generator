@@ -36,6 +36,7 @@ export type HttpResponseIR = {
 export type PropIR = {
   type: PropTypeIR
   required: boolean
+  description?: string
 }
 
 export type PropTypeIR =
