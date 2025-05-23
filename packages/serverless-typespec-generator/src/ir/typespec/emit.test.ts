@@ -467,5 +467,28 @@ describe("emitOperation", () => {
         };
       `)
     })
+    it("with description", async () => {
+      const operation: TypeSpecOperationIR = {
+        kind: "operation",
+        name: "hello",
+        description: "Say hello",
+        method: "get",
+        route: "/hello",
+        returnType: {
+          message: { type: "string", required: true },
+        },
+      }
+      const result = emitOperation(operation)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        @doc("""
+          Say hello
+          """)
+        @route("/hello")
+        @get
+        op hello(): {
+          message: string;
+        };
+      `)
+    })
   })
 })

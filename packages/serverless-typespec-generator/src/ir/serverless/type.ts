@@ -17,6 +17,7 @@ export type ServerlessFunctionIR = {
 
 export type ServerlessHttpEventIR = {
   summary?: string
+  description?: string
   method: "get" | "post" | "put" | "delete" | "patch"
   path: string
   request?: ServerlessHttpRequestIR
