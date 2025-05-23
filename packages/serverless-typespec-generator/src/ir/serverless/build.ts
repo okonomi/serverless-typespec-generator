@@ -89,6 +89,10 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       func.event.summary = http.documentation.summary
     }
 
+    if (http.documentation?.description) {
+      func.event.description = http.documentation.description
+    }
+
     const pathParams = http.documentation?.pathParams
     if (pathParams) {
       func.event.request ??= {}
