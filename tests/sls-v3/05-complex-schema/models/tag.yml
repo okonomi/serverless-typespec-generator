@@ -4,10 +4,12 @@ allOf:
     properties:
       slug:
         type: string
+        description: Tag slug
   - type: object
     properties:
       name:
         type: string
+        description: Tag name
   - type: object
     required:
       - slug

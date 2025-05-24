@@ -106,6 +106,44 @@ describe("jsonSchemaToTypeSpecIR", () => {
         },
       })
     })
+    it("with allOf and description to IR", () => {
+      const schema: JSONSchema = {
+        type: "object",
+        allOf: [
+          {
+            type: "object",
+            properties: {
+              id: { type: "string", description: "User ID" },
+            },
+            required: ["id"],
+          },
+          {
+            type: "object",
+            properties: {
+              age: { type: "integer", description: "User age" },
+            },
+            required: ["age"],
+          },
+        ],
+      }
+      const result = jsonSchemaToTypeSpecIR(schema, "Model")
+      expect(result).toStrictEqual<TypeSpecIR>({
+        kind: "model",
+        name: "Model",
+        props: {
+          id: {
+            type: "string",
+            required: true,
+            description: "User ID",
+          },
+          age: {
+            type: "numeric",
+            required: true,
+            description: "User age",
+          },
+        },
+      })
+    })
     it("with array properties to IR", () => {
       const schema: JSONSchema = {
         type: "object",

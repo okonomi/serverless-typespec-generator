@@ -40,6 +40,13 @@ op getPosts(): {
 };
 
 alias Tags = {
+  @doc("""
+    Tag slug
+    """)
   slug: string;
+
+  @doc("""
+    Tag name
+    """)
   name: string;
 }[];
