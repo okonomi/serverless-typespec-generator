@@ -67,6 +67,23 @@ export class ServerlessTypeSpecGenerator implements Plugin {
         await this.generate()
       },
     }
+
+    this.serverless.configSchemaHandler.defineCustomProperties({
+      type: "object",
+      properties: {
+        typespecGenerator: {
+          type: "object",
+          properties: {
+            openapiVersion: {
+              type: "string",
+              description: "OpenAPI version to use for TypeSpec generation",
+              enum: ["3.0.0", "3.1.0"],
+              default: "3.1.0",
+            },
+          },
+        },
+      },
+    })
   }
 
   async generate() {
@@ -82,6 +99,10 @@ export class ServerlessTypeSpecGenerator implements Plugin {
   }
 
   async generateTspConfig(outputDir: string) {
+    const openapiVersion =
+      this.serverless.service.custom?.typespecGenerator?.openapiVersion ||
+      "3.1.0"
+
     await this.serverless.utils.writeFile(
       path.join(outputDir, "tspconfig.yaml"),
       `emit:
@@ -90,7 +111,7 @@ options:
   "@typespec/openapi3":
     emitter-output-dir: "{output-dir}/schema"
     openapi-versions:
-      - 3.1.0
+      - ${openapiVersion}
 `,
     )
   }
