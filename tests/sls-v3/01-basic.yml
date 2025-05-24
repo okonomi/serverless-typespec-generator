@@ -10,6 +10,10 @@ provider:
   region: ap-northeast-1
   stage: dev
 
+custom:
+  typespecGenerator:
+    openapiVersion: 3.0.0
+
 functions:
   createUser:
     handler: handler.createUser
