@@ -28,6 +28,12 @@ for yml in "${ymls[@]}"; do
     echo "fail"
     FAILED_TESTS+=("$yml")
   fi
+  if diff -u --color "$name/expected/tspconfig.yaml" "$name/actual/tspconfig.yaml"; then
+    echo "success"
+  else
+    echo "fail"
+    FAILED_TESTS+=("$yml")
+  fi
 done
 
 if [ ${#FAILED_TESTS[@]} -gt 0 ]; then
