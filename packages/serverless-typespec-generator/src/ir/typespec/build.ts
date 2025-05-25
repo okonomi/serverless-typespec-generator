@@ -173,6 +173,9 @@ export function buildOperationIR(
           required: true,
         }
       }
+      if (body.description) {
+        operation.requestBody.description = body.description
+      }
     }
     const pathParams = request.path
     if (pathParams) {

@@ -862,5 +862,40 @@ describe("buildOperationIR", () => {
         route: "/hello",
       })
     })
+    it("with request body description", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "post",
+          path: "/hello",
+          request: {
+            body: {
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+              },
+              description: "Request body for hello",
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "post",
+        route: "/hello",
+        requestBody: {
+          type: {
+            name: { type: "string", required: false },
+          },
+          required: true,
+          description: "Request body for hello",
+        },
+      })
+    })
   })
 })
