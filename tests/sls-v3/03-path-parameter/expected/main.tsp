@@ -7,7 +7,13 @@ namespace GeneratedApi;
 
 @route("/users/{id}")
 @get
-op getUser(@path id: string): {
+op getUser(
+  @doc("""
+    The ID of the user to retrieve
+    """)
+  @path
+  id: string,
+): {
   @statusCode statusCode: 200;
   @body body: User;
 };
