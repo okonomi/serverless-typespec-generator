@@ -162,14 +162,14 @@ export function buildOperationIR(
   if (request) {
     const body = request.body
     if (body) {
-      if (typeof body === "string") {
+      if (typeof body.schema === "string") {
         operation.requestBody = {
-          type: { ref: modelRef(body) },
+          type: { ref: modelRef(body.schema) },
           required: true,
         }
       } else {
         operation.requestBody = {
-          type: convertType(body),
+          type: convertType(body.schema),
           required: true,
         }
       }
