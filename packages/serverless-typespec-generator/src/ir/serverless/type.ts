@@ -25,7 +25,10 @@ export type ServerlessHttpEventIR = {
 }
 
 export type ServerlessHttpRequestIR = {
-  body?: JSONSchema | string
+  body?: {
+    schema: JSONSchema | string
+    description?: string
+  }
   path?: Record<string, boolean>
   // query?: Record<string, boolean>
   // headers?: Record<string, boolean>

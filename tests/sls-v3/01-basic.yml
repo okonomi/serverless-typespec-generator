@@ -42,3 +42,8 @@ functions:
               Create a user with the given name and email.
 
               This is a multi-line description.
+            requestBody:
+              description: |-
+                User object to create.
+
+                This is a multi-line description.

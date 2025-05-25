@@ -25,6 +25,10 @@ export type HttpEventDocumentation = {
     name: string
     schema: { type: "string" }
   }[]
+  requestBody?: {
+    description?: string
+    required?: boolean
+  }
   methodResponses?: {
     statusCode: number
     responseModels?: {

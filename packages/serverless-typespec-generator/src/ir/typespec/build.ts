@@ -162,10 +162,19 @@ export function buildOperationIR(
   if (request) {
     const body = request.body
     if (body) {
-      if (typeof body === "string") {
-        operation.requestBody = { ref: modelRef(body) }
+      if (typeof body.schema === "string") {
+        operation.requestBody = {
+          type: { ref: modelRef(body.schema) },
+          required: true,
+        }
       } else {
-        operation.requestBody = convertType(body)
+        operation.requestBody = {
+          type: convertType(body.schema),
+          required: true,
+        }
+      }
+      if (body.description) {
+        operation.requestBody.description = body.description
       }
     }
     const pathParams = request.path

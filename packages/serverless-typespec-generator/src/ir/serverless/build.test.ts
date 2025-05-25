@@ -275,7 +275,7 @@ describe("buildServerlessIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              body: "User",
+              body: { schema: "User" },
             },
           },
         },
@@ -310,7 +310,7 @@ describe("buildServerlessIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              body: "user",
+              body: { schema: "user" },
             },
           },
         },
@@ -711,6 +711,63 @@ describe("buildServerlessIR", () => {
             description: "Say hello",
             method: "get",
             path: "/hello",
+          },
+        },
+      ])
+    })
+    it("with request body description", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "post",
+                path: "/hello",
+                request: {
+                  schemas: {
+                    "application/json": {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        email: { type: "string" },
+                      },
+                      required: ["name", "email"],
+                    },
+                  },
+                },
+                documentation: {
+                  requestBody: {
+                    description: "User data",
+                  },
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "post",
+            path: "/hello",
+            request: {
+              body: {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["name", "email"],
+                },
+                description: "User data",
+              },
+            },
           },
         },
       ])

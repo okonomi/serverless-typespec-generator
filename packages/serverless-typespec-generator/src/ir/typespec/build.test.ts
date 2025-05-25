@@ -287,9 +287,11 @@ describe("buildTypeSpecIR", () => {
             path: "/hello",
             request: {
               body: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                  },
                 },
               },
             },
@@ -304,7 +306,10 @@ describe("buildTypeSpecIR", () => {
           method: "post",
           route: "/hello",
           requestBody: {
-            name: { type: "string", required: false },
+            type: {
+              name: { type: "string", required: false },
+            },
+            required: true,
           },
         },
       ])
@@ -512,7 +517,7 @@ describe("buildTypeSpecIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              body: "user",
+              body: { schema: "user" },
             },
           },
         },
@@ -524,7 +529,7 @@ describe("buildTypeSpecIR", () => {
           name: "hello",
           method: "get",
           route: "/hello",
-          requestBody: { ref: "User" },
+          requestBody: { type: { ref: "User" }, required: true },
         },
         {
           kind: "model",
@@ -568,12 +573,14 @@ describe("buildOperationIR", () => {
           path: "/hello",
           request: {
             body: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                email: { type: "string" },
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  email: { type: "string" },
+                },
+                required: ["name", "email"],
               },
-              required: ["name", "email"],
             },
           },
         },
@@ -585,8 +592,11 @@ describe("buildOperationIR", () => {
         method: "post",
         route: "/hello",
         requestBody: {
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
+          type: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+          required: true,
         },
       })
     })
@@ -598,7 +608,7 @@ describe("buildOperationIR", () => {
           method: "get",
           path: "/hello",
           request: {
-            body: "User",
+            body: { schema: "User" },
           },
         },
       }
@@ -608,7 +618,7 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        requestBody: { ref: "User" },
+        requestBody: { type: { ref: "User" }, required: true },
       })
     })
     it("with path parameters", () => {
@@ -850,6 +860,41 @@ describe("buildOperationIR", () => {
         description: "Say hello",
         method: "get",
         route: "/hello",
+      })
+    })
+    it("with request body description", () => {
+      const slsIR: ServerlessFunctionIR = {
+        kind: "function",
+        name: "hello",
+        event: {
+          method: "post",
+          path: "/hello",
+          request: {
+            body: {
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                },
+              },
+              description: "Request body for hello",
+            },
+          },
+        },
+      }
+      const result = buildOperationIR(slsIR, new Registry<TypeSpecIR>())
+      expect(result).toStrictEqual<TypeSpecOperationIR>({
+        kind: "operation",
+        name: "hello",
+        method: "post",
+        route: "/hello",
+        requestBody: {
+          type: {
+            name: { type: "string", required: false },
+          },
+          required: true,
+          description: "Request body for hello",
+        },
       })
     })
   })
