@@ -73,11 +73,17 @@ type ServerlessServiceProviderWithSchemas = ReplaceByPath<
   >
 >
 
+type ServiceCustom = {
+  typespecGenerator?: {
+    openapiVersion?: "3.0.0" | "3.1.0"
+  }
+}
+
 export type ServiceWithDoc = Omit<
   Service,
   "custom" | "provider" | "functions" | "getAllEventsInFunction"
 > & {
-  custom?: Service.Custom
+  custom?: ServiceCustom
   provider: ServerlessServiceProviderWithSchemas
   functions: FunctionsWithDocumentation
   getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
