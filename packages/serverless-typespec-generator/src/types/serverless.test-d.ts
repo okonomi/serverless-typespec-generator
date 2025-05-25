@@ -29,4 +29,7 @@ describe("Serverless", () => {
     type Schema = Schemas[keyof Schemas]
     expectTypeOf<Schema["schema"]>().toEqualTypeOf<JSONSchema>()
   })
+  it("should service.custom be optional", () => {
+    expectTypeOf<Serverless["service"]["custom"]>().toBeNullable()
+  })
 })

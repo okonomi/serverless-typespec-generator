@@ -75,8 +75,9 @@ type ServerlessServiceProviderWithSchemas = ReplaceByPath<
 
 export type ServiceWithDoc = Omit<
   Service,
-  "provider" | "functions" | "getAllEventsInFunction"
+  "custom" | "provider" | "functions" | "getAllEventsInFunction"
 > & {
+  custom?: Service.Custom
   provider: ServerlessServiceProviderWithSchemas
   functions: FunctionsWithDocumentation
   getAllEventsInFunction(functionName: string): FunctionEventWithDocumentation[]
