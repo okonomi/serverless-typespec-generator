@@ -9,7 +9,7 @@ export type TypeSpecAliasIR = {
 export type TypeSpecModelIR = {
   kind: "model"
   name: string
-  props: Record<string, PropIR>
+  props: PropsType
 }
 
 export type TypeSpecOperationIR = {
@@ -43,7 +43,7 @@ export type PropTypeIR =
   | PrimitiveType
   | RefType
   | UnionType
-  | Record<string, PropIR>
+  | PropsType
   | PropTypeIR[]
 
 export type PrimitiveType = "numeric" | "string" | "boolean" | "null"
@@ -55,6 +55,8 @@ export type RefType = {
 export type UnionType = {
   union: PropTypeIR[]
 }
+
+export type PropsType = Record<string, PropIR>
 
 export function isHttpResponse(type: unknown): type is HttpResponseIR {
   return (
@@ -75,7 +77,7 @@ export function isPropType(type: unknown): type is PropTypeIR {
     isPrimitiveType(type) ||
     isRefType(type) ||
     isUnionType(type) ||
-    isObjectType(type) ||
+    isPropsType(type) ||
     isArrayType(type)
   )
 }
@@ -97,7 +99,7 @@ export function isUnionType(type: unknown): type is UnionType {
   return typeof type === "object" && type !== null && "union" in type
 }
 
-export function isObjectType(type: unknown): type is Record<string, PropIR> {
+export function isPropsType(type: unknown): type is PropsType {
   return typeof type === "object" && !isRefType(type)
 }
 

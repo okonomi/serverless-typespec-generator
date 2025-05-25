@@ -4,8 +4,8 @@ import {
   isArrayType,
   isHttpResponse,
   isHttpResponses,
-  isObjectType,
   isPrimitiveType,
+  isPropsType,
   isRefType,
   isUnionType,
 } from "./type"
@@ -85,14 +85,14 @@ describe("isUnionType", () => {
   })
 })
 
-describe("isObjectType", () => {
-  it("should return true for an object type", () => {
-    const result = isObjectType({})
+describe("isPropsType", () => {
+  it("should return true for a props type", () => {
+    const result = isPropsType({})
     expect(result).toBe(true)
   })
 
-  it("should return false for a non-object type", () => {
-    const result = isObjectType("string")
+  it("should return false for a non-props type", () => {
+    const result = isPropsType("string")
     expect(result).toBe(false)
   })
 })

@@ -7,8 +7,8 @@ import { Registry } from "~/registry"
 import type { JSONSchema } from "~/types/json-schema"
 import { NotImplementedError } from "./error"
 import type {
-  PropIR,
   PropTypeIR,
+  PropsType,
   TypeSpecAliasIR,
   TypeSpecIR,
   TypeSpecModelIR,
@@ -31,7 +31,7 @@ export function jsonSchemaToTypeSpecIR(
   throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
-export function extractProps(schema: JSONSchema): Record<string, PropIR> {
+export function extractProps(schema: JSONSchema): PropsType {
   if (schema.allOf) {
     return mergeAllOfObjectSchemas(schema.allOf)
   }
@@ -39,7 +39,7 @@ export function extractProps(schema: JSONSchema): Record<string, PropIR> {
   const required = new Set(
     Array.isArray(schema.required) ? schema.required : [],
   )
-  const props: Record<string, PropIR> = {}
+  const props: PropsType = {}
 
   for (const [key, def] of Object.entries(schema.properties || {})) {
     props[key] = {
@@ -54,9 +54,9 @@ export function extractProps(schema: JSONSchema): Record<string, PropIR> {
   return props
 }
 
-function mergeAllOfObjectSchemas(allOf: JSONSchema[]): Record<string, PropIR> {
+function mergeAllOfObjectSchemas(allOf: JSONSchema[]): PropsType {
   const required = new Set<string>()
-  let props: Record<string, PropIR> = {}
+  let props: PropsType = {}
   for (const subSchema of allOf) {
     if (subSchema.type !== "object") {
       throw new NotImplementedError(
