@@ -102,6 +102,18 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       }
     }
 
+    const requestBody = http.documentation?.requestBody
+    if (requestBody) {
+      if (!func.event?.request?.body) {
+        throw new Error(
+          `${functionName} has requestBody but no request body defined`,
+        )
+      }
+      if (requestBody.description) {
+        func.event.request.body.description = requestBody.description
+      }
+    }
+
     const responses = http.documentation?.methodResponses
     if (responses) {
       func.event.responses = []

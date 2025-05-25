@@ -715,5 +715,62 @@ describe("buildServerlessIR", () => {
         },
       ])
     })
+    it("with request body description", () => {
+      const serverless = createServerlessMock({
+        hello: {
+          name: "hello",
+          handler: "handler.hello",
+          events: [
+            {
+              http: {
+                method: "post",
+                path: "/hello",
+                request: {
+                  schemas: {
+                    "application/json": {
+                      type: "object",
+                      properties: {
+                        name: { type: "string" },
+                        email: { type: "string" },
+                      },
+                      required: ["name", "email"],
+                    },
+                  },
+                },
+                documentation: {
+                  requestBody: {
+                    description: "User data",
+                  },
+                },
+              },
+            },
+          ],
+        },
+      })
+      const result = buildServerlessIR(serverless)
+      expect(result).toStrictEqual<ServerlessIR[]>([
+        {
+          kind: "function",
+          name: "hello",
+          event: {
+            method: "post",
+            path: "/hello",
+            request: {
+              body: {
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                    email: { type: "string" },
+                  },
+                  required: ["name", "email"],
+                },
+                description: "User data",
+              },
+            },
+          },
+        },
+      ])
+    })
   })
 })
