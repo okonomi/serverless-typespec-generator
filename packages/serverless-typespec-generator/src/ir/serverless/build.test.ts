@@ -275,7 +275,7 @@ describe("buildServerlessIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              body: "User",
+              body: { schema: "User" },
             },
           },
         },
@@ -310,7 +310,7 @@ describe("buildServerlessIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              body: "user",
+              body: { schema: "user" },
             },
           },
         },

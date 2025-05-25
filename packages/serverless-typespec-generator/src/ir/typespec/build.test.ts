@@ -287,9 +287,11 @@ describe("buildTypeSpecIR", () => {
             path: "/hello",
             request: {
               body: {
-                type: "object",
-                properties: {
-                  name: { type: "string" },
+                schema: {
+                  type: "object",
+                  properties: {
+                    name: { type: "string" },
+                  },
                 },
               },
             },
@@ -515,7 +517,7 @@ describe("buildTypeSpecIR", () => {
             method: "get",
             path: "/hello",
             request: {
-              body: "user",
+              body: { schema: "user" },
             },
           },
         },
@@ -571,12 +573,14 @@ describe("buildOperationIR", () => {
           path: "/hello",
           request: {
             body: {
-              type: "object",
-              properties: {
-                name: { type: "string" },
-                email: { type: "string" },
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  email: { type: "string" },
+                },
+                required: ["name", "email"],
               },
-              required: ["name", "email"],
             },
           },
         },
@@ -604,7 +608,7 @@ describe("buildOperationIR", () => {
           method: "get",
           path: "/hello",
           request: {
-            body: "User",
+            body: { schema: "User" },
           },
         },
       }
