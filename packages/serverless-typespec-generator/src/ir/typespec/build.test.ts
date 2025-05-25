@@ -304,7 +304,10 @@ describe("buildTypeSpecIR", () => {
           method: "post",
           route: "/hello",
           requestBody: {
-            name: { type: "string", required: false },
+            type: {
+              name: { type: "string", required: false },
+            },
+            required: true,
           },
         },
       ])
@@ -524,7 +527,7 @@ describe("buildTypeSpecIR", () => {
           name: "hello",
           method: "get",
           route: "/hello",
-          requestBody: { ref: "User" },
+          requestBody: { type: { ref: "User" }, required: true },
         },
         {
           kind: "model",
@@ -585,8 +588,11 @@ describe("buildOperationIR", () => {
         method: "post",
         route: "/hello",
         requestBody: {
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
+          type: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+          required: true,
         },
       })
     })
@@ -608,7 +614,7 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        requestBody: { ref: "User" },
+        requestBody: { type: { ref: "User" }, required: true },
       })
     })
     it("with path parameters", () => {

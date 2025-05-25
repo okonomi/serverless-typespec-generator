@@ -20,7 +20,7 @@ export type TypeSpecOperationIR = {
   method: "get" | "post" | "put" | "delete" | "patch"
   route: string
   parameters?: Record<string, PropIR>
-  requestBody?: PropTypeIR
+  requestBody?: PropIR
   returnType?: PropTypeIR | HttpResponseIR[]
 
   http?: {

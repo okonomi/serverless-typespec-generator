@@ -84,7 +84,7 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
   }
 
   if (operation.requestBody) {
-    parameters.push(`@body body: ${renderType(operation.requestBody)}`)
+    parameters.push(`@body body: ${renderType(operation.requestBody.type)}`)
   }
 
   let returnType = "void"

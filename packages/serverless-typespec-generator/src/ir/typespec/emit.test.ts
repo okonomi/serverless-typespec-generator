@@ -20,7 +20,10 @@ describe("emitTypeSpec", () => {
         name: "createUser",
         method: "post",
         route: "/users",
-        requestBody: { ref: "CreateUserRequest" },
+        requestBody: {
+          type: { ref: "CreateUserRequest" },
+          required: true,
+        },
         returnType: [
           {
             statusCode: 201,
@@ -101,8 +104,11 @@ describe("emitIR", () => {
         method: "post",
         route: "/users",
         requestBody: {
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
+          type: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+          required: true,
         },
         returnType: {
           id: { type: "string", required: true },
@@ -301,8 +307,11 @@ describe("emitOperation", () => {
         method: "post",
         route: "/users",
         requestBody: {
-          name: { type: "string", required: true },
-          email: { type: "string", required: true },
+          type: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+          required: true,
         },
         returnType: {
           id: { type: "string", required: true },
