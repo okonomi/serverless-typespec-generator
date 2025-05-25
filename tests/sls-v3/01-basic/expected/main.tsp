@@ -13,7 +13,15 @@ namespace GeneratedApi;
   """)
 @route("/users")
 @post
-op createUser(@body body: User): void;
+op createUser(
+  @doc("""
+    User object to create.
+    
+    This is a multi-line description.
+    """)
+  @body
+  body: User,
+): void;
 
 model User {
   @doc("""
