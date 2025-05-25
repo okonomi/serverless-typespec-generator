@@ -563,5 +563,45 @@ describe("emitOperation", () => {
         };
       `)
     })
+    it("with request body description", async () => {
+      const operation: TypeSpecOperationIR = {
+        kind: "operation",
+        name: "createUser",
+        method: "post",
+        route: "/users",
+        requestBody: {
+          type: {
+            name: { type: "string", required: true },
+            email: { type: "string", required: true },
+          },
+          required: true,
+          description: "Create a new user",
+        },
+        returnType: {
+          id: { type: "string", required: true },
+          name: { type: "string", required: true },
+          email: { type: "string", required: true },
+        },
+      }
+      const result = emitOperation(operation)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        @route("/users")
+        @post
+        op createUser(
+          @doc("""
+            Create a new user
+            """)
+          @body
+          body: {
+            name: string;
+            email: string;
+          },
+        ): {
+          id: string;
+          name: string;
+          email: string;
+        };
+      `)
+    })
   })
 })
