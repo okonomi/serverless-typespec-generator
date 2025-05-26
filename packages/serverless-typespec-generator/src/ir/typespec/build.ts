@@ -180,10 +180,13 @@ export function buildOperationIR(
     const pathParams = request.path
     if (pathParams) {
       operation.parameters = {}
-      for (const [key, required] of Object.entries(pathParams)) {
+      for (const [key, { required, description }] of Object.entries(
+        pathParams,
+      )) {
         operation.parameters[key] = {
           type: "string",
           required,
+          ...(description ? { description } : {}),
         }
       }
       operation.http = {

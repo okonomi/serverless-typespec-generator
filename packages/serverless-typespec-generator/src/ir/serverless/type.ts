@@ -29,7 +29,13 @@ export type ServerlessHttpRequestIR = {
     schema: JSONSchema | string
     description?: string
   }
-  path?: Record<string, boolean>
+  path?: Record<
+    string,
+    {
+      required: boolean
+      description?: string
+    }
+  >
   // query?: Record<string, boolean>
   // headers?: Record<string, boolean>
   // cookies?: Record<string, boolean>

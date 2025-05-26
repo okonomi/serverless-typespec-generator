@@ -324,7 +324,7 @@ describe("buildTypeSpecIR", () => {
             path: "/hello/:name",
             request: {
               path: {
-                name: true,
+                name: { required: true, description: "Name of the user" },
               },
             },
           },
@@ -338,7 +338,11 @@ describe("buildTypeSpecIR", () => {
           method: "get",
           route: "/hello/:name",
           parameters: {
-            name: { type: "string", required: true },
+            name: {
+              type: "string",
+              required: true,
+              description: "Name of the user",
+            },
           },
           http: {
             params: ["name"],
@@ -356,7 +360,7 @@ describe("buildTypeSpecIR", () => {
             path: "/users/{id}",
             request: {
               path: {
-                id: true,
+                id: { required: true },
               },
             },
             responses: [
@@ -630,7 +634,7 @@ describe("buildOperationIR", () => {
           path: "/hello/:name",
           request: {
             path: {
-              name: true,
+              name: { required: true },
             },
           },
         },

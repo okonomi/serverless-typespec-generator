@@ -603,5 +603,32 @@ describe("emitOperation", () => {
         };
       `)
     })
+    it("with path parameters description", async () => {
+      const operation: TypeSpecOperationIR = {
+        kind: "operation",
+        name: "getUser",
+        method: "get",
+        route: "/users/{id}",
+        parameters: {
+          id: { type: "string", required: true, description: "User ID" },
+        },
+        returnType: { ref: "User" },
+        http: {
+          params: ["id"],
+        },
+      }
+      const result = emitOperation(operation)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        @route("/users/{id}")
+        @get
+        op getUser(
+          @doc("""
+            User ID
+            """)
+          @path
+          id: string,
+        ): User;
+      `)
+    })
   })
 })
