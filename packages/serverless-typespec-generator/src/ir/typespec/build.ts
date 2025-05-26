@@ -81,7 +81,7 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): PropsType {
 export function convertType(schema: JSONSchema): PropTypeIR {
   if (schema.oneOf) {
     const types = schema.oneOf.map(convertType)
-    return { union: types }
+    return { __union: types }
   }
 
   if (schema.type === "object" || schema.allOf) {
@@ -199,7 +199,7 @@ export function buildOperationIR(
   if (responses) {
     if (responses.every((res) => typeof res === "string")) {
       operation.returnType = {
-        union: responses.map((res) => ({ __ref: modelRef(res) })),
+        __union: responses.map((res) => ({ __ref: modelRef(res) })),
       }
     } else {
       operation.returnType = responses.map((res) => {

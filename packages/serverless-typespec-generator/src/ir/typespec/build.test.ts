@@ -250,7 +250,7 @@ describe("convertType", () => {
       oneOf: [{ type: "string" }, { type: "null" }],
     }
     const result = convertType(schema)
-    expect(result).toStrictEqual<PropTypeIR>({ union: ["string", "null"] })
+    expect(result).toStrictEqual<PropTypeIR>({ __union: ["string", "null"] })
   })
 })
 
@@ -706,7 +706,7 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        returnType: { union: [{ __ref: "HelloResponse" }] },
+        returnType: { __union: [{ __ref: "HelloResponse" }] },
       })
     })
     it("with multiple response schemas", () => {
@@ -779,7 +779,7 @@ describe("buildOperationIR", () => {
         method: "get",
         route: "/hello",
         returnType: {
-          union: [{ __ref: "HelloResponse" }, { __ref: "NotFoundResponse" }],
+          __union: [{ __ref: "HelloResponse" }, { __ref: "NotFoundResponse" }],
         },
       })
     })

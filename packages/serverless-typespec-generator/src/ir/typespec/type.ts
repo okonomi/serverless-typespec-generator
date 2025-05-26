@@ -53,7 +53,7 @@ export type RefType = {
 }
 
 export type UnionType = {
-  union: PropTypeIR[]
+  __union: PropTypeIR[]
 }
 
 export type PropsType = Record<string, PropIR>
@@ -96,7 +96,7 @@ export function isRefType(type: unknown): type is RefType {
 }
 
 export function isUnionType(type: unknown): type is UnionType {
-  return typeof type === "object" && type !== null && "union" in type
+  return typeof type === "object" && type !== null && "__union" in type
 }
 
 export function isPropsType(type: unknown): type is PropsType {

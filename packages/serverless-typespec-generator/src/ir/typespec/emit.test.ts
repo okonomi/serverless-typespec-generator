@@ -407,7 +407,7 @@ describe("emitOperation", () => {
         method: "get",
         route: "/users/{id}",
         returnType: {
-          union: [
+          __union: [
             {
               id: { type: "string", required: true },
               name: { type: "string", required: true },

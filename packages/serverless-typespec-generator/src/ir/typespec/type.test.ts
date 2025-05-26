@@ -75,7 +75,7 @@ describe("isRefType", () => {
 
 describe("isUnionType", () => {
   it("should return true for a union type", () => {
-    const result = isUnionType({ union: ["string", "numeric"] })
+    const result = isUnionType({ __union: ["string", "numeric"] })
     expect(result).toBe(true)
   })
 

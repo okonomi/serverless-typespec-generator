@@ -165,7 +165,7 @@ function renderType(type: PropTypeIR): string {
   }
 
   if (isUnionType(type)) {
-    return type.union.map(renderType).join(" | ")
+    return type.__union.map(renderType).join(" | ")
   }
 
   const lines: string[] = []
