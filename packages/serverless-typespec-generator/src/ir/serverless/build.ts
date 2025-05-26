@@ -79,8 +79,10 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       if (requestPaths) {
         func.event.request.path ??= {}
         for (const [key, value] of Object.entries(requestPaths)) {
-          func.event.request.path[key] =
-            typeof value === "object" ? (value.required ?? false) : true
+          func.event.request.path[key] = {
+            required:
+              typeof value === "object" ? (value.required ?? false) : true,
+          }
         }
       }
     }
@@ -98,7 +100,10 @@ export function buildServerlessIR(serverless: Serverless): ServerlessIR[] {
       func.event.request ??= {}
       func.event.request.path ??= {}
       for (const param of pathParams) {
-        func.event.request.path[param.name] = true
+        func.event.request.path[param.name] = { required: true }
+        if (param.description) {
+          func.event.request.path[param.name].description = param.description
+        }
       }
     }
 

@@ -23,6 +23,7 @@ export type HttpEventDocumentation = {
   description?: string
   pathParams?: {
     name: string
+    description?: string
     schema: { type: "string" }
   }[]
   requestBody?: {

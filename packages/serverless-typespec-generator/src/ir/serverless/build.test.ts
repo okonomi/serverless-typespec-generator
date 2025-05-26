@@ -407,7 +407,7 @@ describe("buildServerlessIR", () => {
             path: "/hello/:name",
             request: {
               path: {
-                name: true,
+                name: { required: true },
               },
             },
           },
@@ -428,6 +428,7 @@ describe("buildServerlessIR", () => {
                   pathParams: [
                     {
                       name: "name",
+                      description: "The name of the person to greet",
                       schema: { type: "string" },
                     },
                   ],
@@ -447,7 +448,10 @@ describe("buildServerlessIR", () => {
             path: "/hello/:name",
             request: {
               path: {
-                name: true,
+                name: {
+                  required: true,
+                  description: "The name of the person to greet",
+                },
               },
             },
           },
