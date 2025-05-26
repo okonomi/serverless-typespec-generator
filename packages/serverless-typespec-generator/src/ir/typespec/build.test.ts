@@ -324,7 +324,7 @@ describe("buildTypeSpecIR", () => {
             path: "/hello/:name",
             request: {
               path: {
-                name: { required: true },
+                name: { required: true, description: "Name of the user" },
               },
             },
           },
@@ -338,7 +338,11 @@ describe("buildTypeSpecIR", () => {
           method: "get",
           route: "/hello/:name",
           parameters: {
-            name: { type: "string", required: true },
+            name: {
+              type: "string",
+              required: true,
+              description: "Name of the user",
+            },
           },
           http: {
             params: ["name"],
