@@ -95,6 +95,11 @@ describe("isPropsType", () => {
     const result = isPropsType("string")
     expect(result).toBe(false)
   })
+
+  it("should return false for a array type", () => {
+    const result = isPropsType([])
+    expect(result).toBe(false)
+  })
 })
 
 describe("isArrayType", () => {

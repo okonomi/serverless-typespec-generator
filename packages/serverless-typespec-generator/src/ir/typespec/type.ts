@@ -100,7 +100,7 @@ export function isUnionType(type: unknown): type is UnionType {
 }
 
 export function isPropsType(type: unknown): type is PropsType {
-  return typeof type === "object" && !isRefType(type)
+  return typeof type === "object" && !Array.isArray(type) && !isRefType(type)
 }
 
 export function isArrayType(type: unknown): type is PropTypeIR[] {
