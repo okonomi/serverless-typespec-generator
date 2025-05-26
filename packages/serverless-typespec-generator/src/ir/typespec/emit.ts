@@ -88,7 +88,15 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
   const paramEntries = Object.entries(operation.parameters ?? {})
   const pathParams = new Set(operation.http?.params ?? [])
   for (const [name, prop] of paramEntries) {
-    const decorators = pathParams.has(name) ? ["@path"] : []
+    const decorators: string[] = []
+    if (prop.description) {
+      decorators.push('@doc("""')
+      decorators.push(prop.description)
+      decorators.push('""")')
+    }
+    if (pathParams.has(name)) {
+      decorators.push("@path")
+    }
     const type = renderType(prop.type)
     parameters.push(emitParameter(decorators, name, type, prop.required))
   }
