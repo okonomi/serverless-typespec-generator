@@ -21,13 +21,13 @@ describe("emitTypeSpec", () => {
         method: "post",
         route: "/users",
         requestBody: {
-          type: { ref: "CreateUserRequest" },
+          type: { __ref: "CreateUserRequest" },
           required: true,
         },
         returnType: [
           {
             statusCode: 201,
-            body: { ref: "CreateUserResponse" },
+            body: { __ref: "CreateUserResponse" },
           },
         ],
       },
@@ -390,7 +390,7 @@ describe("emitOperation", () => {
         method: "get",
         route: "/users/{id}",
         returnType: {
-          ref: "User",
+          __ref: "User",
         },
       }
       const result = emitOperation(operation)
@@ -507,7 +507,7 @@ describe("emitOperation", () => {
         parameters: {
           id: { type: "string", required: true },
         },
-        returnType: { ref: "User" },
+        returnType: { __ref: "User" },
         http: {
           params: ["id"],
         },
@@ -612,7 +612,7 @@ describe("emitOperation", () => {
         parameters: {
           id: { type: "string", required: true, description: "User ID" },
         },
-        returnType: { ref: "User" },
+        returnType: { __ref: "User" },
         http: {
           params: ["id"],
         },

@@ -161,7 +161,7 @@ function renderType(type: PropTypeIR): string {
   }
 
   if (isRefType(type)) {
-    return type.ref
+    return type.__ref
   }
 
   if (isUnionType(type)) {

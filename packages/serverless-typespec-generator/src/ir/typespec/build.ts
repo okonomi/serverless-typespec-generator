@@ -164,7 +164,7 @@ export function buildOperationIR(
     if (body) {
       if (typeof body.schema === "string") {
         operation.requestBody = {
-          type: { ref: modelRef(body.schema) },
+          type: { __ref: modelRef(body.schema) },
           required: true,
         }
       } else {
@@ -199,20 +199,20 @@ export function buildOperationIR(
   if (responses) {
     if (responses.every((res) => typeof res === "string")) {
       operation.returnType = {
-        union: responses.map((res) => ({ ref: modelRef(res) })),
+        union: responses.map((res) => ({ __ref: modelRef(res) })),
       }
     } else {
       operation.returnType = responses.map((res) => {
         if (typeof res === "string") {
           return {
             statusCode: 200, // TODO: handle status code
-            body: { ref: modelRef(res) },
+            body: { __ref: modelRef(res) },
           }
         }
         if (typeof res.body === "string") {
           return {
             statusCode: res.statusCode,
-            body: { ref: modelRef(res.body) },
+            body: { __ref: modelRef(res.body) },
           }
         }
         return {

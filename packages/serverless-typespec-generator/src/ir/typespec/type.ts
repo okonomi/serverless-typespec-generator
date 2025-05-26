@@ -49,7 +49,7 @@ export type PropTypeIR =
 export type PrimitiveType = "numeric" | "string" | "boolean" | "null"
 
 export type RefType = {
-  ref: string
+  __ref: string
 }
 
 export type UnionType = {
@@ -92,7 +92,7 @@ export function isPrimitiveType(type: unknown): type is PrimitiveType {
 }
 
 export function isRefType(type: unknown): type is RefType {
-  return typeof type === "object" && type !== null && "ref" in type
+  return typeof type === "object" && type !== null && "__ref" in type
 }
 
 export function isUnionType(type: unknown): type is UnionType {

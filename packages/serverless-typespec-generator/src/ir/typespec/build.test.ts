@@ -533,7 +533,7 @@ describe("buildTypeSpecIR", () => {
           name: "hello",
           method: "get",
           route: "/hello",
-          requestBody: { type: { ref: "User" }, required: true },
+          requestBody: { type: { __ref: "User" }, required: true },
         },
         {
           kind: "model",
@@ -622,7 +622,7 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        requestBody: { type: { ref: "User" }, required: true },
+        requestBody: { type: { __ref: "User" }, required: true },
       })
     })
     it("with path parameters", () => {
@@ -706,7 +706,7 @@ describe("buildOperationIR", () => {
         name: "hello",
         method: "get",
         route: "/hello",
-        returnType: { union: [{ ref: "HelloResponse" }] },
+        returnType: { union: [{ __ref: "HelloResponse" }] },
       })
     })
     it("with multiple response schemas", () => {
@@ -779,7 +779,7 @@ describe("buildOperationIR", () => {
         method: "get",
         route: "/hello",
         returnType: {
-          union: [{ ref: "HelloResponse" }, { ref: "NotFoundResponse" }],
+          union: [{ __ref: "HelloResponse" }, { __ref: "NotFoundResponse" }],
         },
       })
     })
@@ -823,7 +823,7 @@ describe("buildOperationIR", () => {
           },
           {
             statusCode: 404,
-            body: { ref: "NotFoundResponse" },
+            body: { __ref: "NotFoundResponse" },
           },
         ],
       })
