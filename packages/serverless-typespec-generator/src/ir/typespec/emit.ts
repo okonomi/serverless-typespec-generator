@@ -1,6 +1,7 @@
 import {
   type HttpResponseIR,
   type PropTypeIR,
+  type PropsType,
   type TypeSpecAliasIR,
   type TypeSpecIR,
   type TypeSpecModelIR,
@@ -9,6 +10,7 @@ import {
   isHttpResponse,
   isHttpResponses,
   isPrimitiveType,
+  isPropsType,
   isRefType,
   isUnionType,
 } from "./type"
@@ -52,22 +54,7 @@ export function emitAlias(alias: TypeSpecAliasIR): string {
 }
 
 export function emitModel(model: TypeSpecModelIR): string {
-  const lines: string[] = []
-
-  lines.push(`model ${model.name} {`)
-  for (const [name, prop] of Object.entries(model.props)) {
-    const type = emitPropType(prop.type)
-    const optional = prop.required ? "" : "?"
-    if (prop.description) {
-      lines.push('@doc("""')
-      lines.push(prop.description)
-      lines.push('""")')
-    }
-    lines.push(`${name}${optional}: ${type};`)
-  }
-  lines.push("}")
-
-  return lines.join("\n")
+  return `model ${model.name} ${emitPropsType(model.props)};`
 }
 
 export function emitOperation(operation: TypeSpecOperationIR): string {
@@ -168,9 +155,17 @@ function emitPropType(type: PropTypeIR): string {
     return type.__union.map(emitPropType).join(" | ")
   }
 
+  if (isPropsType(type)) {
+    return emitPropsType(type)
+  }
+
+  throw new Error(`Unknown prop type: ${type}`)
+}
+
+function emitPropsType(props: PropsType): string {
   const lines: string[] = []
   lines.push("{")
-  for (const [name, prop] of Object.entries(type)) {
+  for (const [name, prop] of Object.entries(props)) {
     const type = emitPropType(prop.type)
     const optional = prop.required ? "" : "?"
     if (prop.description) {
