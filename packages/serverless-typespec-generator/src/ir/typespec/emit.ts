@@ -60,51 +60,19 @@ export function emitModel(model: TypeSpecModelIR): string {
 export function emitOperation(operation: TypeSpecOperationIR): string {
   const lines: string[] = []
 
-  const emitParameter = (
-    decorators: string[],
-    name: string,
-    type: string,
-    required: boolean,
-  ): string => {
-    const decoratorString = decorators.join("\n")
-    const optional = required ? "" : "?"
-    return `${decoratorString} ${name}${optional}: ${type}`
-  }
-
   const parameters: string[] = []
   const paramEntries = Object.entries(operation.parameters ?? {})
   const pathParams = new Set(operation.http?.params ?? [])
   for (const [name, prop] of paramEntries) {
     const decorators: string[] = []
-    if (prop.description) {
-      decorators.push('@doc("""')
-      decorators.push(prop.description)
-      decorators.push('""")')
-    }
     if (pathParams.has(name)) {
       decorators.push("@path")
     }
-    const type = emitPropType(prop.type)
-    parameters.push(emitParameter(decorators, name, type, prop.required))
+    parameters.push(emitProp(name, prop, decorators))
   }
 
   if (operation.requestBody) {
-    const decorators: string[] = []
-    if (operation.requestBody.description) {
-      decorators.push('@doc("""')
-      decorators.push(operation.requestBody.description)
-      decorators.push('""")')
-    }
-    decorators.push("@body")
-
-    parameters.push(
-      emitParameter(
-        decorators,
-        "body",
-        emitPropType(operation.requestBody.type),
-        true,
-      ),
-    )
+    parameters.push(emitProp("body", operation.requestBody, ["@body"]))
   }
 
   let returnType = "void"
@@ -172,7 +140,11 @@ function emitPropsType(props: PropsType): string {
   return lines.join("\n")
 }
 
-function emitProp(name: string, prop: PropIR): string {
+function emitProp(
+  name: string,
+  prop: PropIR,
+  additionalDecorators?: string[],
+): string {
   const decorators: string[] = []
   if (prop.description) {
     decorators.push('@doc("""')
@@ -180,7 +152,9 @@ function emitProp(name: string, prop: PropIR): string {
     decorators.push('""")')
   }
 
-  const decoratorString = decorators.join("\n")
+  const decoratorString = [...decorators, ...(additionalDecorators ?? [])].join(
+    "\n",
+  )
   const optional = prop.required ? "" : "?"
   return `${decoratorString}\n${name}${optional}: ${emitPropType(prop.type)}`
 }

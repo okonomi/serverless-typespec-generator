@@ -59,7 +59,10 @@ describe("emitTypeSpec", () => {
 
       @route("/users")
       @post
-      op createUser(@body body: CreateUserRequest): {
+      op createUser(
+        @body
+        body: CreateUserRequest,
+      ): {
         @statusCode statusCode: 201;
         @body body: CreateUserResponse;
       };
@@ -121,7 +124,8 @@ describe("emitIR", () => {
         @route("/users")
         @post
         op createUser(
-          @body body: {
+          @body
+          body: {
             name: string;
             email: string;
           },
@@ -324,7 +328,8 @@ describe("emitOperation", () => {
       @route("/users")
       @post
       op createUser(
-        @body body: {
+        @body
+        body: {
           name: string;
           email: string;
         },
@@ -514,10 +519,13 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(@path id: string): User;
-    `)
+        @route("/users/{id}")
+        @get
+        op getUser(
+          @path
+          id: string,
+        ): User;
+      `)
     })
     it("with summary", async () => {
       const operation: TypeSpecOperationIR = {
