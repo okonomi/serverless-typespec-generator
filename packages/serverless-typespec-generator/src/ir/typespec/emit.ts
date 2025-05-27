@@ -122,9 +122,9 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
 
   let returnType = "void"
   if (isHttpResponses(operation.returnType)) {
-    returnType = operation.returnType.map(renderHttpResponse).join(" | ")
+    returnType = operation.returnType.map(emitHttpResponse).join(" | ")
   } else if (isHttpResponse(operation.returnType)) {
-    returnType = renderHttpResponse(operation.returnType)
+    returnType = emitHttpResponse(operation.returnType)
   } else if (operation.returnType) {
     returnType = emitPropType(operation.returnType)
   }
@@ -146,7 +146,7 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
   return lines.join("\n")
 }
 
-function renderHttpResponse(r: HttpResponseIR): string {
+function emitHttpResponse(r: HttpResponseIR): string {
   const body = emitPropType(r.body)
   return `{ @statusCode statusCode: ${r.statusCode}; @body body: ${body} }`
 }
