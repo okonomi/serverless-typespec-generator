@@ -8,6 +8,7 @@ import {
   type TypeSpecModelIR,
   type TypeSpecOperationIR,
   isArrayType,
+  isFormatType,
   isHttpResponse,
   isHttpResponses,
   isPrimitiveType,
@@ -152,9 +153,29 @@ function emitProp(
     decorators.push('""")')
   }
 
-  const decoratorString = [...decorators, ...(additionalDecorators ?? [])].join(
-    "\n",
+  const { decorators: propDecorators, type: baseType } = unwrapDecorators(
+    prop.type,
   )
+
+  const decoratorString = [
+    ...decorators,
+    ...propDecorators,
+    ...(additionalDecorators ?? []),
+  ].join("\n")
   const optional = prop.required ? "" : "?"
-  return `${decoratorString}\n${name}${optional}: ${emitPropType(prop.type)}`
+  return `${decoratorString}\n${name}${optional}: ${emitPropType(baseType)}`
+}
+
+function unwrapDecorators(t: PropTypeIR): {
+  decorators: string[]
+  type: PropTypeIR
+} {
+  const decorators: string[] = []
+  let baseType = t
+  if (isFormatType(t)) {
+    baseType = t.type
+    decorators.push(`@format("${t.__format}")`)
+  }
+
+  return { decorators, type: baseType }
 }

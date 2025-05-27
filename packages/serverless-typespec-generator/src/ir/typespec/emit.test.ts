@@ -299,6 +299,49 @@ describe("emitModel", () => {
       }
     `)
     })
+    it("with format type", async () => {
+      const model: TypeSpecModelIR = {
+        kind: "model",
+        name: "DateModel",
+        props: {
+          createdAt: {
+            type: { __format: "date-time", type: "string" },
+            required: true,
+          },
+        },
+      }
+      const result = emitModel(model)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        model DateModel {
+          @format("date-time")
+          createdAt: string;
+        }
+      `)
+    })
+    it("with oneOf and format type", async () => {
+      const model: TypeSpecModelIR = {
+        kind: "model",
+        name: "UserModel",
+        props: {
+          id: { type: "string", required: true },
+          email: {
+            type: {
+              __union: [{ __format: "email", type: "string" }, "null"],
+            },
+            required: true,
+          },
+        },
+      }
+      const result = emitModel(model)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        model UserModel {
+          id: string;
+
+          @format("email")
+          email: string | null;
+        }
+      `)
+    })
   })
 })
 
