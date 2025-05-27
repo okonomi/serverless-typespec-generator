@@ -49,8 +49,7 @@ export function emitIR(ir: TypeSpecIR): string {
 }
 
 export function emitAlias(alias: TypeSpecAliasIR): string {
-  const type = emitPropType(alias.type)
-  return `alias ${alias.name} = ${type};`
+  return `alias ${alias.name} = ${emitPropType(alias.type)};`
 }
 
 export function emitModel(model: TypeSpecModelIR): string {
