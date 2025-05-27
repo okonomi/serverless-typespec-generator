@@ -1,5 +1,6 @@
 import {
   type HttpResponseIR,
+  type PropIR,
   type PropTypeIR,
   type PropsType,
   type TypeSpecAliasIR,
@@ -165,15 +166,21 @@ function emitPropsType(props: PropsType): string {
   const lines: string[] = []
   lines.push("{")
   for (const [name, prop] of Object.entries(props)) {
-    const type = emitPropType(prop.type)
-    const optional = prop.required ? "" : "?"
-    if (prop.description) {
-      lines.push('@doc("""')
-      lines.push(prop.description)
-      lines.push('""")')
-    }
-    lines.push(`${name}${optional}: ${type};`)
+    lines.push(emitProp(name, prop))
   }
   lines.push("}")
   return lines.join("\n")
+}
+
+function emitProp(name: string, prop: PropIR): string {
+  const decorators: string[] = []
+  if (prop.description) {
+    decorators.push('@doc("""')
+    decorators.push(prop.description)
+    decorators.push('""")')
+  }
+
+  const decoratorString = decorators.join("\n")
+  const optional = prop.required ? "" : "?"
+  return `${decoratorString}\n${name}${optional}: ${emitPropType(prop.type)}`
 }
