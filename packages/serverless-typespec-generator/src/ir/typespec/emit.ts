@@ -47,7 +47,7 @@ export function emitIR(ir: TypeSpecIR): string {
 }
 
 export function emitAlias(alias: TypeSpecAliasIR): string {
-  const type = renderType(alias.type)
+  const type = emitPropType(alias.type)
   return `alias ${alias.name} = ${type};`
 }
 
@@ -56,7 +56,7 @@ export function emitModel(model: TypeSpecModelIR): string {
 
   lines.push(`model ${model.name} {`)
   for (const [name, prop] of Object.entries(model.props)) {
-    const type = renderType(prop.type)
+    const type = emitPropType(prop.type)
     const optional = prop.required ? "" : "?"
     if (prop.description) {
       lines.push('@doc("""')
@@ -97,7 +97,7 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
     if (pathParams.has(name)) {
       decorators.push("@path")
     }
-    const type = renderType(prop.type)
+    const type = emitPropType(prop.type)
     parameters.push(emitParameter(decorators, name, type, prop.required))
   }
 
@@ -114,7 +114,7 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
       emitParameter(
         decorators,
         "body",
-        renderType(operation.requestBody.type),
+        emitPropType(operation.requestBody.type),
         true,
       ),
     )
@@ -126,7 +126,7 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
   } else if (isHttpResponse(operation.returnType)) {
     returnType = renderHttpResponse(operation.returnType)
   } else if (operation.returnType) {
-    returnType = renderType(operation.returnType)
+    returnType = emitPropType(operation.returnType)
   }
 
   if (operation.summary) {
@@ -147,17 +147,17 @@ export function emitOperation(operation: TypeSpecOperationIR): string {
 }
 
 function renderHttpResponse(r: HttpResponseIR): string {
-  const body = renderType(r.body)
+  const body = emitPropType(r.body)
   return `{ @statusCode statusCode: ${r.statusCode}; @body body: ${body} }`
 }
 
-function renderType(type: PropTypeIR): string {
+function emitPropType(type: PropTypeIR): string {
   if (isPrimitiveType(type)) {
     return type
   }
 
   if (isArrayType(type)) {
-    return `${renderType(type[0])}[]`
+    return `${emitPropType(type[0])}[]`
   }
 
   if (isRefType(type)) {
@@ -165,13 +165,13 @@ function renderType(type: PropTypeIR): string {
   }
 
   if (isUnionType(type)) {
-    return type.__union.map(renderType).join(" | ")
+    return type.__union.map(emitPropType).join(" | ")
   }
 
   const lines: string[] = []
   lines.push("{")
   for (const [name, prop] of Object.entries(type)) {
-    const type = renderType(prop.type)
+    const type = emitPropType(prop.type)
     const optional = prop.required ? "" : "?"
     if (prop.description) {
       lines.push('@doc("""')
