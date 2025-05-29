@@ -20,7 +20,10 @@ op getUser(
 
 @route("/posts/{id}")
 @get
-op getPost(@path id: string): {
+op getPost(
+  @path
+  id: string,
+): {
   @statusCode statusCode: 200;
   @body body: Post;
 };
