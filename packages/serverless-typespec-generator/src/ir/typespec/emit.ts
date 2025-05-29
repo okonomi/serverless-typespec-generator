@@ -170,8 +170,25 @@ function unwrapDecorators(t: PropTypeIR): {
   decorators: string[]
   type: PropTypeIR
 } {
+  if (isUnionType(t)) {
+    // 各バリアントを再帰的に処理
+    const variants = t.__union
+    const collectedDecs: string[] = []
+    const strippedVariants: PropTypeIR[] = variants.map((v) => {
+      const { decorators: decs, type: base } = unwrapDecorators(v)
+      collectedDecs.push(...decs)
+      return base
+    })
+    // 重複を排除
+    const uniqueDecs = Array.from(new Set(collectedDecs))
+    return {
+      decorators: uniqueDecs,
+      type: { __union: strippedVariants },
+    }
+  }
+
   const decorators: string[] = []
-  let baseType = t
+  let baseType: PropTypeIR = t
   if (isFormatType(t)) {
     baseType = t.type
     decorators.push(`@format("${t.__format}")`)
