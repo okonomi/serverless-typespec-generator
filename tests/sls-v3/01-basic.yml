@@ -32,6 +32,7 @@ functions:
                     description: User's name.
                   email:
                     type: string
+                    format: email
                     description: User's email address.
                 required:
                   - name

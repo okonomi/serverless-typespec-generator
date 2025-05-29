@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 
 import {
   isArrayType,
+  isFormatType,
   isHttpResponse,
   isHttpResponses,
   isPrimitiveType,
@@ -81,6 +82,17 @@ describe("isUnionType", () => {
 
   it("should return false for a non-union type", () => {
     const result = isUnionType("string")
+    expect(result).toBe(false)
+  })
+})
+
+describe("isFormatType", () => {
+  it("should return true for a format type", () => {
+    const result = isFormatType({ __format: "date-time", type: "string" })
+    expect(result).toBe(true)
+  })
+  it("should return false for a non-format type", () => {
+    const result = isFormatType("string")
     expect(result).toBe(false)
   })
 })

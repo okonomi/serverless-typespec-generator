@@ -43,6 +43,7 @@ export type PropTypeIR =
   | PrimitiveType
   | RefType
   | UnionType
+  | FormatType
   | PropsType
   | PropTypeIR[]
 
@@ -54,6 +55,11 @@ export type RefType = {
 
 export type UnionType = {
   __union: PropTypeIR[]
+}
+
+export type FormatType = {
+  __format: string
+  type: PropTypeIR
 }
 
 export type PropsType = Record<string, PropIR>
@@ -77,6 +83,7 @@ export function isPropType(type: unknown): type is PropTypeIR {
     isPrimitiveType(type) ||
     isRefType(type) ||
     isUnionType(type) ||
+    isFormatType(type) ||
     isPropsType(type) ||
     isArrayType(type)
   )
@@ -97,6 +104,10 @@ export function isRefType(type: unknown): type is RefType {
 
 export function isUnionType(type: unknown): type is UnionType {
   return typeof type === "object" && type !== null && "__union" in type
+}
+
+export function isFormatType(type: unknown): type is FormatType {
+  return typeof type === "object" && type !== null && "__format" in type
 }
 
 export function isPropsType(type: unknown): type is PropsType {

@@ -32,5 +32,6 @@ model User {
   @doc("""
     User's email address.
     """)
+  @format("email")
   email: string;
 }

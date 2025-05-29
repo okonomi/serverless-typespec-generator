@@ -252,6 +252,15 @@ describe("convertType", () => {
     const result = convertType(schema)
     expect(result).toStrictEqual<PropTypeIR>({ __union: ["string", "null"] })
   })
+  it("should onvert oneOf type with format to union of types with format", () => {
+    const schema: JSONSchema = {
+      oneOf: [{ type: "string", format: "date-time" }, { type: "null" }],
+    }
+    const result = convertType(schema)
+    expect(result).toStrictEqual<PropTypeIR>({
+      __union: [{ __format: "date-time", type: "string" }, "null"],
+    })
+  })
 })
 
 describe("buildTypeSpecIR", () => {

@@ -88,6 +88,10 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     return extractProps(schema)
   }
 
+  if (schema.format) {
+    return { __format: schema.format, type: convertType({ type: schema.type }) }
+  }
+
   switch (schema.type) {
     case "string":
       return "string"
