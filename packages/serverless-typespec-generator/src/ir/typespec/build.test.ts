@@ -262,6 +262,15 @@ describe("convertType", () => {
       __union: [{ __format: "date-time", type: "string" }, "null"],
     })
   })
+  it("should convert oneOf type with pattern to union of types with pattern", () => {
+    const schema: JSONSchema = {
+      oneOf: [{ type: "string", pattern: "^[a-z]+$" }, { type: "null" }],
+    }
+    const result = convertType(schema)
+    expect(result).toStrictEqual<PropTypeIR>({
+      __union: [{ __pattern: "^[a-z]+$", type: "string" }, "null"],
+    })
+  })
 })
 
 describe("buildTypeSpecIR", () => {

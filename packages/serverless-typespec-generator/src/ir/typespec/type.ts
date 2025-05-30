@@ -44,6 +44,7 @@ export type PropTypeIR =
   | RefType
   | UnionType
   | FormatType
+  | PatternType
   | PropsType
   | PropTypeIR[]
 
@@ -59,6 +60,11 @@ export type UnionType = {
 
 export type FormatType = {
   __format: string
+  type: PropTypeIR
+}
+
+export type PatternType = {
+  __pattern: string
   type: PropTypeIR
 }
 
@@ -108,6 +114,10 @@ export function isUnionType(type: unknown): type is UnionType {
 
 export function isFormatType(type: unknown): type is FormatType {
   return typeof type === "object" && type !== null && "__format" in type
+}
+
+export function isPatternType(type: unknown): type is PatternType {
+  return typeof type === "object" && type !== null && "__pattern" in type
 }
 
 export function isPropsType(type: unknown): type is PropsType {

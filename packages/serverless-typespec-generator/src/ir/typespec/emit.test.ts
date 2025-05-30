@@ -342,6 +342,25 @@ describe("emitModel", () => {
         }
       `)
     })
+    it("with pattern type", async () => {
+      const model: TypeSpecModelIR = {
+        kind: "model",
+        name: "PatternModel",
+        props: {
+          username: {
+            type: { __pattern: "^[a-zA-Z0-9_]{3,16}\\d{2}$", type: "string" },
+            required: true,
+          },
+        },
+      }
+      const result = emitModel(model)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        model PatternModel {
+          @pattern("^[a-zA-Z0-9_]{3,16}\\d{2}$")
+          username: string;
+        }
+      `)
+    })
   })
 })
 

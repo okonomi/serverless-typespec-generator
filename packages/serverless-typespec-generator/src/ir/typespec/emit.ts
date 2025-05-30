@@ -11,6 +11,7 @@ import {
   isFormatType,
   isHttpResponse,
   isHttpResponses,
+  isPatternType,
   isPrimitiveType,
   isPropsType,
   isRefType,
@@ -194,5 +195,16 @@ function unwrapDecorators(t: PropTypeIR): {
     decorators.push(`@format("${t.__format}")`)
   }
 
+  if (isPatternType(t)) {
+    return {
+      decorators: [`@pattern("${escapeRegExp(t.__pattern)}")`],
+      type: t.type,
+    }
+  }
+
   return { decorators, type: baseType }
+}
+
+function escapeRegExp(str: string): string {
+  return str.replace(/\\/g, "\\\\")
 }
