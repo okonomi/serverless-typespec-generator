@@ -11,6 +11,7 @@ import {
   isFormatType,
   isHttpResponse,
   isHttpResponses,
+  isPatternType,
   isPrimitiveType,
   isPropsType,
   isRefType,
@@ -192,6 +193,13 @@ function unwrapDecorators(t: PropTypeIR): {
   if (isFormatType(t)) {
     baseType = t.type
     decorators.push(`@format("${t.__format}")`)
+  }
+
+  if (isPatternType(t)) {
+    return {
+      decorators: [`@pattern("${t.__pattern}")`],
+      type: t.type,
+    }
   }
 
   return { decorators, type: baseType }
