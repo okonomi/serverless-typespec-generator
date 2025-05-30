@@ -119,7 +119,11 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
   // pass 1: build models
   const models = sls
     .filter((ir) => ir.kind === "model")
-    .map((ir) => buildModelIR(ir, modelRegistry))
+    .map((ir) => {
+      const model = buildModelIR(ir)
+      modelRegistry.register(ir.key, model)
+      return model
+    })
 
   // pass 2: build operations
   const operations = sls
@@ -132,11 +136,8 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
 
 export function buildModelIR(
   model: ServerlessModelIR,
-  modelRegistry: Registry<TypeSpecIR>,
 ): TypeSpecModelIR | TypeSpecAliasIR {
-  const m = jsonSchemaToTypeSpecIR(model.schema, model.name)
-  modelRegistry.register(model.key, m)
-  return m
+  return jsonSchemaToTypeSpecIR(model.schema, model.name)
 }
 
 export function buildOperationIR(
