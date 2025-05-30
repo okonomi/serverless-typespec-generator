@@ -1,29 +1,38 @@
 import { describe, expect, it } from "vitest"
-import type { ServerlessFunctionIR, ServerlessIR } from "~/ir/serverless/type"
+import type {
+  ServerlessFunctionIR,
+  ServerlessIR,
+  ServerlessModelIR,
+} from "~/ir/serverless/type"
 import { Registry } from "~/registry"
 import type { JSONSchema } from "~/types/json-schema"
 import {
+  buildModelIR,
   buildOperationIR,
   buildTypeSpecIR,
   convertType,
-  jsonSchemaToTypeSpecIR,
 } from "./build"
 import type { PropTypeIR, TypeSpecIR, TypeSpecOperationIR } from "./type"
 
 const context = describe
 
-describe("jsonSchemaToTypeSpecIR", () => {
-  context("should convert JSON Schema", () => {
+describe("buildModelIR", () => {
+  context("should build Model IR", () => {
     it("with simplified schema to IR", () => {
-      const schema: JSONSchema = {
-        type: "object",
-        properties: {
-          id: { type: "string" },
-          age: { type: "integer" },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "model",
+        name: "Model",
+        schema: {
+          type: "object",
+          properties: {
+            id: { type: "string" },
+            age: { type: "integer" },
+          },
+          required: ["id"],
         },
-        required: ["id"],
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "Model")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
@@ -34,11 +43,16 @@ describe("jsonSchemaToTypeSpecIR", () => {
       })
     })
     it("of array to IR", () => {
-      const schema: JSONSchema = {
-        type: "array",
-        items: { type: "string" },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "tags",
+        name: "Tags",
+        schema: {
+          type: "array",
+          items: { type: "string" },
+        },
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "Tags")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "alias",
         name: "Tags",
@@ -46,25 +60,26 @@ describe("jsonSchemaToTypeSpecIR", () => {
       })
     })
     it("with allOf to IR", () => {
-      const schema: JSONSchema = {
-        allOf: [
-          {
-            type: "object",
-            properties: {
-              id: { type: "string" },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "model",
+        name: "Model",
+        schema: {
+          allOf: [
+            {
+              type: "object",
+              properties: { id: { type: "string" } },
+              required: ["id"],
             },
-            required: ["id"],
-          },
-          {
-            type: "object",
-            properties: {
-              age: { type: "integer" },
+            {
+              type: "object",
+              properties: { age: { type: "integer" } },
+              required: ["age"],
             },
-            required: ["age"],
-          },
-        ],
+          ],
+        },
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "Model")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
@@ -75,28 +90,19 @@ describe("jsonSchemaToTypeSpecIR", () => {
       })
     })
     it("with allOf and required to IR", () => {
-      const schema: JSONSchema = {
-        type: "object",
-        allOf: [
-          {
-            type: "object",
-            properties: {
-              id: { type: "string" },
-            },
-          },
-          {
-            type: "object",
-            properties: {
-              age: { type: "integer" },
-            },
-          },
-          {
-            type: "object",
-            required: ["id", "age"],
-          },
-        ],
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "model",
+        name: "Model",
+        schema: {
+          allOf: [
+            { type: "object", properties: { id: { type: "string" } } },
+            { type: "object", properties: { age: { type: "integer" } } },
+            { type: "object", required: ["id", "age"] },
+          ],
+        },
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "Model")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
@@ -107,52 +113,49 @@ describe("jsonSchemaToTypeSpecIR", () => {
       })
     })
     it("with allOf and description to IR", () => {
-      const schema: JSONSchema = {
-        type: "object",
-        allOf: [
-          {
-            type: "object",
-            properties: {
-              id: { type: "string", description: "User ID" },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "model",
+        name: "Model",
+        schema: {
+          allOf: [
+            {
+              type: "object",
+              properties: { id: { type: "string", description: "User ID" } },
+              required: ["id"],
             },
-            required: ["id"],
-          },
-          {
-            type: "object",
-            properties: {
-              age: { type: "integer", description: "User age" },
+            {
+              type: "object",
+              properties: { age: { type: "integer", description: "User age" } },
+              required: ["age"],
             },
-            required: ["age"],
-          },
-        ],
+          ],
+        },
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "Model")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
         props: {
-          id: {
-            type: "string",
-            required: true,
-            description: "User ID",
-          },
-          age: {
-            type: "numeric",
-            required: true,
-            description: "User age",
-          },
+          id: { type: "string", required: true, description: "User ID" },
+          age: { type: "numeric", required: true, description: "User age" },
         },
       })
     })
     it("with array properties to IR", () => {
-      const schema: JSONSchema = {
-        type: "object",
-        properties: {
-          tags: { type: "array", items: { type: "string" } },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "arrayModel",
+        name: "ArrayModel",
+        schema: {
+          type: "object",
+          properties: {
+            tags: { type: "array", items: { type: "string" } },
+          },
+          required: ["tags"],
         },
-        required: ["tags"],
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "ArrayModel")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "ArrayModel",
@@ -162,57 +165,55 @@ describe("jsonSchemaToTypeSpecIR", () => {
       })
     })
     it("with nested object properties to IR", () => {
-      const schema: JSONSchema = {
-        type: "object",
-        properties: {
-          meta: {
-            type: "object",
-            properties: {
-              name: { type: "string" },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "objectModel",
+        name: "ObjectModel",
+        schema: {
+          type: "object",
+          properties: {
+            meta: {
+              type: "object",
+              properties: { name: { type: "string" } },
+              required: ["name"],
             },
-            required: ["name"],
           },
+          required: ["meta"],
         },
-        required: ["meta"],
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "ObjectModel")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "ObjectModel",
         props: {
           meta: {
-            type: {
-              name: { type: "string", required: true },
-            },
+            type: { name: { type: "string", required: true } },
             required: true,
           },
         },
       })
     })
     it("with description of properties to IR", () => {
-      const schema: JSONSchema = {
-        type: "object",
-        properties: {
-          id: { type: "string", description: "User ID" },
-          age: { type: "integer", description: "User age" },
+      const model: ServerlessModelIR = {
+        kind: "model",
+        key: "model",
+        name: "Model",
+        schema: {
+          type: "object",
+          properties: {
+            id: { type: "string", description: "User ID" },
+            age: { type: "integer", description: "User age" },
+          },
+          required: ["id"],
         },
-        required: ["id"],
       }
-      const result = jsonSchemaToTypeSpecIR(schema, "Model")
+      const result = buildModelIR(model)
       expect(result).toStrictEqual<TypeSpecIR>({
         kind: "model",
         name: "Model",
         props: {
-          id: {
-            type: "string",
-            required: true,
-            description: "User ID",
-          },
-          age: {
-            type: "numeric",
-            required: false,
-            description: "User age",
-          },
+          id: { type: "string", required: true, description: "User ID" },
+          age: { type: "numeric", required: false, description: "User age" },
         },
       })
     })

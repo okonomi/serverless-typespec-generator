@@ -15,22 +15,6 @@ import type {
   TypeSpecOperationIR,
 } from "./type"
 
-export function jsonSchemaToTypeSpecIR(
-  schema: JSONSchema,
-  name: string,
-): TypeSpecAliasIR | TypeSpecModelIR {
-  if (schema.type === "array") {
-    const type = convertType(schema)
-    return { kind: "alias", name, type }
-  }
-  if (schema.type === "object" || schema.allOf) {
-    const props = extractProps(schema)
-    return { kind: "model", name, props }
-  }
-
-  throw new Error(`Unsupported schema type: ${schema.type}`)
-}
-
 export function extractProps(schema: JSONSchema): PropsType {
   if (schema.allOf) {
     return mergeAllOfObjectSchemas(schema.allOf)
@@ -137,7 +121,18 @@ export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
 export function buildModelIR(
   model: ServerlessModelIR,
 ): TypeSpecModelIR | TypeSpecAliasIR {
-  return jsonSchemaToTypeSpecIR(model.schema, model.name)
+  const { schema, name } = model
+
+  if (schema.type === "array") {
+    const type = convertType(schema)
+    return { kind: "alias", name, type }
+  }
+  if (schema.type === "object" || schema.allOf) {
+    const props = extractProps(schema)
+    return { kind: "model", name, props }
+  }
+
+  throw new Error(`Unsupported schema type: ${schema.type}`)
 }
 
 export function buildOperationIR(
