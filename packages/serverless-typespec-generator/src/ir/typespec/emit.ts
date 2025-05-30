@@ -197,10 +197,14 @@ function unwrapDecorators(t: PropTypeIR): {
 
   if (isPatternType(t)) {
     return {
-      decorators: [`@pattern("${t.__pattern}")`],
+      decorators: [`@pattern("${escapeRegExp(t.__pattern)}")`],
       type: t.type,
     }
   }
 
   return { decorators, type: baseType }
+}
+
+function escapeRegExp(str: string): string {
+  return str.replace(/\\/g, "\\\\")
 }
