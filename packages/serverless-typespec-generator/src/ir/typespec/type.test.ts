@@ -5,6 +5,7 @@ import {
   isFormatType,
   isHttpResponse,
   isHttpResponses,
+  isPatternType,
   isPrimitiveType,
   isPropsType,
   isRefType,
@@ -93,6 +94,17 @@ describe("isFormatType", () => {
   })
   it("should return false for a non-format type", () => {
     const result = isFormatType("string")
+    expect(result).toBe(false)
+  })
+})
+
+describe("isPatternType", () => {
+  it("should return true for a pattern type", () => {
+    const result = isPatternType({ __pattern: "^[a-z]+$", type: "string" })
+    expect(result).toBe(true)
+  })
+  it("should return false for a non-pattern type", () => {
+    const result = isPatternType("string")
     expect(result).toBe(false)
   })
 })
