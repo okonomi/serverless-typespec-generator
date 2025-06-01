@@ -182,6 +182,17 @@ describe("emitAlias", () => {
         }[];
       `)
     })
+    it("with literal type", async () => {
+      const ir: TypeSpecIR = {
+        kind: "alias",
+        name: "Status",
+        type: { __literal: "active" },
+      }
+      const result = emitAlias(ir)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      alias Status = "active";
+    `)
+    })
   })
 })
 
@@ -358,6 +369,26 @@ describe("emitModel", () => {
         model PatternModel {
           @pattern("^[a-zA-Z0-9_]{3,16}\\d{2}$")
           username: string;
+        }
+      `)
+    })
+    it("with literal type", async () => {
+      const model: TypeSpecModelIR = {
+        kind: "model",
+        name: "LiteralModel",
+        props: {
+          status: {
+            type: {
+              __union: [{ __literal: "active" }, { __literal: "inactive" }],
+            },
+            required: true,
+          },
+        },
+      }
+      const result = emitModel(model)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        model LiteralModel {
+          status: "active" | "inactive";
         }
       `)
     })
