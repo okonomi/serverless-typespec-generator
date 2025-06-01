@@ -6,6 +6,14 @@ properties:
     type: string
   email:
     type: string
+  status:
+    oneOf:
+      - type: string
+      - type: "null"
+    enum:
+      - active
+      - inactive
+      - banned
 required:
   - id
   - name
