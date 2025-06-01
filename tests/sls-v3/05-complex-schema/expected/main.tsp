@@ -16,6 +16,7 @@ op getPost(
     id: string;
     title: string;
     content: string;
+    status: "draft" | "in_review" | "published" | "archived";
     author: {
       id: string;
       name: string;
@@ -33,6 +34,7 @@ op getPosts(): {
     id: string;
     title: string;
     content: string;
+    status: "draft" | "in_review" | "published" | "archived";
     author: {
       id: string;
       name: string;
