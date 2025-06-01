@@ -271,6 +271,20 @@ describe("convertType", () => {
       __union: [{ __pattern: "^[a-z]+$", type: "string" }, "null"],
     })
   })
+  it("should convert enum type to union of literals", () => {
+    const schema: JSONSchema = {
+      type: "string",
+      enum: ["red", "green", "blue"],
+    }
+    const result = convertType(schema)
+    expect(result).toStrictEqual<PropTypeIR>({
+      __union: [
+        { __literal: "red" },
+        { __literal: "green" },
+        { __literal: "blue" },
+      ],
+    })
+  })
 })
 
 describe("buildTypeSpecIR", () => {

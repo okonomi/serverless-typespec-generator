@@ -72,6 +72,20 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     return extractProps(schema)
   }
 
+  if (schema.enum) {
+    const types = schema.enum.map((value) => {
+      if (
+        typeof value !== "string" &&
+        typeof value !== "number" &&
+        typeof value !== "boolean"
+      ) {
+        throw new Error(`No supported enum value: ${JSON.stringify(value)}`)
+      }
+      return { __literal: value }
+    })
+    return { __union: types }
+  }
+
   if (schema.format) {
     return { __format: schema.format, type: convertType({ type: schema.type }) }
   }
