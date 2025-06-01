@@ -5,6 +5,7 @@ import {
   isFormatType,
   isHttpResponse,
   isHttpResponses,
+  isLiteralType,
   isPatternType,
   isPrimitiveType,
   isPropsType,
@@ -60,6 +61,22 @@ describe("isPrimitiveType", () => {
   it("should return true for a null type", () => {
     const result = isPrimitiveType("null")
     expect(result).toBe(true)
+  })
+})
+
+describe("isLiteralType", () => {
+  it("should return true for a literal type", () => {
+    expect(isLiteralType({ __literal: "test" })).toBe(true)
+    expect(isLiteralType({ __literal: 123 })).toBe(true)
+    expect(isLiteralType({ __literal: true })).toBe(true)
+  })
+  it("should return false for a non-literal type", () => {
+    expect(isLiteralType("string")).toBe(false)
+    expect(isLiteralType({})).toBe(false)
+    expect(isLiteralType([])).toBe(false)
+    expect(isLiteralType(null)).toBe(false)
+    expect(isLiteralType(undefined)).toBe(false)
+    expect(isLiteralType("null")).toBe(false)
   })
 })
 

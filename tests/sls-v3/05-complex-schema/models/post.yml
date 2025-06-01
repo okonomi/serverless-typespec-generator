@@ -6,6 +6,13 @@ properties:
     type: string
   content:
     type: string
+  status:
+    type: string
+    enum:
+      - draft
+      - in_review
+      - published
+      - archived
   author: ${file(./05-complex-schema/models/user.yml)}
   tags:
     oneOf:
@@ -17,5 +24,6 @@ required:
   - id
   - title
   - content
+  - status
   - author
   - tags

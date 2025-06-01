@@ -41,6 +41,7 @@ export type PropIR = {
 
 export type PropTypeIR =
   | PrimitiveType
+  | LiteralType
   | RefType
   | UnionType
   | FormatType
@@ -49,6 +50,10 @@ export type PropTypeIR =
   | PropTypeIR[]
 
 export type PrimitiveType = "numeric" | "string" | "boolean" | "null"
+
+export type LiteralType = {
+  __literal: string | number | boolean
+}
 
 export type RefType = {
   __ref: string
@@ -101,6 +106,17 @@ export function isPrimitiveType(type: unknown): type is PrimitiveType {
     type === "string" ||
     type === "boolean" ||
     type === "null"
+  )
+}
+
+export function isLiteralType(type: unknown): type is LiteralType {
+  return (
+    typeof type === "object" &&
+    type !== null &&
+    "__literal" in type &&
+    (typeof type.__literal === "string" ||
+      typeof type.__literal === "number" ||
+      typeof type.__literal === "boolean")
   )
 }
 

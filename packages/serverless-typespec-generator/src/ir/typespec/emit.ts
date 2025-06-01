@@ -11,6 +11,7 @@ import {
   isFormatType,
   isHttpResponse,
   isHttpResponses,
+  isLiteralType,
   isPatternType,
   isPrimitiveType,
   isPropsType,
@@ -111,6 +112,10 @@ function emitHttpResponse(r: HttpResponseIR): string {
 function emitPropType(type: PropTypeIR): string {
   if (isPrimitiveType(type)) {
     return type
+  }
+
+  if (isLiteralType(type)) {
+    return JSON.stringify(type.__literal)
   }
 
   if (isArrayType(type)) {
