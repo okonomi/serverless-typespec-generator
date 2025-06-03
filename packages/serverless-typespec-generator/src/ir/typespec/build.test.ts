@@ -285,6 +285,22 @@ describe("convertType", () => {
       ],
     })
   })
+  it("should convert enum type with nullable to union of literals and null", () => {
+    const schema: JSONSchema = {
+      type: "string",
+      oneOf: [{ type: "string" }, { type: "null" }],
+      enum: ["red", "green", "blue"],
+    }
+    const result = convertType(schema)
+    expect(result).toStrictEqual<PropTypeIR>({
+      __union: [
+        { __literal: "red" },
+        { __literal: "green" },
+        { __literal: "blue" },
+        "null",
+      ],
+    })
+  })
 })
 
 describe("buildTypeSpecIR", () => {

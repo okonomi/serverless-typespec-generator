@@ -63,17 +63,8 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): PropsType {
 }
 
 export function convertType(schema: JSONSchema): PropTypeIR {
-  if (schema.oneOf) {
-    const types = schema.oneOf.map(convertType)
-    return { __union: types }
-  }
-
-  if (schema.type === "object" || schema.allOf) {
-    return extractProps(schema)
-  }
-
   if (schema.enum) {
-    const types = schema.enum.map((value) => {
+    const types: PropTypeIR[] = schema.enum.map((value) => {
       if (
         typeof value !== "string" &&
         typeof value !== "number" &&
@@ -83,7 +74,20 @@ export function convertType(schema: JSONSchema): PropTypeIR {
       }
       return { __literal: value }
     })
+    if (schema.oneOf?.some((v) => v.type === "null")) {
+      types.push("null")
+    }
+
     return { __union: types }
+  }
+
+  if (schema.oneOf) {
+    const types = schema.oneOf.map(convertType)
+    return { __union: types }
+  }
+
+  if (schema.type === "object" || schema.allOf) {
+    return extractProps(schema)
   }
 
   if (schema.format) {
