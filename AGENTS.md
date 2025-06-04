@@ -42,3 +42,10 @@
 ## 備考
 - `README.md` に基本的な使い方の例が記載されています。
 - `vitest` を使用したユニットテストが `packages/serverless-typespec-generator` にあります。
+
+## ブランチ名の作成ルール
+- `feat/<description>`: 新機能
+- `fix/<description>`: バグ修正
+- `chore/<description>`: その他メンテナンス
+- issue 番号を含める場合は `feat/123-description` のようにします。
+
