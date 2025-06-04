@@ -211,5 +211,5 @@ function unwrapDecorators(t: PropTypeIR): {
 }
 
 function escapeRegExp(str: string): string {
-  return str.replace(/\\/g, "\\\\")
+  return str.replace(/\\/g, "\\\\").replace(/"/g, "\\\"")
 }
