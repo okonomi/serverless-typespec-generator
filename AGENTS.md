@@ -48,4 +48,5 @@
 - `fix/<description>`: バグ修正
 - `chore/<description>`: その他メンテナンス
 - issue 番号を含める場合は `feat/123-description` のようにします。
+- ブランチ名にはアルファベットのみを使用してください。
 
