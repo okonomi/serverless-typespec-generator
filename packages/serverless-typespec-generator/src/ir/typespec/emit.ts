@@ -177,7 +177,7 @@ function unwrapDecorators(t: PropTypeIR): {
   type: PropTypeIR
 } {
   if (isUnionType(t)) {
-    // 各バリアントを再帰的に処理
+    // process each variant recursively
     const variants = t.__union
     const collectedDecs: string[] = []
     const strippedVariants: PropTypeIR[] = variants.map((v) => {
@@ -185,7 +185,7 @@ function unwrapDecorators(t: PropTypeIR): {
       collectedDecs.push(...decs)
       return base
     })
-    // 重複を排除
+    // remove duplicates
     const uniqueDecs = Array.from(new Set(collectedDecs))
     return {
       decorators: uniqueDecs,
