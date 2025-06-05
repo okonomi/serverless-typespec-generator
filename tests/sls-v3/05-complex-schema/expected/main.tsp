@@ -21,6 +21,7 @@ op getPost(
       id: string;
       name: string;
       email: string;
+      status?: "active" | "inactive" | "banned" | null;
     };
     tags: string | string[];
   };
@@ -39,6 +40,7 @@ op getPosts(): {
       id: string;
       name: string;
       email: string;
+      status?: "active" | "inactive" | "banned" | null;
     };
     tags: string | string[];
   }[];
