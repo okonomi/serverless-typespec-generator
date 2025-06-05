@@ -123,24 +123,34 @@ export function convertType(schema: JSONSchema): PropTypeIR {
 }
 
 export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
-  const modelRegistry = new Registry<TypeSpecIR>()
+  const registry = new Registry<TypeSpecIR>()
 
-  // pass 1: build models
-  const models = sls
+  const models = buildModels(sls, registry)
+  const operations = buildOperations(sls, registry)
+
+  return [...operations, ...models]
+}
+
+function buildModels(
+  sls: ServerlessIR[],
+  registry: Registry<TypeSpecIR>,
+): TypeSpecIR[] {
+  return sls
     .filter((ir) => ir.kind === "model")
     .map((ir) => {
       const model = buildModelIR(ir)
-      modelRegistry.register(ir.key, model)
+      registry.register(ir.key, model)
       return model
     })
+}
 
-  // pass 2: build operations
-  const operations = sls
+function buildOperations(
+  sls: ServerlessIR[],
+  registry: Registry<TypeSpecIR>,
+): TypeSpecOperationIR[] {
+  return sls
     .filter((ir) => ir.kind === "function")
-    .map((ir) => buildOperationIR(ir, modelRegistry))
-
-  // pass 3: merge models and operations
-  return [...operations, ...models]
+    .map((ir) => buildOperationIR(ir, registry))
 }
 
 export function buildModelIR(
