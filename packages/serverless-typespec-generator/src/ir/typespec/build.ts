@@ -42,8 +42,7 @@ export function buildModelIR(
   const { schema, name } = model
 
   if (schema.type === "array") {
-    const type = convertType(schema)
-    return { kind: "alias", name, type }
+    return { kind: "alias", name, type: buildArrayType(schema) }
   }
   if (schema.type === "object" || schema.allOf) {
     const props = extractProps(schema)
@@ -168,6 +167,10 @@ export function convertType(schema: JSONSchema): PropTypeIR {
     return { __union: types }
   }
 
+  if (schema.type === "array") {
+    return buildArrayType(schema)
+  }
+
   if (schema.type === "object" || schema.allOf) {
     return extractProps(schema)
   }
@@ -194,14 +197,16 @@ export function convertType(schema: JSONSchema): PropTypeIR {
       return "boolean"
     case "null":
       return "null"
-    case "array":
-      if (!schema.items || Array.isArray(schema.items)) {
-        throw new Error("Array 'items' must be a single schema object")
-      }
-      return [convertType(schema.items)]
     default:
       throw new Error(`Unknown type: ${schema.type}`)
   }
+}
+
+function buildArrayType(schema: JSONSchema): PropTypeIR[] {
+  if (!schema.items || Array.isArray(schema.items)) {
+    throw new Error("Array 'items' must be a single schema object")
+  }
+  return [convertType(schema.items)]
 }
 
 export function extractProps(schema: JSONSchema): PropsType {
