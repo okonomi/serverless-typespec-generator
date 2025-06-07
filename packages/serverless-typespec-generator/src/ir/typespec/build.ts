@@ -209,7 +209,7 @@ function buildArrayType(schema: JSONSchema): PropTypeIR[] {
   return [convertType(schema.items)]
 }
 
-export function extractProps(schema: JSONSchema): PropsType {
+function extractProps(schema: JSONSchema): PropsType {
   if (schema.allOf) {
     return mergeAllOfObjectSchemas(schema.allOf)
   }
