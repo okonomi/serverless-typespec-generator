@@ -372,6 +372,25 @@ describe("emitModel", () => {
         }
       `)
     })
+    it("with pattern containing quotes", async () => {
+      const model: TypeSpecModelIR = {
+        kind: "model",
+        name: "QuotePatternModel",
+        props: {
+          value: {
+            type: { __pattern: "^foo\"bar$", type: "string" },
+            required: true,
+          },
+        },
+      }
+      const result = emitModel(model)
+      expect(await normalizeTypeSpec(result)).toBe(dedent`
+        model QuotePatternModel {
+          @pattern("^foo\"bar$")
+          value: string;
+        }
+      `)
+    })
     it("with literal type", async () => {
       const model: TypeSpecModelIR = {
         kind: "model",
