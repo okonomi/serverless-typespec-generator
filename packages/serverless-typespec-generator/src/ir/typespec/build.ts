@@ -42,10 +42,10 @@ export function buildModelIR(
   const { schema, name } = model
 
   if (schema.type === "array") {
-    return { kind: "alias", name, type: buildArrayType(schema) }
+    return { kind: "alias", name, type: buildArrayTypeIR(schema) }
   }
   if (schema.type === "object" || schema.allOf) {
-    const props = extractProps(schema)
+    const props = buildPropsTypeIR(schema)
     return { kind: "model", name, props }
   }
 
@@ -86,7 +86,7 @@ export function buildOperationIR(
         }
       } else {
         operation.requestBody = {
-          type: convertType(body.schema),
+          type: buildPropTypeIR(body.schema),
           required: true,
         }
       }
@@ -134,7 +134,7 @@ export function buildOperationIR(
         }
         return {
           statusCode: res.statusCode,
-          body: convertType(res.body),
+          body: buildPropTypeIR(res.body),
         }
       })
     }
@@ -143,7 +143,7 @@ export function buildOperationIR(
   return operation
 }
 
-export function convertType(schema: JSONSchema): PropTypeIR {
+export function buildPropTypeIR(schema: JSONSchema): PropTypeIR {
   if (schema.enum) {
     const types: PropTypeIR[] = schema.enum.map((value) => {
       if (
@@ -163,26 +163,29 @@ export function convertType(schema: JSONSchema): PropTypeIR {
   }
 
   if (schema.oneOf) {
-    const types = schema.oneOf.map(convertType)
+    const types = schema.oneOf.map(buildPropTypeIR)
     return { __union: types }
   }
 
   if (schema.type === "array") {
-    return buildArrayType(schema)
+    return buildArrayTypeIR(schema)
   }
 
   if (schema.type === "object" || schema.allOf) {
-    return extractProps(schema)
+    return buildPropsTypeIR(schema)
   }
 
   if (schema.format) {
-    return { __format: schema.format, type: convertType({ type: schema.type }) }
+    return {
+      __format: schema.format,
+      type: buildPropTypeIR({ type: schema.type }),
+    }
   }
 
   if (schema.pattern) {
     return {
       __pattern: schema.pattern,
-      type: convertType({ type: schema.type }),
+      type: buildPropTypeIR({ type: schema.type }),
     }
   }
 
@@ -202,14 +205,14 @@ export function convertType(schema: JSONSchema): PropTypeIR {
   }
 }
 
-function buildArrayType(schema: JSONSchema): PropTypeIR[] {
+function buildArrayTypeIR(schema: JSONSchema): PropTypeIR[] {
   if (!schema.items || Array.isArray(schema.items)) {
     throw new Error("Array 'items' must be a single schema object")
   }
-  return [convertType(schema.items)]
+  return [buildPropTypeIR(schema.items)]
 }
 
-function extractProps(schema: JSONSchema): PropsType {
+function buildPropsTypeIR(schema: JSONSchema): PropsType {
   if (schema.allOf) {
     return mergeAllOfObjectSchemas(schema.allOf)
   }
@@ -221,7 +224,7 @@ function extractProps(schema: JSONSchema): PropsType {
 
   for (const [key, def] of Object.entries(schema.properties || {})) {
     props[key] = {
-      type: convertType(def),
+      type: buildPropTypeIR(def),
       required: required.has(key),
     }
     if (def.description) {
@@ -246,7 +249,7 @@ function mergeAllOfObjectSchemas(allOf: JSONSchema[]): PropsType {
         required.add(key)
       }
     }
-    props = { ...props, ...extractProps(subSchema) }
+    props = { ...props, ...buildPropsTypeIR(subSchema) }
   }
   for (const key of required) {
     if (key in props) {

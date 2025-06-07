@@ -9,8 +9,8 @@ import type { JSONSchema } from "~/types/json-schema"
 import {
   buildModelIR,
   buildOperationIR,
+  buildPropTypeIR,
   buildTypeSpecIR,
-  convertType,
 } from "./build"
 import type { PropTypeIR, TypeSpecIR, TypeSpecOperationIR } from "./type"
 
@@ -220,44 +220,44 @@ describe("buildModelIR", () => {
   })
 })
 
-describe("convertType", () => {
+describe("buildPropTypeIR", () => {
   it("should convert string type to string", () => {
     const schema: JSONSchema = { type: "string" }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toBe("string")
   })
   it("should convert integer type to numeric", () => {
     const schema: JSONSchema = { type: "integer" }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toBe("numeric")
   })
   it("should convert number type to numeric", () => {
     const schema: JSONSchema = { type: "number" }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toBe("numeric")
   })
   it("should convert boolean type to boolean", () => {
     const schema: JSONSchema = { type: "boolean" }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toBe("boolean")
   })
   it("should convert array type to array of string", () => {
     const schema: JSONSchema = { type: "array", items: { type: "string" } }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toStrictEqual(["string"])
   })
   it("should convert oneOf type to union of types", () => {
     const schema: JSONSchema = {
       oneOf: [{ type: "string" }, { type: "null" }],
     }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toStrictEqual<PropTypeIR>({ __union: ["string", "null"] })
   })
   it("should convert oneOf type with format to union of types with format", () => {
     const schema: JSONSchema = {
       oneOf: [{ type: "string", format: "date-time" }, { type: "null" }],
     }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toStrictEqual<PropTypeIR>({
       __union: [{ __format: "date-time", type: "string" }, "null"],
     })
@@ -266,7 +266,7 @@ describe("convertType", () => {
     const schema: JSONSchema = {
       oneOf: [{ type: "string", pattern: "^[a-z]+$" }, { type: "null" }],
     }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toStrictEqual<PropTypeIR>({
       __union: [{ __pattern: "^[a-z]+$", type: "string" }, "null"],
     })
@@ -276,7 +276,7 @@ describe("convertType", () => {
       type: "string",
       enum: ["red", "green", "blue"],
     }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toStrictEqual<PropTypeIR>({
       __union: [
         { __literal: "red" },
@@ -291,7 +291,7 @@ describe("convertType", () => {
       oneOf: [{ type: "string" }, { type: "null" }],
       enum: ["red", "green", "blue"],
     }
-    const result = convertType(schema)
+    const result = buildPropTypeIR(schema)
     expect(result).toStrictEqual<PropTypeIR>({
       __union: [
         { __literal: "red" },
