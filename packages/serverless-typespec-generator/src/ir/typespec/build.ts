@@ -15,8 +15,12 @@ import type {
   TypeSpecOperationIR,
 } from "./type"
 
+export class ModelRegistry extends Registry<
+  TypeSpecModelIR | TypeSpecAliasIR
+> {}
+
 export function buildTypeSpecIR(sls: ServerlessIR[]): TypeSpecIR[] {
-  const modelRegistry = new Registry<TypeSpecIR>()
+  const modelRegistry = new ModelRegistry()
 
   // pass 1: build models
   const models = sls
@@ -54,7 +58,7 @@ export function buildModelIR(
 
 export function buildOperationIR(
   func: ServerlessFunctionIR,
-  modelRegistry: Registry<TypeSpecIR>,
+  modelRegistry: ModelRegistry,
 ): TypeSpecOperationIR {
   const modelRef = (key: string): string => {
     return modelRegistry.get(key)?.name ?? key
