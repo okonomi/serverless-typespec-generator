@@ -121,7 +121,10 @@ options:
     const tspIrList = buildTypeSpecIR(slsIrList)
     const typespec = emitTypeSpec(tspIrList)
 
-    const header = emitTypeSpecHeader("Generated API")
+    const title =
+      this.serverless.service.custom?.typespecGenerator?.title ||
+      "Generated API"
+    const header = emitTypeSpecHeader(title)
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
