@@ -2,7 +2,7 @@ import "@typespec/http";
 
 using Http;
 
-@service(#{ title: "Generated API" })
+@service(#{ title: "Basic Service" })
 namespace GeneratedApi;
 
 @summary("Create user")
