@@ -121,9 +121,25 @@ options:
     const tspIrList = buildTypeSpecIR(slsIrList)
     const typespec = emitTypeSpec(tspIrList)
 
+    const header = emitTypeSpecHeader("Generated API")
+
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
-      typespec,
+      [header, typespec].join("\n"),
     )
   }
+}
+
+function emitTypeSpecHeader(title: string) {
+  const lines: string[] = []
+  lines.push('import "@typespec/http";')
+  lines.push("")
+  lines.push("using Http;")
+  lines.push("")
+
+  lines.push(`@service(#{ title: "${title}" })`)
+  lines.push("namespace GeneratedApi;")
+  lines.push("")
+
+  return lines.join("\n")
 }

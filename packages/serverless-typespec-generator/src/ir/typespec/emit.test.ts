@@ -50,13 +50,6 @@ describe("emitTypeSpec", () => {
     const result = emitTypeSpec(irList)
 
     const expected = dedent`
-      import "@typespec/http";
-
-      using Http;
-
-      @service(#{ title: "Generated API" })
-      namespace GeneratedApi;
-
       @route("/users")
       @post
       op createUser(
