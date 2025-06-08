@@ -72,7 +72,7 @@ export function emitNamespace(namespace: TypeSpecNamespaceIR): string {
   lines.push(`namespace ${namespace.name};`)
   lines.push("")
   lines.push("enum Versions {")
-  lines.push(`  v1: "${namespace.version}",`)
+  lines.push(`  ver: "${namespace.version}",`)
   lines.push("}")
   lines.push("")
 

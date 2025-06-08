@@ -9,7 +9,7 @@ using Versioning;
 namespace GeneratedApi;
 
 enum Versions {
-  v1: "1.0.0",
+  ver: "1.0.0",
 }
 
 @route("/users")

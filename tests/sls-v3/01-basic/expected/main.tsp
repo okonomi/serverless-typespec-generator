@@ -14,7 +14,7 @@ using Versioning;
 namespace BasicService;
 
 enum Versions {
-  v1: "1.1.0",
+  ver: "1.1.0",
 }
 
 @summary("Create user")
