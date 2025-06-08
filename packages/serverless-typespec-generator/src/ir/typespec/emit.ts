@@ -69,7 +69,7 @@ export function emitNamespace(namespace: TypeSpecNamespaceIR): string {
     lines.push('""")')
   }
   lines.push("@versioned(Versions)")
-  lines.push("namespace GeneratedApi;")
+  lines.push(`namespace ${namespace.name};`)
   lines.push("")
   lines.push("enum Versions {")
   lines.push(`  v1: "${namespace.version}",`)

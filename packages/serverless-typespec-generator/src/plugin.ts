@@ -80,6 +80,11 @@ export class ServerlessTypeSpecGenerator implements Plugin {
               description: "Title for the generated TypeSpec API",
               default: "Generated API",
             },
+            namespace: {
+              type: "string",
+              description: "Namespace for the generated TypeSpec API",
+              default: "GeneratedApi",
+            },
             description: {
               type: "string",
               description: "Description for the generated TypeSpec API",
@@ -150,11 +155,13 @@ options:
 function buildTypeSpecService(
   custom: Serverless["service"]["custom"],
 ): TypeSpecNamespaceIR {
+  const name = custom?.typespecGenerator?.namespace || "GeneratedApi"
   const serviceTitle = custom?.typespecGenerator?.title || "Generated API"
   const description = custom?.typespecGenerator?.description
   const version = custom?.typespecGenerator?.version || "1.0.0"
   const namespace: TypeSpecNamespaceIR = {
     kind: "namespace",
+    name,
     serviceTitle,
     version,
   }
