@@ -5,6 +5,7 @@
   "devDependencies": {
     "@typespec/http": "^1.0.1",
     "@typespec/openapi3": "^1.0.0",
+    "@typespec/versioning": "^0.70.0",
     "serverless": "^3.40.0",
     "serverless-typespec-generator": "workspace:*"
   }
