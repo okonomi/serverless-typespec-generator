@@ -62,7 +62,7 @@ export function emitIR(ir: TypeSpecIR): string {
 export function emitNamespace(namespace: TypeSpecNamespaceIR): string {
   const lines: string[] = []
 
-  lines.push(`@service(#{ title: "${namespace.title}" })`)
+  lines.push(`@service(#{ title: "${namespace.serviceTitle}" })`)
   if (namespace.description) {
     lines.push('@doc("""')
     lines.push(namespace.description)

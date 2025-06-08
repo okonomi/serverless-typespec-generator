@@ -6,8 +6,8 @@ export type TypeSpecIR =
 
 export type TypeSpecNamespaceIR = {
   kind: "namespace"
-  title: string
   description?: string
+  serviceTitle: string
   version?: string
 }
 

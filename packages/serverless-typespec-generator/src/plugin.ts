@@ -150,12 +150,12 @@ options:
 function buildTypeSpecService(
   custom: Serverless["service"]["custom"],
 ): TypeSpecNamespaceIR {
-  const title = custom?.typespecGenerator?.title || "Generated API"
+  const serviceTitle = custom?.typespecGenerator?.title || "Generated API"
   const description = custom?.typespecGenerator?.description
   const version = custom?.typespecGenerator?.version || "1.0.0"
   const namespace: TypeSpecNamespaceIR = {
     kind: "namespace",
-    title,
+    serviceTitle,
     version,
   }
   if (description) {
