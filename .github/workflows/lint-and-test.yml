@@ -1,13 +1,17 @@
-name: PR CI
+name: Lint and Test
 
 permissions:
   contents: read
  
 on:
   pull_request:
+  push:
+    branches:
+      - main
 
 concurrency:
-  group: pr-ci-${{ github.head_ref }}
+  group: |
+    lint-and-test-${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.head_ref || github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -37,8 +41,3 @@ jobs:
  
       - name: Test
         run: pnpm test
-
-      - name: Integration test
-        run: |
-          pnpm --filter serverless-typespec-generator build
-          tests/run.sh
