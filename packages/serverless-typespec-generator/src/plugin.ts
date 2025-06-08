@@ -2,7 +2,7 @@ import path from "node:path"
 import type Plugin from "serverless/classes/Plugin"
 import { buildServerlessIR } from "~/ir/serverless/build"
 import { buildTypeSpecIR } from "~/ir/typespec/build"
-import { emitTypeSpec } from "~/ir/typespec/emit"
+import { emitTypeSpec, emitTypeSpecHeader } from "~/ir/typespec/emit"
 import type { JSONSchema } from "~/types/json-schema"
 import type { Serverless } from "~/types/serverless"
 
@@ -74,6 +74,11 @@ export class ServerlessTypeSpecGenerator implements Plugin {
         typespecGenerator: {
           type: "object",
           properties: {
+            title: {
+              type: "string",
+              description: "Title for the generated TypeSpec API",
+              default: "Generated API",
+            },
             openapiVersion: {
               type: "string",
               description: "OpenAPI version to use for TypeSpec generation",
@@ -121,9 +126,14 @@ options:
     const tspIrList = buildTypeSpecIR(slsIrList)
     const typespec = emitTypeSpec(tspIrList)
 
+    const title =
+      this.serverless.service.custom?.typespecGenerator?.title ||
+      "Generated API"
+    const header = emitTypeSpecHeader(title)
+
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
-      typespec,
+      [header, typespec].join("\n"),
     )
   }
 }
