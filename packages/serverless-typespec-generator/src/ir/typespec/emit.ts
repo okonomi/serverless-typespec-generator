@@ -20,17 +20,15 @@ import {
 } from "./type"
 
 export function emitTypeSpecHeader(title: string) {
-  const lines: string[] = []
-  lines.push('import "@typespec/http";')
-  lines.push("")
-  lines.push("using Http;")
-  lines.push("")
-
-  lines.push(`@service(#{ title: "${title}" })`)
-  lines.push("namespace GeneratedApi;")
-  lines.push("")
-
-  return lines.join("\n")
+  return [
+    'import "@typespec/http";',
+    "",
+    "using Http;",
+    "",
+    `@service(#{ title: "${title}" })`,
+    "namespace GeneratedApi;",
+    "",
+  ].join("\n")
 }
 
 export function emitTypeSpec(irList: TypeSpecIR[]): string {
