@@ -60,19 +60,23 @@ export function emitIR(ir: TypeSpecIR): string {
 }
 
 export function emitService(service: TypeSpecServiceIR): string {
-  return [
-    `@service(#{ title: "${service.title}" })`,
-    '@doc("""',
-    service.description,
-    '""")',
-    "@versioned(Versions)",
-    "namespace GeneratedApi;",
-    "",
-    "enum Versions {",
-    `  v1: "${service.version}",`,
-    "}",
-    "",
-  ].join("\n")
+  const lines: string[] = []
+
+  lines.push(`@service(#{ title: "${service.title}" })`)
+  if (service.description) {
+    lines.push('@doc("""')
+    lines.push(service.description)
+    lines.push('""")')
+  }
+  lines.push("@versioned(Versions)")
+  lines.push("namespace GeneratedApi;")
+  lines.push("")
+  lines.push("enum Versions {")
+  lines.push(`  v1: "${service.version}",`)
+  lines.push("}")
+  lines.push("")
+
+  return lines.join("\n")
 }
 
 export function emitAlias(alias: TypeSpecAliasIR): string {
