@@ -7,6 +7,7 @@ import {
   type TypeSpecIR,
   type TypeSpecModelIR,
   type TypeSpecOperationIR,
+  type TypeSpecServiceIR,
   isArrayType,
   isFormatType,
   isHttpResponse,
@@ -19,28 +20,13 @@ import {
   isUnionType,
 } from "./type"
 
-export function emitTypeSpecHeader(
-  title: string,
-  description: string,
-  version: string,
-): string {
+export function emitTypeSpecHeader(): string {
   return [
     'import "@typespec/http";',
     'import "@typespec/versioning";',
     "",
     "using Http;",
     "using Versioning;",
-    "",
-    `@service(#{ title: "${title}" })`,
-    '@doc("""',
-    description,
-    '""")',
-    "@versioned(Versions)",
-    "namespace GeneratedApi;",
-    "",
-    "enum Versions {",
-    `  v1: "${version}",`,
-    "}",
     "",
   ].join("\n")
 }
@@ -57,6 +43,9 @@ export function emitTypeSpec(irList: TypeSpecIR[]): string {
 }
 
 export function emitIR(ir: TypeSpecIR): string {
+  if (ir.kind === "service") {
+    return emitService(ir)
+  }
   if (ir.kind === "model") {
     return emitModel(ir)
   }
@@ -68,6 +57,22 @@ export function emitIR(ir: TypeSpecIR): string {
   }
 
   throw new Error(`Unknown IR: ${ir}`)
+}
+
+export function emitService(service: TypeSpecServiceIR): string {
+  return [
+    `@service(#{ title: "${service.title}" })`,
+    '@doc("""',
+    service.description,
+    '""")',
+    "@versioned(Versions)",
+    "namespace GeneratedApi;",
+    "",
+    "enum Versions {",
+    `  v1: "${service.version}",`,
+    "}",
+    "",
+  ].join("\n")
 }
 
 export function emitAlias(alias: TypeSpecAliasIR): string {

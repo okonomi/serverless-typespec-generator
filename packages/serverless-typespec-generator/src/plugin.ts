@@ -5,6 +5,7 @@ import { buildTypeSpecIR } from "~/ir/typespec/build"
 import { emitTypeSpec, emitTypeSpecHeader } from "~/ir/typespec/emit"
 import type { JSONSchema } from "~/types/json-schema"
 import type { Serverless } from "~/types/serverless"
+import type { TypeSpecServiceIR } from "./ir/typespec/type"
 
 export class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
@@ -133,7 +134,6 @@ options:
   async generateTypeSpec(outputDir: string) {
     const slsIrList = buildServerlessIR(this.serverless)
     const tspIrList = buildTypeSpecIR(slsIrList)
-    const typespec = emitTypeSpec(tspIrList)
 
     const title =
       this.serverless.service.custom?.typespecGenerator?.title ||
@@ -142,7 +142,15 @@ options:
       this.serverless.service.custom?.typespecGenerator?.description || ""
     const version =
       this.serverless.service.custom?.typespecGenerator?.version || "1.0.0"
-    const header = emitTypeSpecHeader(title, description, version)
+    const service: TypeSpecServiceIR = {
+      kind: "service",
+      title,
+      description,
+      version,
+    }
+    const typespec = emitTypeSpec([service, ...tspIrList])
+
+    const header = emitTypeSpecHeader()
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
