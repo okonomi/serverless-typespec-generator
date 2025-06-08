@@ -13,6 +13,7 @@ provider:
 custom:
   typespecGenerator:
     title: Basic Service
+    version: 1.1.0
     openapiVersion: 3.0.0
 
 functions:

@@ -79,6 +79,11 @@ export class ServerlessTypeSpecGenerator implements Plugin {
               description: "Title for the generated TypeSpec API",
               default: "Generated API",
             },
+            version: {
+              type: "string",
+              description: "Version for the generated TypeSpec API",
+              default: "1.0.0",
+            },
             openapiVersion: {
               type: "string",
               description: "OpenAPI version to use for TypeSpec generation",
@@ -129,7 +134,9 @@ options:
     const title =
       this.serverless.service.custom?.typespecGenerator?.title ||
       "Generated API"
-    const header = emitTypeSpecHeader(title)
+    const version =
+      this.serverless.service.custom?.typespecGenerator?.version || "1.0.0"
+    const header = emitTypeSpecHeader(title, version)
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),

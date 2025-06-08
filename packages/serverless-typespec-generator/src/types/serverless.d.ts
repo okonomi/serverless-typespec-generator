@@ -81,6 +81,7 @@ type ServerlessServiceProviderWithSchemas = ReplaceByPath<
 type ServiceCustom = {
   typespecGenerator?: {
     title?: string
+    version?: string
     openapiVersion?: "3.0.0" | "3.1.0"
   }
 }

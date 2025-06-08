@@ -19,14 +19,21 @@ import {
   isUnionType,
 } from "./type"
 
-export function emitTypeSpecHeader(title: string) {
+export function emitTypeSpecHeader(title: string, version: string): string {
   return [
     'import "@typespec/http";',
+    'import "@typespec/versioning";',
     "",
     "using Http;",
+    "using Versioning;",
     "",
     `@service(#{ title: "${title}" })`,
+    "@versioned(Versions)",
     "namespace GeneratedApi;",
+    "",
+    "enum Versions {",
+    `  v1: "${version}",`,
+    "}",
     "",
   ].join("\n")
 }
