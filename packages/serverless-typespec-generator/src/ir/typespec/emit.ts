@@ -19,6 +19,20 @@ import {
   isUnionType,
 } from "./type"
 
+export function emitTypeSpecHeader(title: string) {
+  const lines: string[] = []
+  lines.push('import "@typespec/http";')
+  lines.push("")
+  lines.push("using Http;")
+  lines.push("")
+
+  lines.push(`@service(#{ title: "${title}" })`)
+  lines.push("namespace GeneratedApi;")
+  lines.push("")
+
+  return lines.join("\n")
+}
+
 export function emitTypeSpec(irList: TypeSpecIR[]): string {
   const lines: string[] = []
 

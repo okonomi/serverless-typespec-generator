@@ -2,7 +2,7 @@ import path from "node:path"
 import type Plugin from "serverless/classes/Plugin"
 import { buildServerlessIR } from "~/ir/serverless/build"
 import { buildTypeSpecIR } from "~/ir/typespec/build"
-import { emitTypeSpec } from "~/ir/typespec/emit"
+import { emitTypeSpec, emitTypeSpecHeader } from "~/ir/typespec/emit"
 import type { JSONSchema } from "~/types/json-schema"
 import type { Serverless } from "~/types/serverless"
 
@@ -74,6 +74,11 @@ export class ServerlessTypeSpecGenerator implements Plugin {
         typespecGenerator: {
           type: "object",
           properties: {
+            title: {
+              type: "string",
+              description: "Title for the generated TypeSpec API",
+              default: "Generated API",
+            },
             openapiVersion: {
               type: "string",
               description: "OpenAPI version to use for TypeSpec generation",
@@ -131,18 +136,4 @@ options:
       [header, typespec].join("\n"),
     )
   }
-}
-
-function emitTypeSpecHeader(title: string) {
-  const lines: string[] = []
-  lines.push('import "@typespec/http";')
-  lines.push("")
-  lines.push("using Http;")
-  lines.push("")
-
-  lines.push(`@service(#{ title: "${title}" })`)
-  lines.push("namespace GeneratedApi;")
-  lines.push("")
-
-  return lines.join("\n")
 }
