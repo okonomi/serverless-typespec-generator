@@ -9,7 +9,7 @@ using Versioning;
 namespace GeneratedApi;
 
 enum Versions {
-  v1: "1.0.0";
+  v1: "1.1.0",
 }
 
 @summary("Create user")
