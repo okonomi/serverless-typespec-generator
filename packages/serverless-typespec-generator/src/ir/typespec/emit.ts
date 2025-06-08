@@ -19,7 +19,11 @@ import {
   isUnionType,
 } from "./type"
 
-export function emitTypeSpecHeader(title: string, version: string): string {
+export function emitTypeSpecHeader(
+  title: string,
+  description: string,
+  version: string,
+): string {
   return [
     'import "@typespec/http";',
     'import "@typespec/versioning";',
@@ -28,6 +32,9 @@ export function emitTypeSpecHeader(title: string, version: string): string {
     "using Versioning;",
     "",
     `@service(#{ title: "${title}" })`,
+    '@doc("""',
+    description,
+    '""")',
     "@versioned(Versions)",
     "namespace GeneratedApi;",
     "",

@@ -5,6 +5,9 @@ using Http;
 using Versioning;
 
 @service(#{ title: "Generated API" })
+@doc("""
+  
+  """)
 @versioned(Versions)
 namespace GeneratedApi;
 
