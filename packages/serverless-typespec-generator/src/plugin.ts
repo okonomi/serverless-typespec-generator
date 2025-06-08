@@ -5,7 +5,7 @@ import { buildTypeSpecIR } from "~/ir/typespec/build"
 import { emitTypeSpec, emitTypeSpecHeader } from "~/ir/typespec/emit"
 import type { JSONSchema } from "~/types/json-schema"
 import type { Serverless } from "~/types/serverless"
-import type { TypeSpecServiceIR } from "./ir/typespec/type"
+import type { TypeSpecNamespaceIR } from "./ir/typespec/type"
 
 export class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
@@ -135,8 +135,8 @@ options:
     const slsIrList = buildServerlessIR(this.serverless)
     const tspIrList = buildTypeSpecIR(slsIrList)
 
-    const service = buildTypeSpecService(this.serverless.service.custom)
-    const typespec = emitTypeSpec([service, ...tspIrList])
+    const namespace = buildTypeSpecService(this.serverless.service.custom)
+    const typespec = emitTypeSpec([namespace, ...tspIrList])
 
     const header = emitTypeSpecHeader()
 
@@ -149,18 +149,18 @@ options:
 
 function buildTypeSpecService(
   custom: Serverless["service"]["custom"],
-): TypeSpecServiceIR {
+): TypeSpecNamespaceIR {
   const title = custom?.typespecGenerator?.title || "Generated API"
   const description = custom?.typespecGenerator?.description
   const version = custom?.typespecGenerator?.version || "1.0.0"
-  const service: TypeSpecServiceIR = {
-    kind: "service",
+  const namespace: TypeSpecNamespaceIR = {
+    kind: "namespace",
     title,
     version,
   }
   if (description) {
-    service.description = description
+    namespace.description = description
   }
 
-  return service
+  return namespace
 }

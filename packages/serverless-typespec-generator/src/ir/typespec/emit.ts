@@ -6,8 +6,8 @@ import {
   type TypeSpecAliasIR,
   type TypeSpecIR,
   type TypeSpecModelIR,
+  type TypeSpecNamespaceIR,
   type TypeSpecOperationIR,
-  type TypeSpecServiceIR,
   isArrayType,
   isFormatType,
   isHttpResponse,
@@ -43,8 +43,8 @@ export function emitTypeSpec(irList: TypeSpecIR[]): string {
 }
 
 export function emitIR(ir: TypeSpecIR): string {
-  if (ir.kind === "service") {
-    return emitService(ir)
+  if (ir.kind === "namespace") {
+    return emitNamespace(ir)
   }
   if (ir.kind === "model") {
     return emitModel(ir)
@@ -59,20 +59,20 @@ export function emitIR(ir: TypeSpecIR): string {
   throw new Error(`Unknown IR: ${ir}`)
 }
 
-export function emitService(service: TypeSpecServiceIR): string {
+export function emitNamespace(namespace: TypeSpecNamespaceIR): string {
   const lines: string[] = []
 
-  lines.push(`@service(#{ title: "${service.title}" })`)
-  if (service.description) {
+  lines.push(`@service(#{ title: "${namespace.title}" })`)
+  if (namespace.description) {
     lines.push('@doc("""')
-    lines.push(service.description)
+    lines.push(namespace.description)
     lines.push('""")')
   }
   lines.push("@versioned(Versions)")
   lines.push("namespace GeneratedApi;")
   lines.push("")
   lines.push("enum Versions {")
-  lines.push(`  v1: "${service.version}",`)
+  lines.push(`  v1: "${namespace.version}",`)
   lines.push("}")
   lines.push("")
 
