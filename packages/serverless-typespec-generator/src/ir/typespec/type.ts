@@ -1,4 +1,16 @@
-export type TypeSpecIR = TypeSpecAliasIR | TypeSpecModelIR | TypeSpecOperationIR
+export type TypeSpecIR =
+  | TypeSpecNamespaceIR
+  | TypeSpecAliasIR
+  | TypeSpecModelIR
+  | TypeSpecOperationIR
+
+export type TypeSpecNamespaceIR = {
+  kind: "namespace"
+  name: string
+  description?: string
+  serviceTitle: string
+  version?: string
+}
 
 export type TypeSpecAliasIR = {
   kind: "alias"

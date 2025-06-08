@@ -6,6 +6,7 @@ import {
   type TypeSpecAliasIR,
   type TypeSpecIR,
   type TypeSpecModelIR,
+  type TypeSpecNamespaceIR,
   type TypeSpecOperationIR,
   isArrayType,
   isFormatType,
@@ -19,28 +20,13 @@ import {
   isUnionType,
 } from "./type"
 
-export function emitTypeSpecHeader(
-  title: string,
-  description: string,
-  version: string,
-): string {
+export function emitTypeSpecHeader(): string {
   return [
     'import "@typespec/http";',
     'import "@typespec/versioning";',
     "",
     "using Http;",
     "using Versioning;",
-    "",
-    `@service(#{ title: "${title}" })`,
-    '@doc("""',
-    description,
-    '""")',
-    "@versioned(Versions)",
-    "namespace GeneratedApi;",
-    "",
-    "enum Versions {",
-    `  v1: "${version}",`,
-    "}",
     "",
   ].join("\n")
 }
@@ -57,6 +43,9 @@ export function emitTypeSpec(irList: TypeSpecIR[]): string {
 }
 
 export function emitIR(ir: TypeSpecIR): string {
+  if (ir.kind === "namespace") {
+    return emitNamespace(ir)
+  }
   if (ir.kind === "model") {
     return emitModel(ir)
   }
@@ -68,6 +57,26 @@ export function emitIR(ir: TypeSpecIR): string {
   }
 
   throw new Error(`Unknown IR: ${ir}`)
+}
+
+export function emitNamespace(namespace: TypeSpecNamespaceIR): string {
+  const lines: string[] = []
+
+  lines.push(`@service(#{ title: "${namespace.serviceTitle}" })`)
+  if (namespace.description) {
+    lines.push('@doc("""')
+    lines.push(namespace.description)
+    lines.push('""")')
+  }
+  lines.push("@versioned(Versions)")
+  lines.push(`namespace ${namespace.name};`)
+  lines.push("")
+  lines.push("enum Versions {")
+  lines.push(`  ver: "${namespace.version}",`)
+  lines.push("}")
+  lines.push("")
+
+  return lines.join("\n")
 }
 
 export function emitAlias(alias: TypeSpecAliasIR): string {

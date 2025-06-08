@@ -5,6 +5,7 @@ import { buildTypeSpecIR } from "~/ir/typespec/build"
 import { emitTypeSpec, emitTypeSpecHeader } from "~/ir/typespec/emit"
 import type { JSONSchema } from "~/types/json-schema"
 import type { Serverless } from "~/types/serverless"
+import type { TypeSpecNamespaceIR } from "./ir/typespec/type"
 
 export class ServerlessTypeSpecGenerator implements Plugin {
   hooks: Plugin.Hooks
@@ -79,6 +80,11 @@ export class ServerlessTypeSpecGenerator implements Plugin {
               description: "Title for the generated TypeSpec API",
               default: "Generated API",
             },
+            namespace: {
+              type: "string",
+              description: "Namespace for the generated TypeSpec API",
+              default: "GeneratedApi",
+            },
             description: {
               type: "string",
               description: "Description for the generated TypeSpec API",
@@ -133,20 +139,35 @@ options:
   async generateTypeSpec(outputDir: string) {
     const slsIrList = buildServerlessIR(this.serverless)
     const tspIrList = buildTypeSpecIR(slsIrList)
-    const typespec = emitTypeSpec(tspIrList)
 
-    const title =
-      this.serverless.service.custom?.typespecGenerator?.title ||
-      "Generated API"
-    const description =
-      this.serverless.service.custom?.typespecGenerator?.description || ""
-    const version =
-      this.serverless.service.custom?.typespecGenerator?.version || "1.0.0"
-    const header = emitTypeSpecHeader(title, description, version)
+    const namespace = buildTypeSpecService(this.serverless.service.custom)
+    const typespec = emitTypeSpec([namespace, ...tspIrList])
+
+    const header = emitTypeSpecHeader()
 
     await this.serverless.utils.writeFile(
       path.join(outputDir, "main.tsp"),
       [header, typespec].join("\n"),
     )
   }
+}
+
+function buildTypeSpecService(
+  custom: Serverless["service"]["custom"],
+): TypeSpecNamespaceIR {
+  const name = custom?.typespecGenerator?.namespace || "GeneratedApi"
+  const serviceTitle = custom?.typespecGenerator?.title || "Generated API"
+  const description = custom?.typespecGenerator?.description
+  const version = custom?.typespecGenerator?.version || "1.0.0"
+  const namespace: TypeSpecNamespaceIR = {
+    kind: "namespace",
+    name,
+    serviceTitle,
+    version,
+  }
+  if (description) {
+    namespace.description = description
+  }
+
+  return namespace
 }

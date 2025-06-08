@@ -11,10 +11,10 @@ using Versioning;
   It includes a simple user creation endpoint with validation and documentation.
   """)
 @versioned(Versions)
-namespace GeneratedApi;
+namespace BasicService;
 
 enum Versions {
-  v1: "1.1.0",
+  ver: "1.1.0",
 }
 
 @summary("Create user")
