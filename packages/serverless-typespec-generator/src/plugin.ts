@@ -135,19 +135,7 @@ options:
     const slsIrList = buildServerlessIR(this.serverless)
     const tspIrList = buildTypeSpecIR(slsIrList)
 
-    const title =
-      this.serverless.service.custom?.typespecGenerator?.title ||
-      "Generated API"
-    const description =
-      this.serverless.service.custom?.typespecGenerator?.description || ""
-    const version =
-      this.serverless.service.custom?.typespecGenerator?.version || "1.0.0"
-    const service: TypeSpecServiceIR = {
-      kind: "service",
-      title,
-      description,
-      version,
-    }
+    const service = buildTypeSpecService(this.serverless.service.custom)
     const typespec = emitTypeSpec([service, ...tspIrList])
 
     const header = emitTypeSpecHeader()
@@ -157,4 +145,22 @@ options:
       [header, typespec].join("\n"),
     )
   }
+}
+
+function buildTypeSpecService(
+  custom: Serverless["service"]["custom"],
+): TypeSpecServiceIR {
+  const title = custom?.typespecGenerator?.title || "Generated API"
+  const description = custom?.typespecGenerator?.description
+  const version = custom?.typespecGenerator?.version || "1.0.0"
+  const service: TypeSpecServiceIR = {
+    kind: "service",
+    title,
+    version,
+  }
+  if (description) {
+    service.description = description
+  }
+
+  return service
 }
