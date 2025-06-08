@@ -6,6 +6,11 @@ using Versioning;
 
 @service(#{ title: "Basic Service" })
 @versioned(Versions)
+@doc("""
+  This is a basic service that demonstrates how to use the Serverless Typespec Generator.
+
+  It includes a simple user creation endpoint with validation and documentation.
+  """)
 namespace GeneratedApi;
 
 enum Versions {
