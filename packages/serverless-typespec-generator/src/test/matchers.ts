@@ -12,16 +12,15 @@ expect.extend({
         })
       ).trimEnd()
     const receivedFormatted = await format(received)
-    const expectedFormatted = await format(expected)
-    const pass = receivedFormatted === expectedFormatted
+    const pass = receivedFormatted === expected
     return {
       pass,
       message: () =>
         pass
-          ? `expected TypeSpec not to equal\n${expectedFormatted}`
-          : `expected TypeSpec to equal\n${expectedFormatted}\n\nreceived:\n${receivedFormatted}`,
+          ? `expected TypeSpec not to equal\n${expected}`
+          : `expected TypeSpec to equal\n${expected}\n\nreceived:\n${receivedFormatted}`,
       actual: receivedFormatted,
-      expected: expectedFormatted,
+      expected: expected,
     }
   },
 })
