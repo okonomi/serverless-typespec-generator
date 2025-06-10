@@ -49,7 +49,7 @@ describe("emitTypeSpec", () => {
     ]
     const result = emitTypeSpec(irList)
 
-    const expected = dedent`
+    await expect(result).toTypeSpecEqual(dedent`
       @route("/users")
       @post
       op createUser(
@@ -68,9 +68,7 @@ describe("emitTypeSpec", () => {
       model CreateUserResponse {
         id: string;
       }
-    `
-
-    await expect(result).toTypeSpecEqual(expected)
+    `)
   })
 })
 
@@ -142,8 +140,8 @@ describe("emitAlias", () => {
       }
       const result = emitAlias(ir)
       await expect(result).toTypeSpecEqual(dedent`
-      alias Tags = string[];
-    `)
+        alias Tags = string[];
+      `)
     })
     it("with model and field's description", async () => {
       const ir: TypeSpecIR = {
@@ -183,8 +181,8 @@ describe("emitAlias", () => {
       }
       const result = emitAlias(ir)
       await expect(result).toTypeSpecEqual(dedent`
-      alias Status = "active";
-    `)
+        alias Status = "active";
+      `)
     })
   })
 })
@@ -202,11 +200,11 @@ describe("emitModel", () => {
       }
       const result = emitModel(model)
       await expect(result).toTypeSpecEqual(dedent`
-      model TestModel {
-        id: string;
-        age?: numeric;
-      }
-    `)
+        model TestModel {
+          id: string;
+          age?: numeric;
+        }
+      `)
     })
     it("with array properties", async () => {
       const model: TypeSpecModelIR = {
@@ -218,10 +216,10 @@ describe("emitModel", () => {
       }
       const result = emitModel(model)
       await expect(result).toTypeSpecEqual(dedent`
-      model ArrayModel {
-        tags: string[];
-      }
-    `)
+        model ArrayModel {
+          tags: string[];
+        }
+      `)
     })
     it("with object properties", async () => {
       const model: TypeSpecModelIR = {
@@ -238,12 +236,12 @@ describe("emitModel", () => {
       }
       const result = emitModel(model)
       await expect(result).toTypeSpecEqual(dedent`
-      model ObjectModel {
-        meta: {
-          name: string;
-        };
-      }
-    `)
+        model ObjectModel {
+          meta: {
+            name: string;
+          };
+        }
+      `)
     })
     it("with mixed properties", async () => {
       const model: TypeSpecModelIR = {
@@ -262,14 +260,14 @@ describe("emitModel", () => {
       }
       const result = emitModel(model)
       await expect(result).toTypeSpecEqual(dedent`
-      model MixedModel {
-        active: boolean;
-        tags?: string[];
-        meta?: {
-          name: string;
-        };
-      }
-    `)
+        model MixedModel {
+          active: boolean;
+          tags?: string[];
+          meta?: {
+            name: string;
+          };
+        }
+      `)
     })
     it("with field's description", async () => {
       const model: TypeSpecModelIR = {
@@ -290,18 +288,18 @@ describe("emitModel", () => {
       }
       const result = emitModel(model)
       await expect(result).toTypeSpecEqual(dedent`
-      model TestModel {
-        @doc("""
-          User ID
-          """)
-        id: string;
+        model TestModel {
+          @doc("""
+            User ID
+            """)
+          id: string;
 
-        @doc("""
-          User age
-          """)
-        age?: numeric;
-      }
-    `)
+          @doc("""
+            User age
+            """)
+          age?: numeric;
+        }
+      `)
     })
     it("with format type", async () => {
       const model: TypeSpecModelIR = {
@@ -411,20 +409,20 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users")
-      @post
-      op createUser(
-        @body
-        body: {
+        @route("/users")
+        @post
+        op createUser(
+          @body
+          body: {
+            name: string;
+            email: string;
+          },
+        ): {
+          id: string;
           name: string;
           email: string;
-        },
-      ): {
-        id: string;
-        name: string;
-        email: string;
-      };
-    `)
+        };
+      `)
     })
     it("with no request body", async () => {
       const operation: TypeSpecOperationIR = {
@@ -440,14 +438,14 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): {
-        id: string;
-        name: string;
-        email: string;
-      };
-    `)
+        @route("/users/{id}")
+        @get
+        op getUser(): {
+          id: string;
+          name: string;
+          email: string;
+        };
+      `)
     })
     it("with array response", async () => {
       const operation: TypeSpecOperationIR = {
@@ -465,14 +463,14 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users")
-      @get
-      op getUsers(): {
-        id: string;
-        name: string;
-        email: string;
-      }[];
-    `)
+        @route("/users")
+        @get
+        op getUsers(): {
+          id: string;
+          name: string;
+          email: string;
+        }[];
+      `)
     })
     it("with external model", async () => {
       const operation: TypeSpecOperationIR = {
@@ -486,10 +484,10 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): User;
-    `)
+        @route("/users/{id}")
+        @get
+        op getUser(): User;
+      `)
     })
     it("with union model", async () => {
       const operation: TypeSpecOperationIR = {
@@ -513,17 +511,17 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): {
-        id: string;
-        name: string;
-        email: string;
-      } | {
-        code: string;
-        message: string;
-      };
-    `)
+        @route("/users/{id}")
+        @get
+        op getUser(): {
+          id: string;
+          name: string;
+          email: string;
+        } | {
+          code: string;
+          message: string;
+        };
+      `)
     })
     it("with http response", async () => {
       const operation: TypeSpecOperationIR = {
@@ -544,17 +542,17 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): {
-        @statusCode statusCode: 200;
-        @body body: {
-          id: string;
-          name: string;
-          email: string;
+        @route("/users/{id}")
+        @get
+        op getUser(): {
+          @statusCode statusCode: 200;
+          @body body: {
+            id: string;
+            name: string;
+            email: string;
+          };
         };
-      };
-    `)
+      `)
     })
     it("with http response with array", async () => {
       const operation: TypeSpecOperationIR = {
@@ -577,17 +575,17 @@ describe("emitOperation", () => {
       }
       const result = emitOperation(operation)
       await expect(result).toTypeSpecEqual(dedent`
-      @route("/users")
-      @get
-      op getUsers(): {
-        @statusCode statusCode: 200;
-        @body body: {
-          id: string;
-          name: string;
-          email: string;
-        }[];
-      };
-    `)
+        @route("/users")
+        @get
+        op getUsers(): {
+          @statusCode statusCode: 200;
+          @body body: {
+            id: string;
+            name: string;
+            email: string;
+          }[];
+        };
+      `)
     })
     it("with path parameters", async () => {
       const operation: TypeSpecOperationIR = {
