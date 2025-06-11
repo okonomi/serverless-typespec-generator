@@ -1,6 +1,6 @@
 import dedent from "dedent"
 import { describe, expect, it } from "vitest"
-import { normalizeTypeSpec } from "~/test/helper"
+import "~/test/matchers"
 import {
   emitAlias,
   emitIR,
@@ -49,7 +49,7 @@ describe("emitTypeSpec", () => {
     ]
     const result = emitTypeSpec(irList)
 
-    const expected = dedent`
+    await expect(result).toTypeSpecEqual(dedent`
       @route("/users")
       @post
       op createUser(
@@ -68,9 +68,7 @@ describe("emitTypeSpec", () => {
       model CreateUserResponse {
         id: string;
       }
-    `
-
-    expect(await normalizeTypeSpec(result)).toBe(expected)
+    `)
   })
 })
 
@@ -86,7 +84,7 @@ describe("emitIR", () => {
         },
       }
       const result = emitIR(ir)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         model TestModel {
           id: string;
           age?: numeric;
@@ -113,7 +111,7 @@ describe("emitIR", () => {
         },
       }
       const result = emitIR(ir)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         @route("/users")
         @post
         op createUser(
@@ -141,9 +139,9 @@ describe("emitAlias", () => {
         type: ["string"],
       }
       const result = emitAlias(ir)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      alias Tags = string[];
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        alias Tags = string[];
+      `)
     })
     it("with model and field's description", async () => {
       const ir: TypeSpecIR = {
@@ -161,7 +159,7 @@ describe("emitAlias", () => {
         ],
       }
       const result = emitAlias(ir)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         alias Users = {
           @doc("""
             User ID
@@ -182,9 +180,9 @@ describe("emitAlias", () => {
         type: { __literal: "active" },
       }
       const result = emitAlias(ir)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      alias Status = "active";
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        alias Status = "active";
+      `)
     })
   })
 })
@@ -201,12 +199,12 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model TestModel {
-        id: string;
-        age?: numeric;
-      }
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        model TestModel {
+          id: string;
+          age?: numeric;
+        }
+      `)
     })
     it("with array properties", async () => {
       const model: TypeSpecModelIR = {
@@ -217,11 +215,11 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model ArrayModel {
-        tags: string[];
-      }
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        model ArrayModel {
+          tags: string[];
+        }
+      `)
     })
     it("with object properties", async () => {
       const model: TypeSpecModelIR = {
@@ -237,13 +235,13 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model ObjectModel {
-        meta: {
-          name: string;
-        };
-      }
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        model ObjectModel {
+          meta: {
+            name: string;
+          };
+        }
+      `)
     })
     it("with mixed properties", async () => {
       const model: TypeSpecModelIR = {
@@ -261,15 +259,15 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model MixedModel {
-        active: boolean;
-        tags?: string[];
-        meta?: {
-          name: string;
-        };
-      }
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        model MixedModel {
+          active: boolean;
+          tags?: string[];
+          meta?: {
+            name: string;
+          };
+        }
+      `)
     })
     it("with field's description", async () => {
       const model: TypeSpecModelIR = {
@@ -289,19 +287,19 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      model TestModel {
-        @doc("""
-          User ID
-          """)
-        id: string;
+      await expect(result).toTypeSpecEqual(dedent`
+        model TestModel {
+          @doc("""
+            User ID
+            """)
+          id: string;
 
-        @doc("""
-          User age
-          """)
-        age?: numeric;
-      }
-    `)
+          @doc("""
+            User age
+            """)
+          age?: numeric;
+        }
+      `)
     })
     it("with format type", async () => {
       const model: TypeSpecModelIR = {
@@ -315,7 +313,7 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         model DateModel {
           @format("date-time")
           createdAt: string;
@@ -337,7 +335,7 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         model UserModel {
           id: string;
 
@@ -358,7 +356,7 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         model PatternModel {
           @pattern("^[a-zA-Z0-9_]{3,16}\\d{2}$")
           username: string;
@@ -379,7 +377,7 @@ describe("emitModel", () => {
         },
       }
       const result = emitModel(model)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         model LiteralModel {
           status: "active" | "inactive";
         }
@@ -410,21 +408,21 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users")
-      @post
-      op createUser(
-        @body
-        body: {
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users")
+        @post
+        op createUser(
+          @body
+          body: {
+            name: string;
+            email: string;
+          },
+        ): {
+          id: string;
           name: string;
           email: string;
-        },
-      ): {
-        id: string;
-        name: string;
-        email: string;
-      };
-    `)
+        };
+      `)
     })
     it("with no request body", async () => {
       const operation: TypeSpecOperationIR = {
@@ -439,15 +437,15 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): {
-        id: string;
-        name: string;
-        email: string;
-      };
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users/{id}")
+        @get
+        op getUser(): {
+          id: string;
+          name: string;
+          email: string;
+        };
+      `)
     })
     it("with array response", async () => {
       const operation: TypeSpecOperationIR = {
@@ -464,15 +462,15 @@ describe("emitOperation", () => {
         ],
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users")
-      @get
-      op getUsers(): {
-        id: string;
-        name: string;
-        email: string;
-      }[];
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users")
+        @get
+        op getUsers(): {
+          id: string;
+          name: string;
+          email: string;
+        }[];
+      `)
     })
     it("with external model", async () => {
       const operation: TypeSpecOperationIR = {
@@ -485,11 +483,11 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): User;
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users/{id}")
+        @get
+        op getUser(): User;
+      `)
     })
     it("with union model", async () => {
       const operation: TypeSpecOperationIR = {
@@ -512,18 +510,18 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): {
-        id: string;
-        name: string;
-        email: string;
-      } | {
-        code: string;
-        message: string;
-      };
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users/{id}")
+        @get
+        op getUser(): {
+          id: string;
+          name: string;
+          email: string;
+        } | {
+          code: string;
+          message: string;
+        };
+      `)
     })
     it("with http response", async () => {
       const operation: TypeSpecOperationIR = {
@@ -543,18 +541,18 @@ describe("emitOperation", () => {
         ],
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users/{id}")
-      @get
-      op getUser(): {
-        @statusCode statusCode: 200;
-        @body body: {
-          id: string;
-          name: string;
-          email: string;
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users/{id}")
+        @get
+        op getUser(): {
+          @statusCode statusCode: 200;
+          @body body: {
+            id: string;
+            name: string;
+            email: string;
+          };
         };
-      };
-    `)
+      `)
     })
     it("with http response with array", async () => {
       const operation: TypeSpecOperationIR = {
@@ -576,18 +574,18 @@ describe("emitOperation", () => {
         ],
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
-      @route("/users")
-      @get
-      op getUsers(): {
-        @statusCode statusCode: 200;
-        @body body: {
-          id: string;
-          name: string;
-          email: string;
-        }[];
-      };
-    `)
+      await expect(result).toTypeSpecEqual(dedent`
+        @route("/users")
+        @get
+        op getUsers(): {
+          @statusCode statusCode: 200;
+          @body body: {
+            id: string;
+            name: string;
+            email: string;
+          }[];
+        };
+      `)
     })
     it("with path parameters", async () => {
       const operation: TypeSpecOperationIR = {
@@ -604,7 +602,7 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         @route("/users/{id}")
         @get
         op getUser(
@@ -625,7 +623,7 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         @summary("Say hello")
         @route("/hello")
         @get
@@ -646,7 +644,7 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         @doc("""
           Say hello
           """)
@@ -678,7 +676,7 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         @route("/users")
         @post
         op createUser(
@@ -712,7 +710,7 @@ describe("emitOperation", () => {
         },
       }
       const result = emitOperation(operation)
-      expect(await normalizeTypeSpec(result)).toBe(dedent`
+      await expect(result).toTypeSpecEqual(dedent`
         @route("/users/{id}")
         @get
         op getUser(
