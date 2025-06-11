@@ -26,6 +26,7 @@ expect.extend({
 })
 
 declare module "vitest" {
+  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
   interface Assertion<T = any> {
     toTypeSpecEqual(expected: string): Promise<void>
   }
